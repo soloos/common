@@ -1,0 +1,8 @@
+
+bench-tinyiron:
+	cd src/soloos/tinyiron/ && go test -bench=. -benchmem 
+
+bench-util-offheap:
+	cd src/soloos/util/offheap/ && go test -bench=. -benchmem 
+
+bench: bench-tinyiron bench-util-offheap

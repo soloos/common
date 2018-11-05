@@ -1,0 +1,3 @@
+[submodule "3rdlib/github.com/stretchr/testify"]
+	path = 3rdlib/github.com/stretchr/testify
+	url = https://github.com/stretchr/testify.git

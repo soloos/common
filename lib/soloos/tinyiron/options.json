@@ -1,0 +1,13 @@
+{
+  "RunMode": "dev",
+  "ServeType": "server",
+  "ListenStr": "127.0.0.1:7812",
+  "LogPath": "./test.log",
+  "AccessWhiteList": "",
+
+  "SiteViewDir": "./",
+  "SiteStaticBaseUrl": "http://127.0.0.1:7812/",
+  "SiteStaticBasePath": "./",
+  "SiteStaticUploadBaseUrl": "http://127.0.0.1:7812/",
+  "SiteStaticUploadBasePath": "./"
+}
