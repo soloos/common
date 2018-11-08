@@ -50,6 +50,20 @@ func (p *MockChunkPool) AllocChunk() ChunkUintptr {
 	return uChunk
 }
 
+func BenchmarkChunkPool(b *testing.B) {
+	var (
+		offheapDriver    OffheapDriver
+		mockChunkPool    MockChunkPool
+		chunkPoolOptions = MakeDefaultTestChunkPoolOptions(10)
+	)
+
+	offheapDriver.Init()
+	mockChunkPool.Init(make(map[int32]ChunkUintptr), chunkPoolOptions, &offheapDriver)
+	for n := 0; n < b.N; n++ {
+		mockChunkPool.AllocChunk()
+	}
+}
+
 func TestChunkPool(t *testing.T) {
 	var (
 		offheapDriver    OffheapDriver
@@ -64,18 +78,4 @@ func TestChunkPool(t *testing.T) {
 	assert.NotNil(t, uChunk)
 
 	mockChunkPool.chunkPool.ReleaseChunk(uChunk)
-}
-
-func BenchmarkChunkPool(b *testing.B) {
-	var (
-		offheapDriver    OffheapDriver
-		mockChunkPool    MockChunkPool
-		chunkPoolOptions = MakeDefaultTestChunkPoolOptions(10)
-	)
-
-	offheapDriver.Init()
-	mockChunkPool.Init(make(map[int32]ChunkUintptr), chunkPoolOptions, &offheapDriver)
-	for n := 0; n < b.N; n++ {
-		mockChunkPool.AllocChunk()
-	}
 }

@@ -1,6 +1,6 @@
 package offheap
 
-func (p *ChunkPool) grawMmapBytesList() error {
+func (p *RawChunkPool) grawMmapBytesList() error {
 	mmapBytes, err := AllocMmapBytes(int(p.perMmapBytesSize))
 	if err != nil {
 		return err

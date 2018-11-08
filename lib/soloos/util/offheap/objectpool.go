@@ -43,7 +43,7 @@ func (p *ObjectPool) ReleaseObject(uObject uintptr) {
 	p.memChunkPool.ReleaseChunk(ChunkUintptr(uObject - ChunkStructSize))
 }
 
-// MustGetChunk get or init a filechunk
+// MustGetChunk get or init a chunk
 // The last result is true if the value was loaded, false if alloc.
 func (p *ObjectPool) MustGetObject(id interface{}) (uintptr, bool) {
 	var (
