@@ -1,8 +1,11 @@
 
+test-snet-srpc:
+	go test soloos/snet/srpc
+
 test-tinyiron:
 	go test soloos/tinyiron
 
 test-util-offheap:
 	go test soloos/util/offheap
 
-test: test-tinyiron test-util-offheap
+test: test-snet-srpc test-tinyiron test-util-offheap

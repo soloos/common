@@ -1,10 +1,14 @@
 COMMON_LDFLAGS=""
 COMMON_PREFIX=""
 
-all:sdfsd
+SOLOOS_SNET_PROTOS = $(shell find protocol/soloos/snet -name '*.fbs')
+GENERATED_PROTOS = $(shell find protocol/soloos -name "*.fbs"| sed 's/\.fbs/\.fbs\.go/g')
+SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
 
-sdfsd:
-	$(COMMON_PREFIX) go build -i -ldflags '$(COMMON_LDFLAGS)' -o ./bin/sdfsd sdfsd
+%.fbs.go: $(SOLOOS_SNET_PROTOS)
+	flatc -o ./lib/soloos/snet -g $(SOLOOS_SNET_PROTOS)
+
+fbs: $(GENERATED_PROTOS)
 
 include ./make/test
 include ./make/bench

@@ -1,0 +1,16 @@
+namespace protocol;
+
+table MessageTest0 {
+    data0:string;
+}
+
+table MessageTest1 {
+    data0:string;
+    data1:int;
+}
+
+table MessageTest2 {
+    data0:string;
+    data1:int;
+    data2:string;
+}

@@ -1,8 +1,11 @@
 
+bench-snet-srpc:
+	cd src/soloos/snet/srpc/ && go test -bench=. -benchmem 
+
 bench-tinyiron:
 	cd src/soloos/tinyiron/ && go test -bench=. -benchmem 
 
 bench-util-offheap:
 	cd src/soloos/util/offheap/ && go test -bench=. -benchmem 
 
-bench: bench-tinyiron bench-util-offheap
+bench: bench-snet-srpc bench-tinyiron bench-util-offheap

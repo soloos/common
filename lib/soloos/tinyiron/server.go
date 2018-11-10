@@ -27,7 +27,12 @@ type Server struct {
 }
 
 func NewServer() *Server {
-	p := &Server{}
+	var ret = new(Server)
+	ret.Init()
+	return ret
+}
+
+func (p *Server) Init() error {
 	p.views = make(map[string]*View)
 	p.httpMux = p.NewServeMux()
 
@@ -53,7 +58,7 @@ func NewServer() *Server {
 
 	http2.ConfigureServer(p.httpServer, &http2.Server{})
 
-	return p
+	return nil
 }
 
 func (p *Server) SetRequestSeter(requestSeter SetReuqestFunc) {
