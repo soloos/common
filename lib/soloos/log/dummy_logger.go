@@ -2,6 +2,9 @@ package log
 
 type dummyLogger struct{}
 
+func (l *dummyLogger) SetLevel(level int) {
+}
+
 func (l *dummyLogger) SetFlags(flag int) {
 }
 

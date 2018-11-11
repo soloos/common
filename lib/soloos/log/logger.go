@@ -10,6 +10,14 @@ const (
 )
 
 const (
+	LDebug = iota
+	LInfo
+	LWarn
+	LError
+	LFatal
+)
+
+const (
 	Ldate         = log.Ldate
 	Ltime         = log.Ltime
 	Lmicroseconds = log.Lmicroseconds
@@ -19,9 +27,10 @@ const (
 	LstdFlags     = Ldate | Ltime
 )
 
-var l Logger = &defaultLogger{log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile)}
+var l Logger = &defaultLogger{LInfo, log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile)}
 
 type Logger interface {
+	SetLevel(level int)
 	SetFlags(flag int)
 
 	Debug(v ...interface{})
@@ -45,6 +54,10 @@ type Logger interface {
 
 func SetLogger(logger Logger) {
 	l = logger
+}
+
+func SetLevel(level int) {
+	l.SetLevel(level)
 }
 
 func SetFlags(flag int) {

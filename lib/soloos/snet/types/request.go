@@ -2,10 +2,12 @@ package types
 
 import (
 	"encoding/binary"
+	"unsafe"
 )
 
 const (
 	RequestHeaderBaseSize = 14
+	RequestHeaderSize     = uint32(unsafe.Sizeof(RequestHeader{}))
 )
 
 type RequestHeader [RequestHeaderBaseSize + ServiceIDLen]byte
@@ -58,8 +60,8 @@ func (p *RequestHeader) SetContentLen(contentLen uint32) {
 	binary.BigEndian.PutUint32(p[10:14], contentLen)
 }
 
-func (p *RequestHeader) ServiceID() (ret ServiceID) {
-	copy(ret[:], p[14:14+ServiceIDLen])
+func (p *RequestHeader) ServiceID(ret *ServiceID) {
+	copy((*ret)[:], p[14:14+ServiceIDLen])
 	return
 }
 
@@ -67,7 +69,8 @@ func (p *RequestHeader) SetServiceID(serviceID string) {
 	copy(p[14:14+ServiceIDLen], []byte(serviceID))
 }
 
-type ClientRequest struct {
+type Request struct {
+	ID          uint64
 	Body        []byte
 	OffheapBody OffheapFastCopyer
 }

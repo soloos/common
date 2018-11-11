@@ -1,63 +1,81 @@
 package srpc
 
 import (
-	"io"
 	"soloos/snet/types"
+	"soloos/util/offheap"
 )
 
 type ClientDriver struct {
-	maxRequestID uint64
+	offheapDriver      *offheap.OffheapDriver
+	netConnReadSigPool offheap.RawObjectPool
+	clients            map[types.PeerUintptr]*Client
 }
 
-func (p *ClientDriver) Init() error {
+var _ = types.RpcClientDriver(&ClientDriver{})
+
+func (p *ClientDriver) Init(offheapDriver *offheap.OffheapDriver) error {
+	var err error
+
+	p.offheapDriver = offheapDriver
+	err = p.offheapDriver.InitRawObjectPool(&p.netConnReadSigPool, int(offheap.MutexStrutSize), -1, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	p.clients = make(map[types.PeerUintptr]*Client)
+
 	return nil
 }
 
-func (p *ClientDriver) Call(client *Client,
-	serviceID string,
-	request *types.ClientRequest,
-	response *types.ClientResponse) error {
+func (p *ClientDriver) RegisterClient(uPeer types.PeerUintptr) error {
 	var (
-		err error
+		client = &Client{}
+		err    error
+	)
+	err = client.Init(p, uPeer.Ptr().AddressStr())
+	if err != nil {
+		return err
+	}
+
+	err = client.Start()
+	if err != nil {
+		return err
+	}
+
+	p.clients[uPeer] = client
+
+	return nil
+}
+
+func (p *ClientDriver) sendCloseCmd(client *Client) error {
+	var (
+		request types.Request
+		err     error
 	)
 
-	// post data
-	var requestHeader types.RequestHeader
-	requestHeader.SetID(p.maxRequestID)
-	requestHeader.SetVersion(types.SNetVersion)
-	requestHeader.SetContentLen(uint32(len(request.Body) +
-		(request.OffheapBody.CopyEnd - request.OffheapBody.CopyOffset)))
-	requestHeader.SetServiceID(serviceID)
-	p.maxRequestID++
-
-	err = client.Conn.WriteAll(requestHeader[:])
+	err = client.Write(client.AllocRequestID(), "/Close", &request)
 	if err != nil {
 		return err
 	}
 
-	if request.Body != nil {
-		err = client.Conn.WriteAll(request.Body)
-		if err != nil {
-			return err
-		}
-	}
+	return nil
+}
 
-	for {
-		err = request.OffheapBody.Copy(&client.Conn)
-		if err == io.EOF {
-			break
-		}
-	}
+func (p *ClientDriver) CloseClient(uPeer types.PeerUintptr) error {
+	var (
+		client = p.clients[uPeer]
+		err    error
+	)
 
-	// fetch data
-	client.Conn.ContinueReadSig.Add(1)
-	var responseHeader types.ResponseHeader
-	err = client.Conn.ReadResponseHeader(&responseHeader)
+	err = p.sendCloseCmd(client)
 	if err != nil {
 		return err
 	}
 
-	response.BodySize = responseHeader.ContentLen()
-	client.Conn.LastRequestReadLimit = response.BodySize
+	err = client.Close()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

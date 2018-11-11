@@ -45,7 +45,7 @@ func (p *ChunkPool) Init(id int32, options ChunkPoolOptions) error {
 		p.perMmapBytesSize = int(math.Ceil(float64(p.options.ChunksLimit)/float64(16))) * int(p.perChunkWithStructSize)
 	}
 
-	err = p.grawMmapBytesList()
+	err = p.growMmapBytesList()
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (p *ChunkPool) mallocChunk() uintptr {
 		err              error
 	)
 
-	// step1 graw mem if need
+	// step1 grow mem if need
 	if err == nil {
 		currentMmapBytes = p.currentMmapBytes
 		end = atomic.AddUintptr(&currentMmapBytes.readOff, p.perChunkWithStructSize)
@@ -77,7 +77,7 @@ func (p *ChunkPool) mallocChunk() uintptr {
 				goto STEP1_DONE
 			}
 
-			err = p.grawMmapBytesList()
+			err = p.growMmapBytesList()
 			if err != nil {
 				p.chunksMutex.Unlock()
 				goto STEP1_DONE
@@ -105,7 +105,9 @@ STEP1_DONE:
 		panic("malloc chunk error")
 	}
 
-	p.options.ChunkPoolInvokePrepareNewChunk(uChunk)
+	if p.options.ChunkPoolInvokePrepareNewChunk != nil {
+		p.options.ChunkPoolInvokePrepareNewChunk(uChunk)
+	}
 	return uintptr(uChunk)
 }
 

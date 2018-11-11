@@ -1,7 +1,6 @@
 package types
 
 import (
-	"io"
 	"reflect"
 	"unsafe"
 )
@@ -12,13 +11,18 @@ type OffheapFastCopyer struct {
 	CopyEnd      int
 }
 
+func (p *OffheapFastCopyer) ContentLen() int {
+	return p.CopyEnd - p.CopyOffset
+}
+
 func (p *OffheapFastCopyer) Copy(conn *Connection) error {
 	if p.OffheapBytes.Data == 0 {
-		return io.EOF
+		return nil
 	}
 
 	if p.CopyOffset >= p.CopyEnd {
-		return io.EOF
+		return nil
 	}
+
 	return conn.WriteAll((*((*[]byte)(unsafe.Pointer(&p.OffheapBytes))))[p.CopyOffset:p.CopyEnd])
 }

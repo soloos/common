@@ -2,10 +2,13 @@ package types
 
 import (
 	"encoding/binary"
+	"soloos/util/offheap"
+	"unsafe"
 )
 
 const (
 	ResponseHeaderBaseSize = 14
+	ResponseHeaderSize     = uint32(unsafe.Sizeof(ResponseHeader{}))
 )
 
 type ResponseHeader [ResponseHeaderBaseSize]byte
@@ -34,6 +37,7 @@ func (p *ResponseHeader) SetContentLen(contentLen uint32) {
 	binary.BigEndian.PutUint32(p[10:14], contentLen)
 }
 
-type ClientResponse struct {
-	BodySize uint32
+type Response struct {
+	BodySize       uint32
+	NetConnReadSig offheap.MutexUintptr
 }
