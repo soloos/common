@@ -28,14 +28,12 @@ func (p *MockOffheapDriver) InitChunkPool(chunkSize int, chunksLimit int32) erro
 	var err error
 
 	mockChunkPool := new(MockChunkPool)
-	options := MakeDefaultTestChunkPoolOptions(chunkSize)
-	options.ChunksLimit = chunksLimit
-	err = mockChunkPool.Init(p.chunks, options, p.offheapDriver)
+	err = mockChunkPool.Init(p.chunks, p.offheapDriver, chunkSize, chunksLimit)
 	if err != nil {
 		return err
 	}
 
-	p.mockChunkPools[int32(options.ChunkSize)] = mockChunkPool
+	p.mockChunkPools[int32(chunkSize)] = mockChunkPool
 	return nil
 }
 

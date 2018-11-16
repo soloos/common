@@ -8,6 +8,7 @@ import (
 
 type Server struct {
 	MaxMessageLength uint32
+	ln               net.Listener
 	network          string
 	address          string
 	services         map[types.ServiceID]types.Service
@@ -31,16 +32,13 @@ func (p *Server) RegisterService(serviceIDStr string, service types.Service) {
 }
 
 func (p *Server) Serve() error {
-	var (
-		ln  net.Listener
-		err error
-	)
-	ln, err = makeListener(p.network, p.address)
+	var err error
+	p.ln, err = makeListener(p.network, p.address)
 	if err != nil {
 		return err
 	}
 
-	p.serveListener(ln)
+	p.serveListener(p.ln)
 
 	return nil
 }
@@ -63,12 +61,12 @@ func (p *Server) serveListener(ln net.Listener) error {
 
 func (p *Server) serveConn(netConn net.Conn) {
 	var (
-		conn      types.Connection
-		header    types.RequestHeader
-		serviceID types.ServiceID
-		service   types.Service
-		exists    bool
-		err       error
+		conn          types.Connection
+		header        types.RequestHeader
+		serviceID     types.ServiceID
+		service       types.Service
+		serviceExists bool
+		err           error
 	)
 
 	conn.SetNetConn(netConn)
@@ -81,20 +79,23 @@ func (p *Server) serveConn(netConn net.Conn) {
 		}
 
 		header.ServiceID(&serviceID)
-		service, exists = p.services[serviceID]
-		if !exists {
-			conn.AfterReadHeaderError()
-			err = types.ErrServiceNotFound
-			goto CONN_END
-		}
+		service, serviceExists = p.services[serviceID]
 
 		// call service
 		go func() {
 			requestContentLen := conn.LastReadLimit
 			localService := service
-			err = conn.AfterReadHeaderSuccess()
-			if err != nil {
+			requestID := header.ID()
+
+			if serviceExists == false {
+				conn.SkipReadRemaining()
+				conn.Response(requestID, nil)
 				return
+			} else {
+				err = conn.AfterReadHeaderSuccess()
+				if err != nil {
+					return
+				}
 			}
 
 			err = localService(header.ID(), requestContentLen, &conn)
@@ -104,7 +105,8 @@ func (p *Server) serveConn(netConn net.Conn) {
 		}()
 
 		if header.ContentLen() > 0 {
-			conn.ContinueReadSig.Wait()
+			conn.ContinueReadSig.Lock()
+			conn.ContinueReadSig.Unlock()
 		}
 
 		if err != nil {
@@ -121,4 +123,8 @@ CONN_END:
 	if err != nil {
 		log.Debug("serveConn err ", netConn.RemoteAddr().Network(), err)
 	}
+}
+
+func (p *Server) Close() error {
+	return p.ln.Close()
 }

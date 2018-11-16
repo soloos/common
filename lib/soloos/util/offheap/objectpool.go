@@ -5,22 +5,18 @@ import (
 )
 
 type ObjectPool struct {
-	memChunkPool ChunkPool
-	Objects      sync.Map
+	chunkPool ChunkPool
+	Objects   sync.Map
 }
 
 func (p *ObjectPool) Init(id int32, structSize int, chunksLimit int32,
 	prepareNewChunkFunc ChunkPoolInvokePrepareNewChunk,
 	releaseChunkFunc ChunkPoolInvokeReleaseChunk) error {
 	var (
-		err     error
-		options ChunkPoolOptions
+		err error
 	)
 
-	options.ChunkSize = structSize
-	options.ChunksLimit = chunksLimit
-	options.SetChunkPoolAssistant(prepareNewChunkFunc, releaseChunkFunc)
-	err = p.memChunkPool.Init(id, options)
+	err = p.chunkPool.Init(id, structSize, chunksLimit, prepareNewChunkFunc, releaseChunkFunc)
 	if err != nil {
 		return err
 	}
@@ -29,7 +25,7 @@ func (p *ObjectPool) Init(id int32, structSize int, chunksLimit int32,
 }
 
 func (p *ObjectPool) AllocObject() uintptr {
-	return p.memChunkPool.AllocChunk().Ptr().Data
+	return p.chunkPool.AllocChunk().Ptr().Data
 }
 
 func (p *ObjectPool) ReleaseObjectByID(id interface{}) {
@@ -40,7 +36,7 @@ func (p *ObjectPool) ReleaseObjectByID(id interface{}) {
 	}
 }
 func (p *ObjectPool) ReleaseObject(uObject uintptr) {
-	p.memChunkPool.ReleaseChunk(ChunkUintptr(uObject - ChunkStructSize))
+	p.chunkPool.ReleaseChunk(ChunkUintptr(uObject - ChunkStructSize))
 }
 
 // MustGetChunk get or init a chunk

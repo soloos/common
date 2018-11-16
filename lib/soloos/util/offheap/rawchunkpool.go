@@ -15,9 +15,12 @@ type RawChunkPoolInvokeReleaseRawChunk func()
 type RawChunkPool struct {
 	ID int32
 
-	options RawChunkPoolOptions
+	rawChunkSize   uintptr
+	rawChunksLimit int32
 
-	perRawChunkSize  uintptr
+	prepareNewRawChunkFunc RawChunkPoolInvokePrepareNewRawChunk
+	releaseRawChunkFunc    RawChunkPoolInvokeReleaseRawChunk
+
 	perMmapBytesSize int
 	currentMmapBytes *mmapbytes
 	mmapBytesList    []*mmapbytes
@@ -29,19 +32,23 @@ type RawChunkPool struct {
 	chunks             map[uintptr]uintptr
 }
 
-func (p *RawChunkPool) Init(id int32, options RawChunkPoolOptions) error {
+func (p *RawChunkPool) Init(id int32, rawChunkSize int, rawChunksLimit int32,
+	prepareNewChunkFunc RawChunkPoolInvokePrepareNewRawChunk,
+	releaseRawChunkFunc RawChunkPoolInvokeReleaseRawChunk) error {
 	var (
 		err error
 	)
 
 	p.ID = id
-	p.options = options
-	p.perRawChunkSize = uintptr(p.options.RawChunkSize)
-	if p.options.RawChunksLimit == -1 {
-		p.perMmapBytesSize = int(1024 * int(p.perRawChunkSize))
+	p.rawChunkSize = uintptr(rawChunkSize)
+	p.rawChunksLimit = rawChunksLimit
+	if p.rawChunksLimit == -1 {
+		p.perMmapBytesSize = int(1024 * int(p.rawChunkSize))
 	} else {
-		p.perMmapBytesSize = int(math.Ceil(float64(p.options.RawChunksLimit)/float64(16))) * int(p.perRawChunkSize)
+		p.perMmapBytesSize = int(math.Ceil(float64(p.rawChunksLimit)/float64(16))) * int(p.rawChunkSize)
 	}
+	p.prepareNewRawChunkFunc = prepareNewChunkFunc
+	p.releaseRawChunkFunc = releaseRawChunkFunc
 
 	err = p.growMmapBytesList()
 	if err != nil {
@@ -65,11 +72,11 @@ func (p *RawChunkPool) mallocRawChunk() uintptr {
 	// step1 grow mem if need
 	if err == nil {
 		currentMmapBytes = p.currentMmapBytes
-		end = atomic.AddUintptr(&currentMmapBytes.readOff, p.perRawChunkSize)
+		end = atomic.AddUintptr(&currentMmapBytes.readOff, p.rawChunkSize)
 		if end > currentMmapBytes.readBoundary {
 			p.chunksMutex.Lock()
 			currentMmapBytes = p.currentMmapBytes
-			end = atomic.AddUintptr(&currentMmapBytes.readOff, p.perRawChunkSize)
+			end = atomic.AddUintptr(&currentMmapBytes.readOff, p.rawChunkSize)
 			if end < currentMmapBytes.readBoundary {
 				p.chunksMutex.Unlock()
 				goto STEP1_DONE
@@ -82,7 +89,7 @@ func (p *RawChunkPool) mallocRawChunk() uintptr {
 			}
 
 			currentMmapBytes = p.currentMmapBytes
-			end = currentMmapBytes.readOff + p.perRawChunkSize
+			end = currentMmapBytes.readOff + p.rawChunkSize
 			currentMmapBytes.readOff = end
 			p.chunksMutex.Unlock()
 		}
@@ -92,31 +99,31 @@ STEP1_DONE:
 	// step2 alloc mem for chunk
 	if err == nil {
 		// get chunk address
-		uRawChunk = (uintptr)(end - p.perRawChunkSize)
+		uRawChunk = (uintptr)(end - p.rawChunkSize)
 	}
 
 	if err != nil {
 		panic("malloc chunk error")
 	}
 
-	if p.options.RawChunkPoolInvokePrepareNewRawChunk != nil {
-		p.options.RawChunkPoolInvokePrepareNewRawChunk(uRawChunk)
+	if p.prepareNewRawChunkFunc != nil {
+		p.prepareNewRawChunkFunc(uRawChunk)
 	}
 	return uintptr(uRawChunk)
 }
 
 func (p *RawChunkPool) AllocRawChunk() uintptr {
-	if p.options.RawChunksLimit == -1 {
+	if p.rawChunksLimit == -1 {
 		return p.pool.Get()
 	}
 
-	// assert p.options.RawChunkReleaser != nil
-	if atomic.AddInt32(&p.activeRawChunksNum, 1) < p.options.RawChunksLimit {
+	// assert p.rawChunkReleaser != nil
+	if atomic.AddInt32(&p.activeRawChunksNum, 1) < p.rawChunksLimit {
 		return p.pool.Get()
 	}
 
-	for p.activeRawChunksNum > p.options.RawChunksLimit {
-		p.options.RawChunkPoolInvokeReleaseRawChunk()
+	for p.activeRawChunksNum > p.rawChunksLimit {
+		p.releaseRawChunkFunc()
 	}
 
 	return p.pool.Get()

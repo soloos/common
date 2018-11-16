@@ -57,7 +57,7 @@ func runSRPCServer() (string, error) {
 
 			var o protocol.MessageTest0
 			o.Init(serviceReadBuf, flatbuffers.GetUOffsetT(serviceReadBuf))
-			if !assert.ObjectsAreEqualValues(rpcMessageBytes, o.Data0()) {
+			if assert.ObjectsAreEqualValues(rpcMessageBytes, o.Data0()) == false {
 				panic(string(o.Data0()))
 			}
 		}
@@ -120,10 +120,16 @@ func TestSRPCServer(t *testing.T) {
 					protocolBuilder.Finish(protocol.MessageTest0End(&protocolBuilder))
 					request.Body = protocolBuilder.Bytes[protocolBuilder.Head():]
 
+					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &request, &response))
+					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &request, &response))
+					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &request, &response))
+					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &request, &response))
 					assert.NoError(t, clientDriver.Call(uPeer, "/test", &request, &response))
+					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &request, &response))
 					var resp = make([]byte, response.BodySize)
 					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &request, &response, &resp))
 					assert.Equal(t, rpcMessageBytes, resp)
+					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &request, &response))
 					serviceSig.Done()
 				}()
 			} else {
@@ -155,7 +161,7 @@ func BenchmarkSRPCServer(b *testing.B) {
 
 	util.AssertErrIsNil(offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(types.PeerStructSize), -1, nil, nil))
 	uPeer = types.PeerUintptr(peerPool.AllocRawObject())
-	copy(uPeer.Ptr().Address[:], []byte(addr))
+	uPeer.Ptr().SetAddress(addr)
 	util.AssertErrIsNil(clientDriver.RegisterClient(uPeer))
 
 	var protocolBuilder flatbuffers.Builder
@@ -191,7 +197,7 @@ func BenchmarkSRPCServer(b *testing.B) {
 				util.AssertErrIsNil(clientDriver.Call(uPeer, "/test", &request, &response))
 				util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &request, &response, &resp))
 
-				// if !assert.ObjectsAreEqualValues(rpcMessageBytes, resp) {
+				// if assert.ObjectsAreEqualValues(rpcMessageBytes, resp) == false{
 				// panic("not equal")
 				// }
 				serviceSig.Done()

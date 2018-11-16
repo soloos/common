@@ -5,22 +5,18 @@ import (
 )
 
 type RawObjectPool struct {
-	memRawChunkPool RawChunkPool
-	RawObjects      sync.Map
+	rawChunkPool RawChunkPool
+	RawObjects   sync.Map
 }
 
 func (p *RawObjectPool) Init(id int32, structSize int, rawChunksLimit int32,
 	prepareNewRawChunkFunc RawChunkPoolInvokePrepareNewRawChunk,
 	releaseRawChunkFunc RawChunkPoolInvokeReleaseRawChunk) error {
 	var (
-		err     error
-		options RawChunkPoolOptions
+		err error
 	)
 
-	options.RawChunkSize = structSize
-	options.RawChunksLimit = rawChunksLimit
-	options.SetRawChunkPoolAssistant(prepareNewRawChunkFunc, releaseRawChunkFunc)
-	err = p.memRawChunkPool.Init(id, options)
+	err = p.rawChunkPool.Init(id, structSize, rawChunksLimit, prepareNewRawChunkFunc, releaseRawChunkFunc)
 	if err != nil {
 		return err
 	}
@@ -29,7 +25,7 @@ func (p *RawObjectPool) Init(id int32, structSize int, rawChunksLimit int32,
 }
 
 func (p *RawObjectPool) AllocRawObject() uintptr {
-	return p.memRawChunkPool.AllocRawChunk()
+	return p.rawChunkPool.AllocRawChunk()
 }
 
 func (p *RawObjectPool) ReleaseRawObjectByID(id interface{}) uintptr {
@@ -44,7 +40,7 @@ func (p *RawObjectPool) ReleaseRawObject(uRawObject uintptr) {
 	if uRawObject == 0 {
 		return
 	}
-	p.memRawChunkPool.ReleaseRawChunk(uRawObject)
+	p.rawChunkPool.ReleaseRawChunk(uRawObject)
 }
 
 // MustGetRawChunk get or init a rawChunk

@@ -1,8 +1,20 @@
 package offheap
 
+import "unsafe"
+
+const (
+	ChunkMaskStructSize = unsafe.Sizeof(ChunkMask{})
+)
+
 type ChunkMaskEntry struct {
 	Offset int
 	End    int
+}
+
+type ChunkMaskUintptr uintptr
+
+func (u ChunkMaskUintptr) Ptr() *ChunkMask {
+	return (*ChunkMask)(unsafe.Pointer(u))
 }
 
 type ChunkMask struct {

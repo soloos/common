@@ -38,16 +38,22 @@ func InitRawObjectPool(pool *RawObjectPool,
 }
 
 func InitObjectPool(pool *ObjectPool,
-	structSize int, rawChunksLimit int32,
+	structSize int, chunksLimit int32,
 	prepareNewChunkFunc ChunkPoolInvokePrepareNewChunk,
 	releaseChunkFunc ChunkPoolInvokeReleaseChunk) error {
 
 	return DefaultOffheapDriver.InitObjectPool(pool,
-		structSize, rawChunksLimit,
+		structSize, chunksLimit,
 		prepareNewChunkFunc,
 		releaseChunkFunc)
 }
 
-func InitChunkPool(options ChunkPoolOptions, chunkPool *ChunkPool) error {
-	return DefaultOffheapDriver.InitChunkPool(options, chunkPool)
+func InitChunkPool(pool *ChunkPool, chunkSize int, chunksLimit int32,
+	prepareNewChunkFunc ChunkPoolInvokePrepareNewChunk,
+	releaseChunkFunc ChunkPoolInvokeReleaseChunk) error {
+
+	return DefaultOffheapDriver.InitChunkPool(pool,
+		chunkSize, chunksLimit,
+		prepareNewChunkFunc,
+		releaseChunkFunc)
 }

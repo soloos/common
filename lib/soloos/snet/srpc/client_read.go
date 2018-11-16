@@ -72,7 +72,9 @@ func (p *Client) doCronReadResponse() {
 			goto FETCH_DATA_DONE
 		}
 
-		p.Conn.ContinueReadSig.Wait()
+		// wait read done
+		p.Conn.ContinueReadSig.Lock()
+		p.Conn.ContinueReadSig.Unlock()
 	}
 
 FETCH_DATA_DONE:

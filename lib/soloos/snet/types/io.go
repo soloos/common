@@ -1,12 +1,11 @@
 package types
 
 import (
-	"reflect"
 	"unsafe"
 )
 
 type OffheapFastCopyer struct {
-	OffheapBytes reflect.SliceHeader
+	OffheapBytes uintptr
 	CopyOffset   int
 	CopyEnd      int
 }
@@ -16,7 +15,7 @@ func (p *OffheapFastCopyer) ContentLen() int {
 }
 
 func (p *OffheapFastCopyer) Copy(conn *Connection) error {
-	if p.OffheapBytes.Data == 0 {
+	if p.OffheapBytes == 0 {
 		return nil
 	}
 
@@ -24,5 +23,5 @@ func (p *OffheapFastCopyer) Copy(conn *Connection) error {
 		return nil
 	}
 
-	return conn.WriteAll((*((*[]byte)(unsafe.Pointer(&p.OffheapBytes))))[p.CopyOffset:p.CopyEnd])
+	return conn.WriteAll((*((*[1 << 31]byte)(unsafe.Pointer(p.OffheapBytes))))[p.CopyOffset:p.CopyEnd])
 }

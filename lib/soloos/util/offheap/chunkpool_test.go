@@ -1,6 +1,7 @@
 package offheap
 
 import (
+	"soloos/util"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,12 +14,14 @@ type MockChunkPool struct {
 	chunkPool     ChunkPool
 }
 
-func (p *MockChunkPool) Init(chunks map[int32]ChunkUintptr, options ChunkPoolOptions, offheapDriver *OffheapDriver) error {
+func (p *MockChunkPool) Init(chunks map[int32]ChunkUintptr, offheapDriver *OffheapDriver,
+	chunkSize int, chunksLimit int32) error {
 	var err error
-	options.SetChunkPoolAssistant(p.ChunkPoolInvokePrepareNewChunk, p.ChunkPoolInvokeReleaseChunk)
 	p.chunks = chunks
 	p.offheapDriver = offheapDriver
-	err = p.offheapDriver.InitChunkPool(options, &p.chunkPool)
+	err = p.offheapDriver.InitChunkPool(&p.chunkPool,
+		chunkSize, chunksLimit,
+		p.ChunkPoolInvokePrepareNewChunk, p.ChunkPoolInvokeReleaseChunk)
 	if err != nil {
 		return err
 	}
@@ -52,13 +55,12 @@ func (p *MockChunkPool) AllocChunk() ChunkUintptr {
 
 func BenchmarkChunkPool(b *testing.B) {
 	var (
-		offheapDriver    OffheapDriver
-		mockChunkPool    MockChunkPool
-		chunkPoolOptions = MakeDefaultTestChunkPoolOptions(10)
+		offheapDriver OffheapDriver
+		mockChunkPool MockChunkPool
 	)
 
-	offheapDriver.Init()
-	mockChunkPool.Init(make(map[int32]ChunkUintptr), chunkPoolOptions, &offheapDriver)
+	util.AssertErrIsNil(offheapDriver.Init())
+	util.AssertErrIsNil(mockChunkPool.Init(make(map[int32]ChunkUintptr), &offheapDriver, 10, 1024))
 	for n := 0; n < b.N; n++ {
 		mockChunkPool.AllocChunk()
 	}
@@ -66,14 +68,13 @@ func BenchmarkChunkPool(b *testing.B) {
 
 func TestChunkPool(t *testing.T) {
 	var (
-		offheapDriver    OffheapDriver
-		mockChunkPool    MockChunkPool
-		chunkPoolOptions = MakeDefaultTestChunkPoolOptions(1024)
-		uChunk           ChunkUintptr
+		offheapDriver OffheapDriver
+		mockChunkPool MockChunkPool
+		uChunk        ChunkUintptr
 	)
 
 	assert.NoError(t, offheapDriver.Init())
-	assert.NoError(t, mockChunkPool.Init(make(map[int32]ChunkUintptr), chunkPoolOptions, &offheapDriver))
+	assert.NoError(t, mockChunkPool.Init(make(map[int32]ChunkUintptr), &offheapDriver, 1024, 1024))
 	uChunk = mockChunkPool.chunkPool.AllocChunk()
 	assert.NotNil(t, uChunk)
 

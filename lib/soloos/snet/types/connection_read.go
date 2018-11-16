@@ -13,13 +13,13 @@ func (p *Connection) ReadRelease() {
 }
 
 func (p *Connection) AfterReadHeaderError() {
-	p.ContinueReadSig.Done()
+	p.ContinueReadSig.Unlock()
 	p.ReadRelease()
 }
 
 func (p *Connection) AfterReadHeaderSuccess() error {
 	if p.LastReadLimit == 0 {
-		p.ContinueReadSig.Done()
+		p.ContinueReadSig.Unlock()
 		p.ReadRelease()
 	}
 	return nil
@@ -41,7 +41,7 @@ func (p *Connection) innerAfterReadHeader(maxMessageLength, contentLen uint32, n
 
 func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestHeader) error {
 	p.ReadAcquire()
-	p.ContinueReadSig.Add(1)
+	p.ContinueReadSig.Lock()
 
 	var (
 		offset, n int
@@ -52,7 +52,7 @@ func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestH
 		n, err = p.NetConn.Read(header[offset:len(header)])
 		if err != nil && err != io.EOF {
 			p.ReadRelease()
-			p.ContinueReadSig.Done()
+			p.ContinueReadSig.Unlock()
 			return err
 		}
 	}
@@ -62,7 +62,7 @@ func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestH
 
 func (p *Connection) ReadResponseHeader(maxMessageLength uint32, header *ResponseHeader) error {
 	p.ReadAcquire()
-	p.ContinueReadSig.Add(1)
+	p.ContinueReadSig.Lock()
 
 	var (
 		offset, n int
@@ -73,7 +73,7 @@ func (p *Connection) ReadResponseHeader(maxMessageLength uint32, header *Respons
 		n, err = p.NetConn.Read(header[offset:len(header)])
 		if err != nil && err != io.EOF {
 			p.ReadRelease()
-			p.ContinueReadSig.Done()
+			p.ContinueReadSig.Unlock()
 			return err
 		}
 	}
@@ -98,18 +98,33 @@ func (p *Connection) Read(b []byte) (int, error) {
 	}
 
 	if err != nil {
-		p.ContinueReadSig.Done()
+		p.ContinueReadSig.Unlock()
 		p.ReadRelease()
 		return n, err
 	}
 
 	p.LastReadLimit -= uint32(n)
 	if p.LastReadLimit == 0 {
-		p.ContinueReadSig.Done()
+		p.ContinueReadSig.Unlock()
 		p.ReadRelease()
 	}
 
 	return n, err
+}
+
+func (p *Connection) SkipReadRemaining() error {
+	var err error
+	for p.LastReadLimit > 0 {
+		if p.LastReadLimit > uint32(len(DevNullBuf)) {
+			err = p.ReadAll(DevNullBuf[:])
+		} else {
+			err = p.ReadAll(DevNullBuf[:p.LastReadLimit])
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (p *Connection) ReadAll(b []byte) error {
