@@ -1,3 +1,9 @@
 [submodule "3rdlib/github.com/stretchr/testify"]
 	path = 3rdlib/github.com/stretchr/testify
 	url = https://github.com/stretchr/testify.git
+[submodule "3rdlib/github.com/gocraft/dbr"]
+	path = 3rdlib/github.com/gocraft/dbr
+	url = git@github.com:gocraft/dbr.git
+[submodule "3rdlib/github.com/go-sql-driver/mysql"]
+	path = 3rdlib/github.com/go-sql-driver/mysql
+	url = git@github.com:go-sql-driver/mysql.git
