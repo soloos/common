@@ -7,3 +7,6 @@
 [submodule "3rdlib/github.com/go-sql-driver/mysql"]
 	path = 3rdlib/github.com/go-sql-driver/mysql
 	url = git@github.com:go-sql-driver/mysql.git
+[submodule "3rdlib/github.com/satori/go.uuid"]
+	path = 3rdlib/github.com/satori/go.uuid
+	url = git@github.com:satori/go.uuid.git

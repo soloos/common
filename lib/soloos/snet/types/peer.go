@@ -40,5 +40,4 @@ func (p *Peer) ServiceProtocolStr() string {
 	return string(p.ServiceProtocol[:p.serviceProtocolLen])
 }
 
-func InitPeerID(peerID *PeerID) {
-}
+func (p *Peer) IDStr() string { return string(p.ID[:]) }
