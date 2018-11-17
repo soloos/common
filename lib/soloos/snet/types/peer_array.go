@@ -5,6 +5,10 @@ type PeerUintptrArray8 struct {
 	Len int
 }
 
+func (p *PeerUintptrArray8) Reset() {
+	p.Len = 0
+}
+
 func (p *PeerUintptrArray8) Append(value PeerUintptr) {
 	p.Arr[p.Len] = value
 	p.Len += 1

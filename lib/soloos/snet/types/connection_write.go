@@ -12,57 +12,12 @@ func (p *Connection) WriteRelease() {
 	p.writeMutex.Unlock()
 }
 
-func (p *Connection) afterWriteHeader(contentLen uint32) error {
-	p.LastWriteLimit = contentLen
+func (p *Connection) afterWriteHeader(bodySize uint32) error {
+	p.LastWriteLimit = bodySize
 	if p.LastWriteLimit == 0 {
 		p.WriteRelease()
 	}
 	return nil
-}
-
-func (p *Connection) WriteRequestHeader(requestID uint64, serviceID string, contentLen uint32) error {
-	p.WriteAcquire()
-
-	var (
-		header RequestHeader
-		off, n int
-		err    error
-	)
-	header.SetID(requestID)
-	header.SetVersion(SNetVersion)
-	header.SetContentLen(contentLen)
-	header.SetServiceID(serviceID)
-	for off = 0; off < len(header); off += n {
-		n, err = p.NetConn.Write(header[:])
-		if err != nil {
-			p.WriteRelease()
-			return err
-		}
-	}
-
-	return p.afterWriteHeader(contentLen)
-}
-
-func (p *Connection) WriteResponseHeader(requestID uint64, contentLen uint32) error {
-	p.WriteAcquire()
-
-	var (
-		header ResponseHeader
-		off, n int
-		err    error
-	)
-	header.SetID(requestID)
-	header.SetVersion(SNetVersion)
-	header.SetContentLen(contentLen)
-	for off = 0; off < len(header); off += n {
-		n, err = p.NetConn.Write(header[:])
-		if err != nil {
-			p.WriteRelease()
-			return err
-		}
-	}
-
-	return p.afterWriteHeader(contentLen)
 }
 
 func (p *Connection) Write(b []byte) (int, error) {
@@ -113,21 +68,6 @@ func (p *Connection) WriteAll(b []byte) error {
 				return err
 			}
 		}
-	}
-
-	return nil
-}
-
-func (p *Connection) Response(requestID uint64, resp []byte) error {
-	var err error
-	err = p.WriteResponseHeader(requestID, uint32(len(resp)))
-	if err != nil {
-		return err
-	}
-
-	err = p.WriteAll(resp)
-	if err != nil {
-		return err
 	}
 
 	return nil

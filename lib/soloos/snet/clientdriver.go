@@ -8,7 +8,7 @@ import (
 
 type ClientDriver struct {
 	offheapDriver    *offheap.OffheapDriver
-	rpcClientDrivers map[string]types.RpcClientDriver // map protocol to RpcClientDriver
+	rpcClientDrivers [255]types.RpcClientDriver // map protocol to RpcClientDriver
 }
 
 func (p *ClientDriver) Init(offheapDriver *offheap.OffheapDriver) error {
@@ -18,46 +18,18 @@ func (p *ClientDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 		return err
 	}
 
-	p.rpcClientDrivers = make(map[string]types.RpcClientDriver)
+	// p.rpcClientDrivers = make(map[int]RpcClientDriver)
 
 	var srpcClientDriver = new(srpc.ClientDriver)
 	err = srpcClientDriver.Init(p.offheapDriver)
 	if err != nil {
 		return err
 	}
-	p.rpcClientDrivers["srpc"] = srpcClientDriver
+	p.rpcClientDrivers[types.ProtocolSRPC] = srpcClientDriver
 
 	return nil
 }
 
-func (p *ClientDriver) RegisterPeer(uPeer types.PeerUintptr) error {
-	var (
-		rpcClientDriver types.RpcClientDriver
-		err             error
-	)
-	rpcClientDriver = p.rpcClientDrivers[uPeer.Ptr().ServiceProtocolStr()]
-
-	err = rpcClientDriver.RegisterClient(uPeer)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *ClientDriver) Call(uPeer types.PeerUintptr,
-	serviceID string,
-	request *types.Request,
-	response *types.Response) error {
-	var (
-		rpcClientDriver types.RpcClientDriver
-		err             error
-	)
-	rpcClientDriver = p.rpcClientDrivers[uPeer.Ptr().ServiceProtocolStr()]
-	err = rpcClientDriver.Call(uPeer, serviceID, request, response)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (p *ClientDriver) GetRPCClientDriver(protocol int) types.RpcClientDriver {
+	return p.rpcClientDrivers[protocol]
 }

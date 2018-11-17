@@ -1,8 +1,8 @@
 COMMON_LDFLAGS=""
 COMMON_PREFIX=""
 
-SOLOOS_SNET_PROTOS = $(shell find protocol/soloos/snet -name '*.fbs')
-GENERATED_PROTOS = $(shell find protocol/soloos -name "*.fbs"| sed 's/\.fbs/\.fbs\.go/g')
+SOLOOS_SNET_PROTOS = $(shell find lib/soloos/snet -name '*.fbs')
+GENERATED_PROTOS = $(shell find lib/soloos/snet -name "*.fbs"| sed 's/\.fbs/\.fbs\.go/g')
 SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
 
 %.fbs.go: $(SOLOOS_SNET_PROTOS)

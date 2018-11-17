@@ -5,15 +5,20 @@ import (
 )
 
 func (p *ClientDriver) ReadResponse(uPeer types.PeerUintptr,
-	request *types.Request,
-	response *types.Response,
-	resp *[]byte) error {
+	req *types.Request,
+	resp *types.Response,
+	respBody []byte) error {
 	var (
-		client = p.clients[uPeer]
+		client *Client
 		err    error
 	)
 
-	err = client.ReadResponse(resp)
+	client, err = p.getClient(uPeer)
+	if err != nil {
+		return err
+	}
+
+	err = client.ReadResponse(respBody)
 	if err != nil {
 		return err
 	}

@@ -10,7 +10,7 @@ type OffheapFastCopyer struct {
 	CopyEnd      int
 }
 
-func (p *OffheapFastCopyer) ContentLen() int {
+func (p *OffheapFastCopyer) BodySize() int {
 	return p.CopyEnd - p.CopyOffset
 }
 

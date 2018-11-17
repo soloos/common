@@ -1,8 +1,10 @@
 package srpc
 
 import (
+	"soloos/log"
 	"soloos/snet/types"
 	"soloos/util/offheap"
+	"strings"
 	"sync"
 	"sync/atomic"
 )
@@ -15,8 +17,8 @@ type Client struct {
 	remoteAddr         string
 	maxRequestID       uint64
 	lastResponseHeader types.ResponseHeader
-	requestSigMapMutex sync.Mutex
-	requestSigMap      map[uint64]offheap.MutexUintptr // map RequestID to netConnReadSigsIndex
+	reqSigMapMutex     sync.Mutex
+	reqSigMap          map[uint64]offheap.MutexUintptr // map RequestID to netConnReadSigsIndex
 }
 
 func (p *Client) Init(clientDriver *ClientDriver, address string) error {
@@ -24,7 +26,7 @@ func (p *Client) Init(clientDriver *ClientDriver, address string) error {
 
 	p.clientDriver = clientDriver
 	p.remoteAddr = address
-	p.requestSigMap = make(map[uint64]offheap.MutexUintptr, 128)
+	p.reqSigMap = make(map[uint64]offheap.MutexUintptr, 128)
 
 	return nil
 }
@@ -36,10 +38,13 @@ func (p *Client) Start() error {
 		return err
 	}
 
-	err = p.cronReadResponse()
-	if err != nil {
-		return err
-	}
+	go func() {
+		err = p.cronReadResponse()
+		if err != nil &&
+			strings.Contains(err.Error(), "use of closed network connection") == false {
+			log.Warn(err)
+		}
+	}()
 
 	return nil
 }

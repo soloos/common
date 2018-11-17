@@ -4,33 +4,35 @@ import (
 	"soloos/snet/types"
 )
 
-func (p *Client) Write(requestID uint64, serviceID string, request *types.Request) error {
+func (p *Client) Write(reqID uint64, serviceID string, req *types.Request) error {
 	var (
 		err error
 	)
 
-	request.ID = requestID
+	req.ID = reqID
 
 	// post data
-	err = p.Conn.WriteRequestHeader(request.ID,
+	err = p.Conn.WriteRequestHeader(req.ID,
 		serviceID,
-		uint32(len(request.Body)+(request.OffheapBody.ContentLen())))
+		uint32(len(req.Param)+(req.OffheapBody.BodySize())),
+		uint32(len(req.Param)))
 	if err != nil {
 		goto POST_DATA_DONE
 	}
 
-	if len(request.Body) > 0 {
-		err = p.Conn.WriteAll(request.Body)
-		if err != nil {
-			goto POST_DATA_DONE
-		}
+	err = p.Conn.WriteAll(req.Param)
+	if err != nil {
+		goto POST_DATA_DONE
 	}
 
-	err = request.OffheapBody.Copy(&p.Conn)
+	err = req.OffheapBody.Copy(&p.Conn)
 	if err != nil {
 		goto POST_DATA_DONE
 	}
 
 POST_DATA_DONE:
+	if err != nil {
+		err = p.Conn.Close()
+	}
 	return err
 }

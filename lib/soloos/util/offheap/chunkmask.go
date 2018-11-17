@@ -1,6 +1,9 @@
 package offheap
 
-import "unsafe"
+import (
+	"sync"
+	"unsafe"
+)
 
 const (
 	ChunkMaskStructSize = unsafe.Sizeof(ChunkMask{})
@@ -18,8 +21,9 @@ func (u ChunkMaskUintptr) Ptr() *ChunkMask {
 }
 
 type ChunkMask struct {
-	MaskArrayLen int
-	MaskArray    [MaskArrayElementsLimit]ChunkMaskEntry
+	MergeElementRWMutex sync.RWMutex
+	MaskArrayLen        int
+	MaskArray           [MaskArrayElementsLimit]ChunkMaskEntry
 }
 
 func (p *ChunkMask) Reset() {
@@ -116,8 +120,13 @@ func (p *ChunkMask) doMergeIncludeNeighbour(ignoreIndex, offset, end int) int {
 // isMergeEventHappened 	bool
 // isSucess 				bool 如果超过 MaskArray 元素超过上限，则返回 false，反之返回 true
 func (p *ChunkMask) MergeIncludeNeighbour(offset, end int) (isMergeEventHappened, isSucess bool) {
-	mergeIndex := -1
-	previousMergeIndex := -1
+	p.MergeElementRWMutex.RLock()
+
+	var (
+		mergeIndex         = -1
+		previousMergeIndex = -1
+		limit              int
+	)
 
 	mergeIndex = p.doMergeIncludeNeighbour(mergeIndex, offset, end)
 	if -1 == mergeIndex {
@@ -125,7 +134,7 @@ func (p *ChunkMask) MergeIncludeNeighbour(offset, end int) (isMergeEventHappened
 		if p.MaskArrayLen >= len(p.MaskArray) {
 			isMergeEventHappened = false
 			isSucess = false
-			return
+			goto MERGE_DONE
 		}
 
 		p.MaskArray[p.MaskArrayLen].Offset = offset
@@ -133,14 +142,13 @@ func (p *ChunkMask) MergeIncludeNeighbour(offset, end int) (isMergeEventHappened
 		p.MaskArrayLen++
 		isMergeEventHappened = false
 		isSucess = true
-		return
+		goto MERGE_DONE
 	}
 
 	previousMergeIndex = mergeIndex
 
 	// 将范围相接的块两两合并成一个
 	// 一直尝试合并，直至无法合并，则退出循环
-	var limit int
 	for {
 		// 由于之前的合并结束后 maskArray[previousMergeIndex] 会发生变化，所以有可能可以再做一次合并动作
 		// 该合并为 maskArray[previousMergeIndex] 合并到其他 mask 中
@@ -167,5 +175,24 @@ func (p *ChunkMask) MergeIncludeNeighbour(offset, end int) (isMergeEventHappened
 
 	isMergeEventHappened = true
 	isSucess = true
+
+MERGE_DONE:
+	p.MergeElementRWMutex.RUnlock()
 	return
+}
+
+func (p *ChunkMask) Contains(offset, end int) bool {
+	for i := 0; i < p.MaskArrayLen; i++ {
+		if offset >= p.MaskArray[i].Offset &&
+			end <= p.MaskArray[i].End {
+			return true
+		}
+	}
+	return false
+}
+
+func (p *ChunkMask) Set(offset, end int) {
+	p.MaskArrayLen = 1
+	p.MaskArray[0].Offset = offset
+	p.MaskArray[0].End = end
 }

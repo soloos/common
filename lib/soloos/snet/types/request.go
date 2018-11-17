@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	RequestHeaderBaseSize = 14
+	RequestHeaderBaseSize = 18
 	RequestHeaderSize     = uint32(unsafe.Sizeof(RequestHeader{}))
 )
 
@@ -52,25 +52,33 @@ func (p *RequestHeader) SetID(seq uint64) {
 	binary.BigEndian.PutUint64(p[2:10], seq)
 }
 
-func (p *RequestHeader) ContentLen() uint32 {
+func (p *RequestHeader) BodySize() uint32 {
 	return binary.BigEndian.Uint32(p[10:14])
 }
 
-func (p *RequestHeader) SetContentLen(contentLen uint32) {
-	binary.BigEndian.PutUint32(p[10:14], contentLen)
+func (p *RequestHeader) SetBodySize(bodySize uint32) {
+	binary.BigEndian.PutUint32(p[10:14], bodySize)
+}
+
+func (p *RequestHeader) ParamSize() uint32 {
+	return binary.BigEndian.Uint32(p[14:18])
+}
+
+func (p *RequestHeader) SetParamSize(reqParamSize uint32) {
+	binary.BigEndian.PutUint32(p[14:18], reqParamSize)
 }
 
 func (p *RequestHeader) ServiceID(ret *ServiceID) {
-	copy((*ret)[:], p[14:14+ServiceIDLen])
+	copy((*ret)[:], p[18:18+ServiceIDLen])
 	return
 }
 
 func (p *RequestHeader) SetServiceID(serviceID string) {
-	copy(p[14:14+ServiceIDLen], []byte(serviceID))
+	copy(p[18:18+ServiceIDLen], []byte(serviceID))
 }
 
 type Request struct {
 	ID          uint64
-	Body        []byte
+	Param       []byte
 	OffheapBody OffheapFastCopyer
 }

@@ -5,4 +5,4 @@ const (
 )
 
 type ServiceID = [ServiceIDLen]byte
-type Service func(requestID uint64, requestContentLen uint32, conn *Connection) error
+type Service func(reqID uint64, reqBodySize, reqParamSize uint32, conn *Connection) error

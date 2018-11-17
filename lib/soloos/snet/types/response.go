@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	ResponseHeaderBaseSize = 14
+	ResponseHeaderBaseSize = 18
 	ResponseHeaderSize     = uint32(unsafe.Sizeof(ResponseHeader{}))
 )
 
@@ -29,15 +29,24 @@ func (p *ResponseHeader) SetID(seq uint64) {
 	binary.BigEndian.PutUint64(p[2:10], seq)
 }
 
-func (p *ResponseHeader) ContentLen() uint32 {
+func (p *ResponseHeader) BodySize() uint32 {
 	return binary.BigEndian.Uint32(p[10:14])
 }
 
-func (p *ResponseHeader) SetContentLen(contentLen uint32) {
-	binary.BigEndian.PutUint32(p[10:14], contentLen)
+func (p *ResponseHeader) SetBodySize(bodySize uint32) {
+	binary.BigEndian.PutUint32(p[10:14], bodySize)
+}
+
+func (p *ResponseHeader) ParamSize() uint32 {
+	return binary.BigEndian.Uint32(p[14:18])
+}
+
+func (p *ResponseHeader) SetParamSize(reqParamSize uint32) {
+	binary.BigEndian.PutUint32(p[14:18], reqParamSize)
 }
 
 type Response struct {
 	BodySize       uint32
+	ParamSize      uint32
 	NetConnReadSig offheap.MutexUintptr
 }

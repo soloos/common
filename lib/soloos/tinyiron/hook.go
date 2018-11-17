@@ -62,18 +62,18 @@ func (p *Server) HookAfterHttpHandle(matchPrefix string, hookFunc func(*Request)
 
 func (mux *ServeMux) IsRequestURIMatchHookBase(ir *Request, hookBase *HookBase) bool {
 	handleMatchPrefixLen := len(hookBase.MatchPrefix)
-	requestURILen := len(ir.R.RequestURI)
+	reqURILen := len(ir.R.RequestURI)
 
 	if len(hookBase.ExcludePrefix) > 0 {
 		for _, prefix := range hookBase.ExcludePrefix {
-			if requestURILen > len(prefix) && ir.R.RequestURI[:len(prefix)] == prefix {
+			if reqURILen > len(prefix) && ir.R.RequestURI[:len(prefix)] == prefix {
 				return false
 			}
 		}
 	}
 
 	if hookBase.MatchPrefix == "" ||
-		(requestURILen >= handleMatchPrefixLen && ir.R.RequestURI[:handleMatchPrefixLen] == hookBase.MatchPrefix) {
+		(reqURILen >= handleMatchPrefixLen && ir.R.RequestURI[:handleMatchPrefixLen] == hookBase.MatchPrefix) {
 		return true
 	}
 

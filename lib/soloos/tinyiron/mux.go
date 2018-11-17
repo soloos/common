@@ -16,8 +16,8 @@ type ServeMux struct {
 	m            map[string]muxEntry
 	hosts        bool // whether any patterns contain hostnames
 	serveHTTPer  ServeHTTPer
-	requestSeter SetReuqestFunc
-	requestGeter GetReuqestFunc
+	reqSeter SetReuqestFunc
+	reqGeter GetReuqestFunc
 }
 
 // NewServeMux allocates and returns a new ServeMux.
@@ -151,8 +151,8 @@ func (mux *ServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var ok bool
 	var ir *Request = &Request{server: mux.server}
-	if mux.requestSeter != nil {
-		r = mux.requestSeter(r, ir)
+	if mux.reqSeter != nil {
+		r = mux.reqSeter(r, ir)
 	}
 	ir.Init(w, r)
 

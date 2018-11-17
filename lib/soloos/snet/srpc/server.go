@@ -19,7 +19,7 @@ func (p *Server) Init(network, address string) error {
 	p.network = network
 	p.address = address
 	p.services = make(map[types.ServiceID]types.Service)
-	p.RegisterService("/Close", func(requestID uint64, requestContentLen uint32, conn *types.Connection) error {
+	p.RegisterService("/Close", func(reqID uint64, reqBodySize, reqParamSize uint32, conn *types.Connection) error {
 		return conn.Close()
 	})
 	return nil
@@ -65,6 +65,10 @@ func (p *Server) serveConn(netConn net.Conn) {
 		header        types.RequestHeader
 		serviceID     types.ServiceID
 		service       types.Service
+		reqID         uint64
+		localService  types.Service
+		reqBodySize   uint32
+		reqParamSize  uint32
 		serviceExists bool
 		err           error
 	)
@@ -83,13 +87,14 @@ func (p *Server) serveConn(netConn net.Conn) {
 
 		// call service
 		go func() {
-			requestContentLen := conn.LastReadLimit
-			localService := service
-			requestID := header.ID()
+			reqID = header.ID()
+			localService = service
+			reqBodySize = conn.LastReadLimit
+			reqParamSize = header.ParamSize()
 
 			if serviceExists == false {
 				conn.SkipReadRemaining()
-				conn.Response(requestID, nil)
+				conn.SimpleResponse(reqID, nil)
 				return
 			} else {
 				err = conn.AfterReadHeaderSuccess()
@@ -98,13 +103,13 @@ func (p *Server) serveConn(netConn net.Conn) {
 				}
 			}
 
-			err = localService(header.ID(), requestContentLen, &conn)
+			err = localService(header.ID(), reqBodySize, reqParamSize, &conn)
 			if err != nil {
 				return
 			}
 		}()
 
-		if header.ContentLen() > 0 {
+		if header.BodySize() > 0 {
 			conn.ContinueReadSig.Lock()
 			conn.ContinueReadSig.Unlock()
 		}

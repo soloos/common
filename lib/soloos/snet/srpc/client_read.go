@@ -5,51 +5,53 @@ import (
 	"soloos/util/offheap"
 )
 
-func (p *Client) PrepareWaitResponse(requestID uint64, response *types.Response) error {
-	response.NetConnReadSig = offheap.MutexUintptr(p.clientDriver.netConnReadSigPool.AllocRawObject())
-	response.NetConnReadSig.Ptr().Lock()
+func (p *Client) PrepareWaitResponse(reqID uint64, resp *types.Response) error {
+	resp.NetConnReadSig = offheap.MutexUintptr(p.clientDriver.netConnReadSigPool.AllocRawObject())
+	resp.NetConnReadSig.Ptr().Lock()
 
-	p.requestSigMapMutex.Lock()
-	p.requestSigMap[requestID] = response.NetConnReadSig
-	p.requestSigMapMutex.Unlock()
+	p.reqSigMapMutex.Lock()
+	p.reqSigMap[reqID] = resp.NetConnReadSig
+	p.reqSigMapMutex.Unlock()
 	return nil
 }
 
-func (p *Client) ActiviateRequestSig(requestID uint64) error {
+func (p *Client) WaitResponse(req *types.Request, resp *types.Response) error {
+	// wait cronReadResponse fetch data
+	resp.NetConnReadSig.Ptr().Lock()
+	resp.NetConnReadSig.Ptr().Unlock()
+
+	p.clientDriver.netConnReadSigPool.ReleaseRawObject(uintptr(resp.NetConnReadSig))
+	resp.NetConnReadSig = 0
+
+	// cronReadResponse fetched data
+	resp.BodySize = p.lastResponseHeader.BodySize()
+	resp.ParamSize = p.lastResponseHeader.ParamSize()
+
+	return nil
+}
+
+func (p *Client) ReadResponse(respBody []byte) error {
+	return p.Conn.ReadAll(respBody)
+}
+
+func (p *Client) activiateRequestSig(reqID uint64) error {
 	var netConnReadSig offheap.MutexUintptr
 
-	p.requestSigMapMutex.Lock()
-	netConnReadSig = p.requestSigMap[requestID]
-	delete(p.requestSigMap, requestID)
-	p.requestSigMapMutex.Unlock()
+	p.reqSigMapMutex.Lock()
+	netConnReadSig = p.reqSigMap[reqID]
+	delete(p.reqSigMap, reqID)
+	p.reqSigMapMutex.Unlock()
 
-	// activiate request
+	// activiate req
 	netConnReadSig.Ptr().Unlock()
 
 	return nil
 }
 
-func (p *Client) WaitResponse(request *types.Request, response *types.Response) error {
-	// wait cronReadResponse fetch data
-	response.NetConnReadSig.Ptr().Lock()
-	response.NetConnReadSig.Ptr().Unlock()
-
-	p.clientDriver.netConnReadSigPool.ReleaseRawObject(uintptr(response.NetConnReadSig))
-
-	// cronReadResponse fetched data
-	response.BodySize = p.lastResponseHeader.ContentLen()
-
-	return nil
-}
-
-func (p *Client) ReadResponse(resp *[]byte) error {
-	return p.Conn.ReadAll(*resp)
-}
-
-func (p *Client) doCronReadResponse() {
+func (p *Client) cronReadResponse() error {
 	var (
-		requestID uint64
-		err       error
+		reqID uint64
+		err   error
 	)
 
 	for {
@@ -59,16 +61,15 @@ func (p *Client) doCronReadResponse() {
 			goto FETCH_DATA_DONE
 		}
 
-		requestID = p.lastResponseHeader.ID()
+		reqID = p.lastResponseHeader.ID()
 
 		err = p.Conn.AfterReadHeaderSuccess()
 		if err != nil {
 			goto FETCH_DATA_DONE
 		}
 
-		err = p.ActiviateRequestSig(requestID)
+		err = p.activiateRequestSig(reqID)
 		if err != nil {
-			panic(err)
 			goto FETCH_DATA_DONE
 		}
 
@@ -79,13 +80,7 @@ func (p *Client) doCronReadResponse() {
 
 FETCH_DATA_DONE:
 	if err != nil {
-		// log.Warn("cronReadResponse", err)
+		err = p.Conn.Close()
 	}
-}
-
-func (p *Client) cronReadResponse() error {
-	go func() {
-		p.doCronReadResponse()
-	}()
-	return nil
+	return err
 }

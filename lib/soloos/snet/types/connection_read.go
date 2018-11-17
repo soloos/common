@@ -2,6 +2,7 @@ package types
 
 import (
 	"io"
+	"soloos/util"
 )
 
 func (p *Connection) ReadAcquire() {
@@ -25,9 +26,9 @@ func (p *Connection) AfterReadHeaderSuccess() error {
 	return nil
 }
 
-func (p *Connection) innerAfterReadHeader(maxMessageLength, contentLen uint32, netVersion byte) error {
-	// prepare & check request
-	p.LastReadLimit = contentLen
+func (p *Connection) innerAfterReadHeader(maxMessageLength, bodySize uint32, netVersion byte) error {
+	// prepare & check req
+	p.LastReadLimit = bodySize
 	if netVersion != SNetVersion {
 		return ErrWrongVersion
 	}
@@ -57,7 +58,7 @@ func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestH
 		}
 	}
 
-	return p.innerAfterReadHeader(maxMessageLength, header.ContentLen(), header.Version())
+	return p.innerAfterReadHeader(maxMessageLength, header.BodySize(), header.Version())
 }
 
 func (p *Connection) ReadResponseHeader(maxMessageLength uint32, header *ResponseHeader) error {
@@ -78,7 +79,7 @@ func (p *Connection) ReadResponseHeader(maxMessageLength uint32, header *Respons
 		}
 	}
 
-	return p.innerAfterReadHeader(maxMessageLength, header.ContentLen(), header.Version())
+	return p.innerAfterReadHeader(maxMessageLength, header.BodySize(), header.Version())
 }
 
 func (p *Connection) Read(b []byte) (int, error) {
@@ -115,10 +116,10 @@ func (p *Connection) Read(b []byte) (int, error) {
 func (p *Connection) SkipReadRemaining() error {
 	var err error
 	for p.LastReadLimit > 0 {
-		if p.LastReadLimit > uint32(len(DevNullBuf)) {
-			err = p.ReadAll(DevNullBuf[:])
+		if p.LastReadLimit > uint32(len(util.DevNullBuf)) {
+			err = p.ReadAll(util.DevNullBuf[:])
 		} else {
-			err = p.ReadAll(DevNullBuf[:p.LastReadLimit])
+			err = p.ReadAll(util.DevNullBuf[:p.LastReadLimit])
 		}
 		if err != nil {
 			return err

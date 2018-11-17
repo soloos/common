@@ -61,12 +61,12 @@ func (p *Server) Init() error {
 	return nil
 }
 
-func (p *Server) SetRequestSeter(requestSeter SetReuqestFunc) {
-	p.httpMux.requestSeter = requestSeter
+func (p *Server) SetRequestSeter(reqSeter SetReuqestFunc) {
+	p.httpMux.reqSeter = reqSeter
 }
 
-func (p *Server) SetRequestGeter(requestGeter GetReuqestFunc) {
-	p.httpMux.requestGeter = requestGeter
+func (p *Server) SetRequestGeter(reqGeter GetReuqestFunc) {
+	p.httpMux.reqGeter = reqGeter
 }
 
 func (p *Server) SetServeHTTPer(serveHTTPer ServeHTTPer) {

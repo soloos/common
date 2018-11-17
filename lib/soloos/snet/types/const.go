@@ -1,9 +1,13 @@
 package types
 
-var (
-	DevNullBuf [512]byte
+const (
+	SNetVersion = byte(192)
 )
 
 const (
-	SNetVersion = byte(192)
+	ProtocolSRPC = iota
+)
+
+const (
+	CODE_OK = iota
 )

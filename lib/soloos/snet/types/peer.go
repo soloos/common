@@ -6,20 +6,20 @@ import (
 
 const (
 	PeerStructSize = unsafe.Sizeof(Peer{})
+	PeerIDBytesNum = 64
 )
 
-type PeerID = [64]byte
+type PeerID = [PeerIDBytesNum]byte
 
 type PeerUintptr uintptr
 
 func (u PeerUintptr) Ptr() *Peer { return (*Peer)(unsafe.Pointer(u)) }
 
 type Peer struct {
-	ID                 PeerID
-	Address            [128]byte
-	ServiceProtocol    [32]byte
-	addressLen         int
-	serviceProtocolLen int
+	PeerID          PeerID
+	addressLen      int
+	Address         [128]byte
+	ServiceProtocol int
 }
 
 func (p *Peer) SetAddress(addr string) {
@@ -31,13 +31,4 @@ func (p *Peer) AddressStr() string {
 	return string(p.Address[:p.addressLen])
 }
 
-func (p *Peer) SetServiceProtocol(protocol string) {
-	p.serviceProtocolLen = len(protocol)
-	copy(p.ServiceProtocol[:p.serviceProtocolLen], []byte(protocol))
-}
-
-func (p *Peer) ServiceProtocolStr() string {
-	return string(p.ServiceProtocol[:p.serviceProtocolLen])
-}
-
-func (p *Peer) IDStr() string { return string(p.ID[:]) }
+func (p *Peer) PeerIDStr() string { return string(p.PeerID[:]) }

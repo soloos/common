@@ -3,11 +3,13 @@ package srpc
 import (
 	"soloos/snet/types"
 	"soloos/util/offheap"
+	"sync"
 )
 
 type ClientDriver struct {
 	offheapDriver      *offheap.OffheapDriver
 	netConnReadSigPool offheap.RawObjectPool
+	clientRWMutex      sync.RWMutex
 	clients            map[types.PeerUintptr]*Client
 }
 
@@ -27,37 +29,62 @@ func (p *ClientDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	return nil
 }
 
-func (p *ClientDriver) RegisterClient(uPeer types.PeerUintptr) error {
-	var (
-		client = &Client{}
-		err    error
-	)
-	err = client.Init(p, uPeer.Ptr().AddressStr())
-	if err != nil {
-		return err
-	}
-
-	err = client.Start()
-	if err != nil {
-		return err
-	}
-
+func (p *ClientDriver) setClient(uPeer types.PeerUintptr, client *Client) {
+	p.clientRWMutex.Lock()
 	p.clients[uPeer] = client
+	p.clientRWMutex.Unlock()
+}
 
-	return nil
+func (p *ClientDriver) getClient(uPeer types.PeerUintptr) (ret *Client, err error) {
+	p.clientRWMutex.RLock()
+	ret = p.clients[uPeer]
+	p.clientRWMutex.RUnlock()
+
+	if ret != nil {
+		return
+	}
+
+	p.clientRWMutex.Lock()
+	if ret != nil {
+		goto GET_CLIENT_DONE
+	}
+
+	ret = &Client{}
+	err = ret.Init(p, uPeer.Ptr().AddressStr())
+	if err != nil {
+		ret = nil
+		goto GET_CLIENT_DONE
+	}
+
+	err = ret.Start()
+	if err != nil {
+		ret = nil
+		goto GET_CLIENT_DONE
+	}
+
+	p.clients[uPeer] = ret
+
+GET_CLIENT_DONE:
+	p.clientRWMutex.Unlock()
+	return
 }
 
 func (p *ClientDriver) sendCloseCmd(client *Client) error {
 	var (
-		request types.Request
-		err     error
+		req types.Request
+		err error
 	)
 
-	err = client.Write(client.AllocRequestID(), "/Close", &request)
+	err = client.Write(client.AllocRequestID(), "/Close", &req)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (p *ClientDriver) RegisterClient(uPeer types.PeerUintptr, client interface{}) error {
+	p.setClient(uPeer, client.(*Client))
 	return nil
 }
 

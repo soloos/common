@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	ChunkStructSize       = unsafe.Sizeof(Chunk{})
-	ChunkStructDataOffset = unsafe.Offsetof(Chunk{}.Data)
+	ChunkStructSize = unsafe.Sizeof(Chunk{})
 )
 
 type ChunkUintptr uintptr
