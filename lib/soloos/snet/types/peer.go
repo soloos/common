@@ -1,6 +1,7 @@
 package types
 
 import (
+	"sync"
 	"unsafe"
 )
 
@@ -16,10 +17,12 @@ type PeerUintptr uintptr
 func (u PeerUintptr) Ptr() *Peer { return (*Peer)(unsafe.Pointer(u)) }
 
 type Peer struct {
-	PeerID          PeerID
-	addressLen      int
-	Address         [128]byte
-	ServiceProtocol int
+	PeerID           PeerID
+	addressLen       int
+	Address          [128]byte
+	ServiceProtocol  int
+	MetaDataMutex    sync.Mutex `db:"-"`
+	IsMetaDataInited bool       `db:"-"`
 }
 
 func (p *Peer) SetAddress(addr string) {

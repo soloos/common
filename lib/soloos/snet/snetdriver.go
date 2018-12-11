@@ -12,7 +12,7 @@ type SNetDriver struct {
 	maxPeerID     int64
 	peerPool      offheap.RawObjectPool
 	peersRWMutex  sync.RWMutex
-	peers         map[string]types.PeerUintptr
+	peers         map[types.PeerID]types.PeerUintptr
 }
 
 func (p *SNetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
@@ -22,12 +22,21 @@ func (p *SNetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	if err != nil {
 		return err
 	}
-	p.peers = make(map[string]types.PeerUintptr, 1024)
+	p.peers = make(map[types.PeerID]types.PeerUintptr, 1024)
 
 	return nil
 }
 
-func (p *SNetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int) types.PeerUintptr {
+func (p *SNetDriver) GetPeer(peerID *types.PeerID) types.PeerUintptr {
+	var ret types.PeerUintptr
+	p.peersRWMutex.RLock()
+	ret = p.peers[*peerID]
+	p.peersRWMutex.RUnlock()
+	return ret
+}
+
+// MustGetPee return uPeer and peer is inited before
+func (p *SNetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int) (types.PeerUintptr, bool) {
 	var ret types.PeerUintptr
 
 	if peerID == nil {
@@ -36,31 +45,31 @@ func (p *SNetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int
 		ret.Ptr().SetAddress(addr)
 		ret.Ptr().ServiceProtocol = protocol
 		p.peersRWMutex.Lock()
-		p.peers[addr] = ret
+		p.peers[ret.Ptr().PeerID] = ret
 		p.peersRWMutex.Unlock()
-		return ret
+		return ret, false
 	}
 
 	p.peersRWMutex.RLock()
-	ret = p.peers[addr]
+	ret = p.peers[*peerID]
 	if ret != 0 {
 		p.peersRWMutex.RUnlock()
-		return ret
+		return ret, true
 	}
 	p.peersRWMutex.RUnlock()
 
 	p.peersRWMutex.Lock()
-	ret = p.peers[addr]
+	ret = p.peers[*peerID]
 	if ret != 0 {
 		p.peersRWMutex.Unlock()
-		return ret
+		return ret, true
 	}
 	ret = types.PeerUintptr(p.peerPool.AllocRawObject())
 	ret.Ptr().PeerID = *peerID
 	ret.Ptr().SetAddress(addr)
-	ret.Ptr().ServiceProtocol = types.ProtocolSRPC
-	p.peers[addr] = ret
+	ret.Ptr().ServiceProtocol = protocol
+	p.peers[*peerID] = ret
 	p.peersRWMutex.Unlock()
 
-	return ret
+	return ret, false
 }

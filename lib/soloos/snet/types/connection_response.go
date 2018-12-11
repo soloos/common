@@ -38,6 +38,24 @@ func (p *Connection) SimpleResponse(reqID uint64, respBody []byte) error {
 	return nil
 }
 
+func (p *Connection) ResponseHeaderParam(reqID uint64, param []byte, offheapBodySize int) error {
+	var err error
+	err = p.WriteResponseHeader(reqID,
+		uint32(len(param)+offheapBodySize),
+		uint32(len(param)))
+	if err != nil {
+		return err
+	}
+
+	err = p.WriteAll(param)
+	if err != nil {
+		goto POST_DATA_DONE
+	}
+
+POST_DATA_DONE:
+	return err
+}
+
 func (p *Connection) Response(reqID uint64, param []byte, offheapBody []byte) error {
 	var err error
 	err = p.WriteResponseHeader(reqID,

@@ -18,5 +18,11 @@ func AssertErrIsNil(err error) {
 	}
 }
 
+func AssertTrue(res bool) {
+	if res == false {
+		panic("AssertTrue invalid")
+	}
+}
+
 func Ignore(r interface{}) {
 }

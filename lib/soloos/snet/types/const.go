@@ -5,9 +5,6 @@ const (
 )
 
 const (
-	ProtocolSRPC = iota
-)
-
-const (
-	CODE_OK = iota
+	ProtocolDisk = iota
+	ProtocolSRPC
 )
