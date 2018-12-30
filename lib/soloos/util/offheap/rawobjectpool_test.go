@@ -11,8 +11,18 @@ import (
 const TStructSize = int(unsafe.Sizeof(T{}))
 
 type T struct {
+	i    byte
 	Data [1024]byte
 }
+
+func (p *T) test() {
+	p.Data[0] = p.i
+	p.i += 1
+}
+
+type TUintptr uintptr
+
+func (u TUintptr) Ptr() *T { return (*T)(unsafe.Pointer(u)) }
 
 type TPool struct {
 	rawObjectPool RawObjectPool
@@ -38,13 +48,16 @@ func BenchmarkRawObjectPool(b *testing.B) {
 	runtime.GC()
 	var tPool TPool
 	tPool.Init(1, TStructSize, int32(b.N))
+	var t TUintptr
 
 	for run := 0; run < 2; run++ {
 		for n := 0; n < b.N; n++ {
 			if n%10000 == 0 {
 				runtime.GC()
 			}
-			tPool.rawObjectPool.ReleaseRawObject(tPool.rawObjectPool.AllocRawObject())
+			t = TUintptr(tPool.rawObjectPool.AllocRawObject())
+			t.Ptr().test()
+			tPool.rawObjectPool.ReleaseRawObject(uintptr(t))
 		}
 	}
 
@@ -63,13 +76,16 @@ func BenchmarkSyncPool(b *testing.B) {
 	pool.New = func() interface{} {
 		return new(T)
 	}
+	var t *T
 
 	for run := 0; run < 2; run++ {
 		for n := 0; n < b.N; n++ {
 			if n%10000 == 0 {
 				runtime.GC()
 			}
-			pool.Put(pool.Get())
+			t = pool.Get().(*T)
+			t.test()
+			pool.Put(t)
 		}
 	}
 
