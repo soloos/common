@@ -212,5 +212,5 @@ func BenchmarkSRPCServer(b *testing.B) {
 
 	serviceSig.Wait()
 
-	util.AssertErrIsNil(clientDriver.CloseClient(uPeer))
+	clientDriver.CloseClient(uPeer)
 }

@@ -49,9 +49,9 @@ func (p *Client) Start() error {
 	return nil
 }
 
-func (p *Client) Close() error {
+func (p *Client) Close(closeResonErr error) error {
 	var err error
-	err = p.Conn.Close()
+	err = p.Conn.Close(closeResonErr)
 	if err != nil {
 		return err
 	}

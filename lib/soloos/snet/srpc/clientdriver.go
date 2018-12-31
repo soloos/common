@@ -99,7 +99,7 @@ func (p *ClientDriver) CloseClient(uPeer types.PeerUintptr) error {
 		return err
 	}
 
-	err = client.Close()
+	err = client.Close(types.ErrClosedByUser)
 	if err != nil {
 		return err
 	}

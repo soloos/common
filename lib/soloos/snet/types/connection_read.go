@@ -51,7 +51,7 @@ func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestH
 
 	for offset = 0; offset < len(header); offset += n {
 		n, err = p.NetConn.Read(header[offset:len(header)])
-		if err != nil && err != io.EOF {
+		if err != nil {
 			p.ReadRelease()
 			p.ContinueReadSig.Unlock()
 			return err
@@ -72,7 +72,7 @@ func (p *Connection) ReadResponseHeader(maxMessageLength uint32, header *Respons
 
 	for offset = 0; offset < len(header); offset += n {
 		n, err = p.NetConn.Read(header[offset:len(header)])
-		if err != nil && err != io.EOF {
+		if err != nil {
 			p.ReadRelease()
 			p.ContinueReadSig.Unlock()
 			return err
@@ -137,11 +137,7 @@ func (p *Connection) ReadAll(b []byte) error {
 	for off = 0; off < len(b); off += n {
 		n, err = p.Read(b[off:])
 		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return err
-			}
+			return err
 		}
 	}
 	return nil

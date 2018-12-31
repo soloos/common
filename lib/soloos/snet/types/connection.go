@@ -2,6 +2,7 @@ package types
 
 import (
 	"net"
+	"soloos/log"
 	"sync"
 )
 
@@ -38,7 +39,11 @@ func (p *Connection) Connect(address string) error {
 	return nil
 }
 
-func (p *Connection) Close() error {
+func (p *Connection) Close(closeResonErr error) error {
+	if closeResonErr != nil {
+		log.Debug("connection close", closeResonErr, p.NetConn.RemoteAddr())
+	}
+
 	var err error
 	err = p.NetConn.Close()
 	if err != nil {

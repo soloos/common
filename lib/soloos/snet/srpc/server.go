@@ -20,7 +20,7 @@ func (p *Server) Init(network, address string) error {
 	p.address = address
 	p.services = make(map[types.ServiceID]types.Service)
 	p.RegisterService("/Close", func(reqID uint64, reqBodySize, reqParamSize uint32, conn *types.Connection) error {
-		return conn.Close()
+		return conn.Close(types.ErrClosedByUser)
 	})
 	return nil
 }
@@ -124,7 +124,7 @@ CONN_END:
 		log.Debug("serveConn err ", netConn.RemoteAddr().Network(), err)
 	}
 
-	err = conn.Close()
+	err = conn.Close(err)
 	if err != nil {
 		log.Debug("serveConn err ", netConn.RemoteAddr().Network(), err)
 	}

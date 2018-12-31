@@ -32,7 +32,7 @@ func (p *Client) Write(reqID uint64, serviceID string, req *types.Request) error
 
 POST_DATA_DONE:
 	if err != nil {
-		err = p.Conn.Close()
+		err = p.Conn.Close(err)
 	}
 	return err
 }

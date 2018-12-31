@@ -1,9 +1,9 @@
 package util
 
 import (
-	"soloos/log"
 	"net/http"
 	_ "net/http/pprof"
+	"soloos/log"
 )
 
 func PProfServe(pprofListenAddr string) {

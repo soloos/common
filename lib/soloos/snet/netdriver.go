@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type SNetDriver struct {
+type NetDriver struct {
 	offheapDriver *offheap.OffheapDriver
 	maxPeerID     int64
 	peerPool      offheap.RawObjectPool
@@ -15,7 +15,7 @@ type SNetDriver struct {
 	peers         map[types.PeerID]types.PeerUintptr
 }
 
-func (p *SNetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
+func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	var err error
 	p.offheapDriver = offheapDriver
 	err = p.offheapDriver.InitRawObjectPool(&p.peerPool, int(types.PeerStructSize), -1, nil, nil)
@@ -27,7 +27,7 @@ func (p *SNetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	return nil
 }
 
-func (p *SNetDriver) GetPeer(peerID *types.PeerID) types.PeerUintptr {
+func (p *NetDriver) GetPeer(peerID *types.PeerID) types.PeerUintptr {
 	var ret types.PeerUintptr
 	p.peersRWMutex.RLock()
 	ret = p.peers[*peerID]
@@ -36,7 +36,7 @@ func (p *SNetDriver) GetPeer(peerID *types.PeerID) types.PeerUintptr {
 }
 
 // MustGetPee return uPeer and peer is inited before
-func (p *SNetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int) (types.PeerUintptr, bool) {
+func (p *NetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int) (types.PeerUintptr, bool) {
 	var ret types.PeerUintptr
 
 	if peerID == nil {

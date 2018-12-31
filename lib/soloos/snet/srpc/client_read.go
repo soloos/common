@@ -80,7 +80,7 @@ func (p *Client) cronReadResponse() error {
 
 FETCH_DATA_DONE:
 	if err != nil {
-		err = p.Conn.Close()
+		err = p.Conn.Close(err)
 	}
 	return err
 }

@@ -62,11 +62,7 @@ func (p *Connection) WriteAll(b []byte) error {
 	for off := 0; off < len(b); off += n {
 		n, err = p.Write(b[off:])
 		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return err
-			}
+			return err
 		}
 	}
 
