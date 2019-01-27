@@ -5,6 +5,12 @@ import (
 	"sync/atomic"
 )
 
+const (
+	SharedPointerUninited   = int32(0)
+	SharedPointerIniteded   = int32(1)
+	SharedPointerReleasable = int32(2)
+)
+
 type SharedPointerBase struct {
 	accessRWMutex sync.RWMutex
 	Accessor      int32
@@ -32,15 +38,25 @@ func (p *SharedPointerBase) WriteRelease() {
 
 type SharedPointer struct {
 	SharedPointerBase
-	IsInited        bool
-	IsShouldRelease bool
+	Status int32
 }
 
 func (p *SharedPointer) SetReleasable() {
-	p.IsShouldRelease = true
+	atomic.StoreInt32(&p.Status, SharedPointerReleasable)
 }
 
 func (p *SharedPointer) Reset() {
-	p.IsInited = false
-	p.IsShouldRelease = false
+	atomic.StoreInt32(&p.Status, SharedPointerUninited)
+}
+
+func (p *SharedPointer) CompleteInit() {
+	atomic.StoreInt32(&p.Status, SharedPointerIniteded)
+}
+
+func (p *SharedPointer) IsInited() bool {
+	return atomic.LoadInt32(&p.Status) > SharedPointerUninited
+}
+
+func (p *SharedPointer) IsShouldRelease() bool {
+	return atomic.LoadInt32(&p.Status) == SharedPointerReleasable
 }

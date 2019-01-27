@@ -27,10 +27,10 @@ func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	return nil
 }
 
-func (p *NetDriver) GetPeer(peerID *types.PeerID) types.PeerUintptr {
+func (p *NetDriver) GetPeer(peerID types.PeerID) types.PeerUintptr {
 	var ret types.PeerUintptr
 	p.peersRWMutex.RLock()
-	ret = p.peers[*peerID]
+	ret = p.peers[peerID]
 	p.peersRWMutex.RUnlock()
 	return ret
 }
