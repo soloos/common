@@ -1,4 +1,13 @@
 
+bench-go-fuse-fuse:
+	cd src/soloos/go-fuse/fuse/ && go test -bench=. -benchmem 
+
+bench-go-fuse-splice:
+	cd src/soloos/go-fuse/splice/ && go test -bench=. -benchmem 
+
+bench-go-sql-parser:
+	cd src/soloos/go-sql/parser/ && go test -bench=. -benchmem 
+
 bench-snet:
 	cd src/soloos/snet/ && go test -bench=. -benchmem 
 
@@ -11,4 +20,4 @@ bench-tinyiron:
 bench-util-offheap:
 	cd src/soloos/util/offheap/ && go test -bench=. -benchmem 
 
-bench: bench-snet bench-snet-srpc bench-tinyiron bench-util-offheap
+bench: bench-go-fuse-fuse bench-go-fuse-splice bench-go-sql-parser bench-snet bench-snet-srpc bench-tinyiron bench-util-offheap

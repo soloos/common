@@ -2,7 +2,7 @@ package fsapi
 
 import (
 	. "soloos/fsapi/types"
-	sdfstypes "soloos/sdfs/types"
+	sdfsapitypes "soloos/sdfsapi/types"
 )
 
 // RawFileSystem is an interface close to the FUSE wire protocol.
@@ -92,29 +92,29 @@ type RawFileSystem interface {
 	FsInit()
 
 	// other
-	FetchFsINodeByID(fsINodeID sdfstypes.FsINodeID, fsINode *sdfstypes.FsINode) error
-	FetchFsINodeByPath(fsINodePath string, fsINode *sdfstypes.FsINode) error
+	FetchFsINodeByID(fsINodeID sdfsapitypes.FsINodeID, fsINode *sdfsapitypes.FsINode) error
+	FetchFsINodeByPath(fsINodePath string, fsINode *sdfsapitypes.FsINode) error
 	ListFsINodeByParentPath(parentPath string,
 		isFetchAllCols bool,
 		beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-		literalFunc func(sdfstypes.FsINode) bool,
+		literalFunc func(sdfsapitypes.FsINode) bool,
 	) error
 	DeleteFsINodeByPath(fsINodePath string) error
 	RenameWithFullPath(oldFsINodeName, newFsINodePath string) error
 
-	FdTableAllocFd(fsINodeID sdfstypes.FsINodeID) uint64
-	FdTableGetFd(fdID uint64) sdfstypes.FsINodeFileHandler
+	FdTableAllocFd(fsINodeID sdfsapitypes.FsINodeID) uint64
+	FdTableGetFd(fdID uint64) sdfsapitypes.FsINodeFileHandler
 	FdTableFdAddAppendPosition(fdID uint64, delta uint64)
 	FdTableFdAddReadPosition(fdID uint64, delta uint64)
 
-	SimpleOpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (sdfstypes.FsINode, error)
-	SimpleWriteWithMem(uNetINode sdfstypes.NetINodeUintptr, data []byte, offset uint64) error
-	SimpleReadWithMem(uNetINode sdfstypes.NetINodeUintptr, data []byte, offset uint64) (int, error)
-	SimpleFlush(uNetINode sdfstypes.NetINodeUintptr) error
+	SimpleOpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (sdfsapitypes.FsINode, error)
+	SimpleWriteWithMem(uNetINode sdfsapitypes.NetINodeUintptr, data []byte, offset uint64) error
+	SimpleReadWithMem(uNetINode sdfsapitypes.NetINodeUintptr, data []byte, offset uint64) (int, error)
+	SimpleFlush(uNetINode sdfsapitypes.NetINodeUintptr) error
 
 	SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, gid uint32) Status
-	SimpleMkdir(fsINode *sdfstypes.FsINode,
-		fsINodeID *sdfstypes.FsINodeID, parentID sdfstypes.FsINodeID,
+	SimpleMkdir(fsINode *sdfsapitypes.FsINode,
+		fsINodeID *sdfsapitypes.FsINodeID, parentID sdfsapitypes.FsINodeID,
 		perms uint32, name string,
 		uid uint32, gid uint32, rdev uint32) Status
 }

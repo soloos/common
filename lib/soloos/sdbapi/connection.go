@@ -1,4 +1,4 @@
-package dbcli
+package sdbapi
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ func (p *Connection) Init(dbDriver, dsn string) error {
 }
 
 func (p *Connection) ReplaceInto(
-	tx *dbr.Tx,
+	tx *Tx,
 	table string,
 	primaryColKey string,
 	updateColKey string,

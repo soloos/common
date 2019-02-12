@@ -1,4 +1,13 @@
 
+test-go-fuse-fuse:
+	go test soloos/go-fuse/fuse
+
+test-go-fuse-splice:
+	go test soloos/go-fuse/splice
+
+test-go-sql-parser:
+	go test soloos/go-sql/parser
+
 test-snet:
 	go test soloos/snet
 
@@ -11,4 +20,4 @@ test-tinyiron:
 test-util-offheap:
 	go test soloos/util/offheap
 
-test: test-snet test-snet-srpc test-tinyiron test-util-offheap
+test: test-go-fuse-fuse test-go-fuse-splice test-go-sql-parser test-snet test-snet-srpc test-tinyiron test-util-offheap

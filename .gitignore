@@ -5,3 +5,4 @@
 /test.data/
 .*.swp
 .*.swo
+/lib/soloos/go-sql/parser/parser.go

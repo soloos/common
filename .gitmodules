@@ -13,3 +13,6 @@
 [submodule "3rdlib/github.com/mattn/go-sqlite3"]
 	path = 3rdlib/github.com/mattn/go-sqlite3
 	url = git@github.com:mattn/go-sqlite3.git
+[submodule "3rdlib/github.com/pingcap/parser"]
+	path = 3rdlib/github.com/pingcap/parser
+	url = git@github.com:pingcap/parser.git
