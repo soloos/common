@@ -16,3 +16,21 @@
 [submodule "3rdlib/github.com/pingcap/parser"]
 	path = 3rdlib/github.com/pingcap/parser
 	url = git@github.com:pingcap/parser.git
+[submodule "3rdlib/github.com/BurntSushi/toml"]
+	path = 3rdlib/github.com/BurntSushi/toml
+	url = git@github.com:BurntSushi/toml
+[submodule "3rdlib/github.com/siddontang/go-mysql"]
+	path = 3rdlib/github.com/siddontang/go-mysql
+	url = git@github.com:siddontang/go-mysql.git
+[submodule "3rdlib/github.com/shopspring/decimal"]
+	path = 3rdlib/github.com/shopspring/decimal
+	url = git@github.com:shopspring/decimal
+[submodule "3rdlib/github.com/pingcap/errors"]
+	path = 3rdlib/github.com/pingcap/errors
+	url = git@github.com:pingcap/errors.git
+[submodule "3rdlib/github.com/siddontang/go-log"]
+	path = 3rdlib/github.com/siddontang/go-log
+	url = git@github.com:siddontang/go-log
+[submodule "3rdlib/github.com/siddontang/go"]
+	path = 3rdlib/github.com/siddontang/go
+	url = git@github.com:siddontang/go
