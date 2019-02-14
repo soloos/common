@@ -2,7 +2,7 @@ package types
 
 import (
 	"encoding/binary"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"unsafe"
 )
 

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+SOLOOS_SDBONE_PATH=/opt/soloos/sdbone
+# adjust GOPATH
+case ":$GOPATH:" in
+        *":$SOLOOS_SDBONE_PATH:"*) :;;
+        *) GOPATH=$SOLOOS_SDBONE_PATH:$GOPATH;;
+esac
+
 # adjust GOPATH
 case ":$GOPATH:" in
     *":$(pwd):"*) :;;

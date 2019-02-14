@@ -6,7 +6,7 @@ import (
 	"soloos/common/snet/protocol"
 	"soloos/common/snet/types"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"sync"
 	"sync/atomic"
 	"testing"

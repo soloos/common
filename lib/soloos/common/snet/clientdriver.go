@@ -3,7 +3,7 @@ package snet
 import (
 	"soloos/common/snet/srpc"
 	"soloos/common/snet/types"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type ClientDriver struct {

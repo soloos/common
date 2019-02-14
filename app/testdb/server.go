@@ -5,10 +5,10 @@ import (
 	"net"
 	"time"
 
-	"github.com.bak/siddontang/go-mysql/mysql"
-	"github.com.bak/siddontang/go-mysql/server"
-	"github.com.bak/siddontang/go-mysql/test_util/test_keys"
-	"github.com.bak/siddontang/go/log"
+	"github.com/siddontang/go-mysql/mysql"
+	"github.com/siddontang/go-mysql/server"
+	"github.com/siddontang/go-mysql/test_util/test_keys"
+	"github.com/siddontang/go/log"
 )
 
 type RemoteThrottleProvider struct {

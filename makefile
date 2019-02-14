@@ -7,6 +7,9 @@ SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
 
 GOBUILD = $(SDFS_PREFIX) go build
 
+clean-test-cache:
+	go clean -testcache
+
 %.fbs.go: $(SOLOOS_SNET_PROTOS)
 	flatc -o ./lib/soloos/common/snet -g $(SOLOOS_SNET_PROTOS)
 

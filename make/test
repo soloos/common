@@ -5,9 +5,6 @@ test-common-go-fuse-fuse:
 test-common-go-fuse-splice:
 	go test soloos/common/go-fuse/splice
 
-test-common-go-sql-parser:
-	go test soloos/common/go-sql/parser
-
 test-common-snet:
 	go test soloos/common/snet
 
@@ -17,7 +14,4 @@ test-common-snet-srpc:
 test-common-tinyiron:
 	go test soloos/common/tinyiron
 
-test-common-util-offheap:
-	go test soloos/common/util/offheap
-
-test: test-common-go-fuse-fuse test-common-go-fuse-splice test-common-go-sql-parser test-common-snet test-common-snet-srpc test-common-tinyiron test-common-util-offheap
+test: test-common-go-fuse-fuse test-common-go-fuse-splice test-common-snet test-common-snet-srpc test-common-tinyiron

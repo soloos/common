@@ -2,7 +2,7 @@ package srpc
 
 import (
 	"soloos/common/snet/types"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 func (p *Client) PrepareWaitResponse(reqID uint64, resp *types.Response) error {

@@ -1,9 +1,9 @@
 package snet
 
 import (
+	"soloos/sdbone/offheap"
 	"soloos/common/snet/types"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
 	"sync"
 )
 

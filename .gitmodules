@@ -19,9 +19,6 @@
 [submodule "3rdlib/github.com/BurntSushi/toml"]
 	path = 3rdlib/github.com/BurntSushi/toml
 	url = git@github.com:BurntSushi/toml
-[submodule "3rdlib/github.com/siddontang/go-mysql"]
-	path = 3rdlib/github.com/siddontang/go-mysql
-	url = git@github.com:siddontang/go-mysql.git
 [submodule "3rdlib/github.com/shopspring/decimal"]
 	path = 3rdlib/github.com/shopspring/decimal
 	url = git@github.com:shopspring/decimal
@@ -34,3 +31,9 @@
 [submodule "3rdlib/github.com/siddontang/go"]
 	path = 3rdlib/github.com/siddontang/go
 	url = git@github.com:siddontang/go
+[submodule "3rdlib/github.com/siddontang/go-mysql"]
+	path = 3rdlib/github.com/siddontang/go-mysql
+	url = git@github.com:soloos/go-mysql.git
+[submodule "3rdlib/github.com/fatih/color"]
+	path = 3rdlib/github.com/fatih/color
+	url = git@github.com:fatih/color

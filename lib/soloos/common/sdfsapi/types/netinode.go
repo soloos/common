@@ -1,7 +1,7 @@
 package types
 
 import (
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"sync"
 	"unsafe"
 )
@@ -27,7 +27,7 @@ func (u NetINodeUintptr) Ptr() *NetINode { return (*NetINode)(unsafe.Pointer(u))
 
 type NetINode struct {
 	SharedPointer  offheap.SharedPointer `db:"-"`
-	LastCommitSize uint64
+	LastCommitSize uint64                `db:"-"`
 
 	ID                  NetINodeID     `db:"netinode_id"`
 	Size                uint64         `db:"netinode_size"`
@@ -37,14 +37,14 @@ type NetINode struct {
 	SyncDataSig         sync.WaitGroup `db:"-"`
 	LastSyncDataError   error          `db:"-"`
 	DBMetaDataInitMutex sync.Mutex     `db:"-"`
-	IsDBMetaDataInited  bool           `db:"-"`
+	IsDBMetaDataInited  MetaDataState  `db:"-"`
 }
 
 func (p *NetINode) IDStr() string { return string(p.ID[:]) }
 
 func (p *NetINode) Reset() {
 	p.SharedPointer.Reset()
-	p.IsDBMetaDataInited = false
+	p.IsDBMetaDataInited.Reset()
 }
 
 // TODO return real blocks
