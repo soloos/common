@@ -102,7 +102,7 @@ func TestSRPCServer(t *testing.T) {
 
 	assert.NoError(t, clientDriver.Init(&offheap.DefaultOffheapDriver))
 
-	assert.NoError(t, offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(types.PeerStructSize), -1, nil, nil))
+	assert.NoError(t, peerPool.Init(int(types.PeerStructSize), -1, nil, nil))
 	uPeer = types.PeerUintptr(peerPool.AllocRawObject())
 	uPeer.Ptr().SetAddress(addr)
 
@@ -163,7 +163,7 @@ func BenchmarkSRPCServer(b *testing.B) {
 
 	util.AssertErrIsNil(clientDriver.Init(&offheap.DefaultOffheapDriver))
 
-	util.AssertErrIsNil(offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(types.PeerStructSize), -1, nil, nil))
+	util.AssertErrIsNil(peerPool.Init(int(types.PeerStructSize), -1, nil, nil))
 	uPeer = types.PeerUintptr(peerPool.AllocRawObject())
 	uPeer.Ptr().SetAddress(addr)
 

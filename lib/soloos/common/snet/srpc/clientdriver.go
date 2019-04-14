@@ -19,7 +19,7 @@ func (p *ClientDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
-	err = p.offheapDriver.InitRawObjectPool(&p.netConnReadSigPool, int(offheap.MutexStrutSize), -1, nil, nil)
+	err = p.netConnReadSigPool.Init(int(offheap.MutexStrutSize), -1, nil, nil)
 	if err != nil {
 		return err
 	}

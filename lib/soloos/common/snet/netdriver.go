@@ -1,9 +1,9 @@
 package snet
 
 import (
-	"soloos/sdbone/offheap"
 	"soloos/common/snet/types"
 	"soloos/common/util"
+	"soloos/sdbone/offheap"
 	"sync"
 )
 
@@ -18,7 +18,7 @@ type NetDriver struct {
 func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	var err error
 	p.offheapDriver = offheapDriver
-	err = p.offheapDriver.InitRawObjectPool(&p.peerPool, int(types.PeerStructSize), -1, nil, nil)
+	err = p.peerPool.Init(int(types.PeerStructSize), -1, nil, nil)
 	if err != nil {
 		return err
 	}

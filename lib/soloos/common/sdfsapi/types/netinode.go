@@ -26,8 +26,9 @@ func init() {
 func (u NetINodeUintptr) Ptr() *NetINode { return (*NetINode)(unsafe.Pointer(u)) }
 
 type NetINode struct {
-	SharedPointer  offheap.SharedPointer `db:"-"`
-	LastCommitSize uint64                `db:"-"`
+	offheap.LKVTableObjectWithBytes64 `db:"-"`
+
+	LastCommitSize uint64 `db:"-"`
 
 	ID                  NetINodeID     `db:"netinode_id"`
 	Size                uint64         `db:"netinode_size"`
@@ -43,7 +44,6 @@ type NetINode struct {
 func (p *NetINode) IDStr() string { return string(p.ID[:]) }
 
 func (p *NetINode) Reset() {
-	p.SharedPointer.Reset()
 	p.IsDBMetaDataInited.Reset()
 }
 

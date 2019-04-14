@@ -6,5 +6,5 @@ import (
 
 type Client interface {
 	Close() error
-	GetRawFileSystem() fsapi.RawFileSystem
+	GetPosixFS() fsapi.PosixFS
 }

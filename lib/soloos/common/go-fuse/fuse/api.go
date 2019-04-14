@@ -6,17 +6,17 @@
 // userspace in terms of raw FUSE protocol.
 //
 // A filesystem is implemented by implementing its server that provides a
-// RawFileSystem interface. Typically the server embeds
-// NewDefaultRawFileSystem() and implements only subset of filesystem methods:
+// PosixFS interface. Typically the server embeds
+// NewDefaultPosixFS() and implements only subset of filesystem methods:
 //
 //	type MyFS struct {
-//		fuse.RawFileSystem
+//		fuse.PosixFS
 //		...
 //	}
 //
 //	func NewMyFS() *MyFS {
 //		return &MyFS{
-//			RawFileSystem: fuse.NewDefaultRawFileSystem(),
+//			PosixFS: fuse.NewDefaultPosixFS(),
 //			...
 //		}
 //	}
@@ -32,7 +32,7 @@
 // Then the filesystem can be mounted and served to a client (typically OS
 // kernel) by creating Server:
 //
-//	fs := NewMyFS() // implements RawFileSystem
+//	fs := NewMyFS() // implements PosixFS
 //	fssrv, err := fuse.NewServer(fs, mountpoint, &fuse.MountOptions{...})
 //	if err != nil {
 //		...
@@ -62,7 +62,7 @@
 //
 //	fs.GetAttr(*GetAttrIn, *AttrOut)
 //
-// etc. Please refer to RawFileSystem documentation for details.
+// etc. Please refer to PosixFS documentation for details.
 //
 // Typically, each call of the API happens in its own
 // goroutine, so take care to make the file system thread-safe.

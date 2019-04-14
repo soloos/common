@@ -25,11 +25,11 @@ const (
 )
 
 // Server contains the logic for reading from the FUSE device and
-// translating it to RawFileSystem interface calls.
+// translating it to PosixFS interface calls.
 type Server struct {
 	// Empty if unmounted.
 	mountPoint string
-	fileSystem fsapi.RawFileSystem
+	fileSystem fsapi.PosixFS
 
 	// writeMu serializes close and notify writes
 	writeMu sync.Mutex
@@ -123,7 +123,7 @@ func (ms *Server) Unmount() (err error) {
 }
 
 // NewServer creates a server and attaches it to the given directory.
-func NewServer(fs fsapi.RawFileSystem, mountPoint string, opts *MountOptions) (*Server, error) {
+func NewServer(fs fsapi.PosixFS, mountPoint string, opts *MountOptions) (*Server, error) {
 	if opts == nil {
 		opts = &MountOptions{
 			MaxBackground: _DEFAULT_BACKGROUND_TASKS,
@@ -530,7 +530,7 @@ func (ms *Server) InodeNotifyStoreCache(node uint64, offset int64, data []byte) 
 }
 
 // inodeNotifyStoreCache32 is internal worker for InodeNotifyStoreCache which
-// handles data chunks not larger than 2GB.
+// handles data objects not larger than 2GB.
 func (ms *Server) inodeNotifyStoreCache32(node uint64, offset int64, data []byte) Status {
 	req := request{
 		inHeader: &InHeader{

@@ -1,10 +1,10 @@
 package types
 
-import "errors"
+import "golang.org/x/xerrors"
 
 var (
-	ErrMessageTooLong  = errors.New("message is too long")
-	ErrWrongVersion    = errors.New("wrong version")
-	ErrServiceNotFound = errors.New("service not found")
-	ErrClosedByUser    = errors.New("closed by user")
+	ErrMessageTooLong  = xerrors.New("message is too long")
+	ErrWrongVersion    = xerrors.New("wrong version")
+	ErrServiceNotFound = xerrors.New("service not found")
+	ErrClosedByUser    = xerrors.New("closed by user")
 )

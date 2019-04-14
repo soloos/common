@@ -23,7 +23,7 @@ type FsINodeUintptr uintptr
 func (u FsINodeUintptr) Ptr() *FsINode { return (*FsINode)(unsafe.Pointer(u)) }
 
 type FsINode struct {
-	SharedPointer     offheap.SharedPointer
+	HSharedPointer    offheap.HSharedPointer
 	LastModifyACMTime int64
 	LoadInMemAt       int64
 
@@ -48,5 +48,5 @@ type FsINode struct {
 }
 
 func (p *FsINode) Reset() {
-	p.SharedPointer.Reset()
+	p.HSharedPointer.Reset()
 }
