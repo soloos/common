@@ -1,7 +1,7 @@
 package types
 
 import (
-	"sync"
+	"soloos/sdbone/offheap"
 	"unsafe"
 )
 
@@ -17,12 +17,11 @@ type PeerUintptr uintptr
 func (u PeerUintptr) Ptr() *Peer { return (*Peer)(unsafe.Pointer(u)) }
 
 type Peer struct {
-	PeerID           PeerID
-	addressLen       int
-	Address          [128]byte
-	ServiceProtocol  int
-	MetaDataMutex    sync.Mutex `db:"-"`
-	IsMetaDataInited bool       `db:"-"`
+	offheap.LKVTableObjectWithBytes64 `db:"-"`
+
+	addressLen      int
+	Address         [128]byte
+	ServiceProtocol int
 }
 
 func (p *Peer) SetAddress(addr string) {
@@ -34,4 +33,4 @@ func (p *Peer) AddressStr() string {
 	return string(p.Address[:p.addressLen])
 }
 
-func (p *Peer) PeerIDStr() string { return string(p.PeerID[:]) }
+func (p *Peer) PeerIDStr() string { return string(p.ID[:]) }

@@ -4,72 +4,68 @@ import (
 	"soloos/common/snet/types"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
-	"sync"
 )
 
 type NetDriver struct {
 	offheapDriver *offheap.OffheapDriver
-	maxPeerID     int64
-	peerPool      offheap.RawObjectPool
-	peersRWMutex  sync.RWMutex
-	peers         map[types.PeerID]types.PeerUintptr
+	peers         offheap.LKVTableWithBytes64
 }
 
-func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
+func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver, name string) error {
 	var err error
 	p.offheapDriver = offheapDriver
-	err = p.peerPool.Init(int(types.PeerStructSize), -1, nil, nil)
+	err = p.offheapDriver.InitLKVTableWithBytes64(&p.peers, name,
+		int(types.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
-	p.peers = make(map[types.PeerID]types.PeerUintptr, 1024)
 
 	return nil
 }
 
+func (p *NetDriver) InitPeerID(peerID *types.PeerID) {
+	// todo: ensure peer id unique
+	util.InitUUID64(peerID)
+}
+
 func (p *NetDriver) GetPeer(peerID types.PeerID) types.PeerUintptr {
-	var ret types.PeerUintptr
-	p.peersRWMutex.RLock()
-	ret = p.peers[peerID]
-	p.peersRWMutex.RUnlock()
-	return ret
+	var ret uintptr
+	ret = p.peers.TryGetObjectWithAcquire(peerID)
+	if ret != 0 {
+		p.peers.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(ret))
+	}
+	return types.PeerUintptr(ret)
+}
+
+func (p *NetDriver) AllocPeer(addr string, protocol int) types.PeerUintptr {
+	var (
+		peerID types.PeerID
+		uPeer  types.PeerUintptr
+	)
+	p.InitPeerID(&peerID)
+	uPeer, _ = p.MustGetPeer(&peerID, addr, protocol)
+	p.peers.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uPeer))
+	return uPeer
 }
 
 // MustGetPee return uPeer and peer is inited before
 func (p *NetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int) (types.PeerUintptr, bool) {
-	var ret types.PeerUintptr
+	var (
+		u              uintptr
+		uPeer          types.PeerUintptr
+		afterSetNewObj offheap.KVTableAfterSetNewObj
+		loaded         bool
+	)
 
-	if peerID == nil {
-		ret = types.PeerUintptr(p.peerPool.AllocRawObject())
-		util.InitUUID64(&(ret.Ptr().PeerID))
-		ret.Ptr().SetAddress(addr)
-		ret.Ptr().ServiceProtocol = protocol
-		p.peersRWMutex.Lock()
-		p.peers[ret.Ptr().PeerID] = ret
-		p.peersRWMutex.Unlock()
-		return ret, false
+	u, afterSetNewObj = p.peers.MustGetObjectWithAcquire(*peerID)
+	loaded = afterSetNewObj == nil
+	uPeer = types.PeerUintptr(u)
+	if afterSetNewObj != nil {
+		uPeer.Ptr().SetAddress(addr)
+		uPeer.Ptr().ServiceProtocol = protocol
+		afterSetNewObj()
 	}
+	p.peers.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uPeer))
 
-	p.peersRWMutex.RLock()
-	ret = p.peers[*peerID]
-	if ret != 0 {
-		p.peersRWMutex.RUnlock()
-		return ret, true
-	}
-	p.peersRWMutex.RUnlock()
-
-	p.peersRWMutex.Lock()
-	ret = p.peers[*peerID]
-	if ret != 0 {
-		p.peersRWMutex.Unlock()
-		return ret, true
-	}
-	ret = types.PeerUintptr(p.peerPool.AllocRawObject())
-	ret.Ptr().PeerID = *peerID
-	ret.Ptr().SetAddress(addr)
-	ret.Ptr().ServiceProtocol = protocol
-	p.peers[*peerID] = ret
-	p.peersRWMutex.Unlock()
-
-	return ret, false
+	return uPeer, loaded
 }
