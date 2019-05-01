@@ -45,17 +45,15 @@ func runSRPCServer() (string, error) {
 	srpcServerAddr = allocAddr()
 	util.AssertErrIsNil(srpcServer.Init("tcp", srpcServerAddr))
 
-	srpcServer.RegisterService("/test", func(reqID uint64,
-		reqBodySize, reqParamSize uint32,
-		conn *types.Connection) error {
+	srpcServer.RegisterService("/test", func(serviceReq types.ServiceRequest) error {
 		var err error
 		{
 			// read
 			// var serviceReadBuf = make([]byte, reqBodySize)
-			if len(serviceReadBuf) != int(reqBodySize) {
+			if len(serviceReadBuf) != int(serviceReq.ReqBodySize) {
 				panic("error")
 			}
-			err = conn.ReadAll(serviceReadBuf)
+			err = serviceReq.Conn.ReadAll(serviceReadBuf)
 			if err != nil {
 				return err
 			}
@@ -69,7 +67,7 @@ func runSRPCServer() (string, error) {
 
 		{
 			// write
-			err = conn.SimpleResponse(reqID, rpcMessageBytes)
+			err = serviceReq.Conn.SimpleResponse(serviceReq.ReqID, rpcMessageBytes)
 			if err != nil {
 				return err
 			}

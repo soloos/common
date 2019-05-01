@@ -19,8 +19,8 @@ func (p *Server) Init(network, address string) error {
 	p.network = network
 	p.address = address
 	p.services = make(map[types.ServiceID]types.Service)
-	p.RegisterService("/Close", func(reqID uint64, reqBodySize, reqParamSize uint32, conn *types.Connection) error {
-		return conn.Close(types.ErrClosedByUser)
+	p.RegisterService("/Close", func(serviceReq types.ServiceRequest) error {
+		return serviceReq.Conn.Close(types.ErrClosedByUser)
 	})
 	return nil
 }
@@ -103,7 +103,13 @@ func (p *Server) serveConn(netConn net.Conn) {
 				}
 			}
 
-			err = localService(header.ID(), reqBodySize, reqParamSize, &conn)
+			var serviceReq = types.ServiceRequest{
+				ReqID:        header.ID(),
+				ReqBodySize:  reqBodySize,
+				ReqParamSize: reqParamSize,
+				Conn:         &conn,
+			}
+			err = localService(serviceReq)
 			if err != nil {
 				return
 			}
