@@ -43,9 +43,12 @@ func (p *NetDriver) AllocPeer(addr string, protocol int) types.PeerUintptr {
 		uPeer  types.PeerUintptr
 	)
 	p.InitPeerID(&peerID)
-	uPeer, _ = p.MustGetPeer(&peerID, addr, protocol)
-	p.peers.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uPeer))
+	uPeer, _ = p.RegisterPeer(&peerID, addr, protocol)
 	return uPeer
+}
+
+func (p *NetDriver) RegisterPeer(peerID *types.PeerID, addr string, protocol int) (types.PeerUintptr, bool) {
+	return p.MustGetPeer(peerID, addr, protocol)
 }
 
 // MustGetPee return uPeer and peer is inited before

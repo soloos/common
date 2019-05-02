@@ -15,6 +15,9 @@ clean-test-cache:
 
 fbs: $(GENERATED_PROTOS)
 
+soloos-tool:
+	$(GOBUILD) -o ./bin/soloos-tool soloos-tool
+
 go-sql-parser:
 	@cd ./3rdlib/github.com/pingcap/parser && \
 		GO111MODULE=on go get -u github.com/pingcap/parser@master && \
