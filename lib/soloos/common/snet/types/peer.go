@@ -12,13 +12,20 @@ const (
 	PeerIDBytesNum = 64
 )
 
-type PeerID = [PeerIDBytesNum]byte
+type PeerID [PeerIDBytesNum]byte
+type PeerUintptr uintptr
 
 func InitTmpPeerID(peerID *PeerID) {
-	util.InitUUID64(peerID)
+	util.InitUUID64((*[64]byte)(peerID))
 }
 
-type PeerUintptr uintptr
+func (p PeerID) Str() string {
+	return string(p[:])
+}
+
+func (p *PeerID) SetStr(peerIDStr string) {
+	copy((*p)[:], peerIDStr)
+}
 
 func (u PeerUintptr) Ptr() *Peer { return (*Peer)(unsafe.Pointer(u)) }
 

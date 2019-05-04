@@ -2,7 +2,6 @@ package snet
 
 import (
 	"soloos/common/snet/types"
-	"soloos/common/util"
 	"soloos/sdbone/offheap"
 )
 
@@ -25,7 +24,7 @@ func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver, name string) erro
 
 func (p *NetDriver) InitPeerID(peerID *types.PeerID) {
 	// todo: ensure peer id unique
-	util.InitUUID64(peerID)
+	types.InitTmpPeerID(peerID)
 }
 
 func (p *NetDriver) GetPeer(peerID types.PeerID) types.PeerUintptr {

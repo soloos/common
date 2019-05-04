@@ -1,7 +1,11 @@
 package sdfsapi
 
+import (
+	soloosbase "soloos/common/soloosapi/base"
+)
+
 type ClientDriver interface {
-	Init(nameNodeSRPCServerAddr string,
+	Init(soloOSEnv *soloosbase.SoloOSEnv, nameNodeSRPCServerAddr string,
 		dbDriver string, dsn string,
 	) error
 	InitClient(client Client,

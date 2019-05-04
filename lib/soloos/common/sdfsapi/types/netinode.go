@@ -1,6 +1,7 @@
 package types
 
 import (
+	"soloos/common/util"
 	"soloos/sdbone/offheap"
 	"sync"
 	"unsafe"
@@ -12,12 +13,20 @@ const (
 	NetINodeStructSize = unsafe.Sizeof(NetINode{})
 )
 
-type NetINodeID = [NetINodeIDBytesNum]byte
-type NetINodeUintptr uintptr
-
 var (
 	ZeroNetINodeID NetINodeID
 )
+
+type NetINodeID [NetINodeIDBytesNum]byte
+type NetINodeUintptr uintptr
+
+func InitTmpNetINodeID(netINodeID *NetINodeID) {
+	util.InitUUID64((*[64]byte)(netINodeID))
+}
+
+func (p NetINodeID) Str() string {
+	return string(p[:])
+}
 
 func init() {
 	copy(ZeroNetINodeID[:], ([]byte("0000000000000000000000000000000000000000000000000000000000000000")[:64]))

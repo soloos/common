@@ -86,6 +86,9 @@ func runSRPCServer() (string, error) {
 }
 
 func TestSRPCServer(t *testing.T) {
+	var defaultOffheapDriver offheap.OffheapDriver
+	util.AssertErrIsNil(defaultOffheapDriver.Init())
+
 	addr, err := runSRPCServer()
 	assert.NoError(t, err)
 
@@ -98,7 +101,7 @@ func TestSRPCServer(t *testing.T) {
 	)
 	serviceSig.Add(callTimes)
 
-	assert.NoError(t, clientDriver.Init(&offheap.DefaultOffheapDriver))
+	assert.NoError(t, clientDriver.Init(&defaultOffheapDriver))
 
 	assert.NoError(t, peerPool.Init(int(types.PeerStructSize), -1, nil, nil))
 	uPeer = types.PeerUintptr(peerPool.AllocRawObject())
@@ -148,6 +151,9 @@ func TestSRPCServer(t *testing.T) {
 }
 
 func BenchmarkSRPCServer(b *testing.B) {
+	var defaultOffheapDriver offheap.OffheapDriver
+	util.AssertErrIsNil(defaultOffheapDriver.Init())
+
 	// cleanRpcGOServer()
 	runtime.GC()
 	addr, err := runSRPCServer()
@@ -159,7 +165,7 @@ func BenchmarkSRPCServer(b *testing.B) {
 		uPeer        types.PeerUintptr
 	)
 
-	util.AssertErrIsNil(clientDriver.Init(&offheap.DefaultOffheapDriver))
+	util.AssertErrIsNil(clientDriver.Init(&defaultOffheapDriver))
 
 	util.AssertErrIsNil(peerPool.Init(int(types.PeerStructSize), -1, nil, nil))
 	uPeer = types.PeerUintptr(peerPool.AllocRawObject())
