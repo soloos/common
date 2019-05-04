@@ -3,6 +3,8 @@ package types
 import (
 	"soloos/sdbone/offheap"
 	"unsafe"
+
+	"soloos/common/util"
 )
 
 const (
@@ -11,6 +13,10 @@ const (
 )
 
 type PeerID = [PeerIDBytesNum]byte
+
+func InitTmpPeerID(peerID *PeerID) {
+	util.InitUUID64(peerID)
+}
 
 type PeerUintptr uintptr
 
