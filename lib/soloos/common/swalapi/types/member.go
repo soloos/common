@@ -6,5 +6,5 @@ import (
 
 type SWALMember struct {
 	PeerID   snettypes.PeerID
-	IsLeader bool
+	IsLeader int
 }

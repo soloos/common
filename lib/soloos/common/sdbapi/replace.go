@@ -4,43 +4,53 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+
+	"github.com/gocraft/dbr"
 )
 
 type ReplaceStmt struct {
-	dialect       string
-	tx            *Tx
-	table         string
-	primaryColumn string
-	primaryValue  interface{}
-	column        []string
-	value         []interface{}
+	dialect        string
+	runner         dbr.SessionRunner
+	table          string
+	primaryColumns []string
+	primaryValues  []interface{}
+	columns        []string
+	values         []interface{}
 }
 
 func (p *Tx) ReplaceInto(table string) *ReplaceStmt {
 	return &ReplaceStmt{
 		dialect: p.Dialect,
-		tx:      p,
+		runner:  p,
 		table:   table,
 	}
 }
 
-func (p *ReplaceStmt) PrimaryColumn(column string) *ReplaceStmt {
-	p.primaryColumn = column
+func (p *Session) ReplaceInto(table string) *ReplaceStmt {
+	return &ReplaceStmt{
+		dialect: p.Dialect,
+		runner:  p,
+		table:   table,
+	}
+}
+
+func (p *ReplaceStmt) PrimaryColumns(columns ...string) *ReplaceStmt {
+	p.primaryColumns = columns
 	return p
 }
 
-func (p *ReplaceStmt) PrimaryValue(value interface{}) *ReplaceStmt {
-	p.primaryValue = value
+func (p *ReplaceStmt) PrimaryValues(values ...interface{}) *ReplaceStmt {
+	p.primaryValues = values
 	return p
 }
 
-func (p *ReplaceStmt) Columns(column ...string) *ReplaceStmt {
-	p.column = column
+func (p *ReplaceStmt) Columns(columns ...string) *ReplaceStmt {
+	p.columns = columns
 	return p
 }
 
-func (p *ReplaceStmt) Values(value ...interface{}) *ReplaceStmt {
-	p.value = value
+func (p *ReplaceStmt) Values(values ...interface{}) *ReplaceStmt {
+	p.values = values
 	return p
 }
 
@@ -55,35 +65,35 @@ func (p *ReplaceStmt) Exec() error {
 	)
 
 	insertColumnsPlaceHolders.WriteString("?")
-	for i = 1; i < 1+len(p.column); i++ {
+	for i = 1; i < len(p.primaryColumns)+len(p.columns); i++ {
 		insertColumnsPlaceHolders.WriteString(",?")
 	}
 
-	updateColumnsPlaceHolders.WriteString(fmt.Sprintf("%s = ?", p.column[0]))
-	for i = 1; i < len(p.column); i++ {
-		updateColumnsPlaceHolders.WriteString(fmt.Sprintf(", %s = ?", p.column[i]))
+	updateColumnsPlaceHolders.WriteString(fmt.Sprintf("%s = ?", p.columns[0]))
+	for i = 1; i < len(p.columns); i++ {
+		updateColumnsPlaceHolders.WriteString(fmt.Sprintf(", %s = ?", p.columns[i]))
 	}
 
 	tpl.WriteString(
 		fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES (%s) ", p.table,
-			p.primaryColumn, strings.Join(p.column, ","),
+			strings.Join(p.primaryColumns, ","), strings.Join(p.columns, ","),
 			insertColumnsPlaceHolders.String()))
 
 	if p.dialect == "sqlite3" {
 		tpl.WriteString(fmt.Sprintf(" ON CONFLICT(%s) DO UPDATE SET %s;",
-			p.primaryColumn,
+			strings.Join(p.primaryColumns, ","),
 			updateColumnsPlaceHolders.String()))
-		updateValues = append(updateValues, p.primaryValue)
-		updateValues = append(updateValues, p.value...)
-		updateValues = append(updateValues, p.value...)
+		updateValues = append(updateValues, p.primaryValues...)
+		updateValues = append(updateValues, p.values...)
+		updateValues = append(updateValues, p.values...)
 	} else {
 		tpl.WriteString(fmt.Sprintf(" ON DUPLICATE KEY UPDATE %s;",
 			updateColumnsPlaceHolders.String()))
-		updateValues = append(updateValues, p.primaryValue)
-		updateValues = append(updateValues, p.value...)
-		updateValues = append(updateValues, p.value...)
+		updateValues = append(updateValues, p.primaryValues...)
+		updateValues = append(updateValues, p.values...)
+		updateValues = append(updateValues, p.values...)
 	}
 
-	_, err = p.tx.UpdateBySql(tpl.String(), updateValues...).Exec()
+	_, err = p.runner.UpdateBySql(tpl.String(), updateValues...).Exec()
 	return err
 }
