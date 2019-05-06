@@ -40,7 +40,7 @@ type NetINode struct {
 
 	LastCommitSize uint64 `db:"-"`
 
-	ID                  NetINodeID                `db:"netinode_id"`
+	NetINodeID          NetINodeID                `db:"netinode_id"`
 	Size                uint64                    `db:"netinode_size"`
 	NetBlockCap         int                       `db:"netblock_cap"`
 	MemBlockCap         int                       `db:"memblock_cap"`

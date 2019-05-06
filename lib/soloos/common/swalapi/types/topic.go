@@ -1,15 +1,18 @@
 package types
 
-import "unsafe"
+import (
+	"soloos/sdbone/offheap"
+	"unsafe"
+)
 
 const (
-	TopicStructSize = unsafe.Sizeof(Topic{})
-	TopicIDBytesCap = 64
+	TopicStructSize  = unsafe.Sizeof(Topic{})
+	TopicIDBytesNums = 64
 )
 
 type TopicID struct {
+	Data    [TopicIDBytesNums]byte
 	dataLen int
-	Data    [TopicIDBytesCap]byte
 }
 type TopicUintptr uintptr
 
@@ -29,6 +32,7 @@ func (p *TopicID) SetStr(topicIDStr string) {
 }
 
 type Topic struct {
+	offheap.LKVTableObjectWithBytes64
 	TopicID         TopicID
 	SWALMemberGroup SWALMemberGroup
 }

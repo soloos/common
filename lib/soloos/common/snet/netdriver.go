@@ -53,15 +53,15 @@ func (p *NetDriver) RegisterPeer(peerID *types.PeerID, addr string, protocol int
 // MustGetPee return uPeer and peer is inited before
 func (p *NetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int) (types.PeerUintptr, bool) {
 	var (
-		u              uintptr
+		uObject        offheap.LKVTableObjectUPtrWithBytes64
 		uPeer          types.PeerUintptr
 		afterSetNewObj offheap.KVTableAfterSetNewObj
 		loaded         bool
 	)
 
-	u, afterSetNewObj = p.peers.MustGetObjectWithAcquire(*peerID)
+	uObject, afterSetNewObj = p.peers.MustGetObjectWithAcquire(*peerID)
 	loaded = afterSetNewObj == nil
-	uPeer = types.PeerUintptr(u)
+	uPeer = types.PeerUintptr(uObject)
 	if afterSetNewObj != nil {
 		uPeer.Ptr().SetAddress(addr)
 		uPeer.Ptr().ServiceProtocol = protocol
