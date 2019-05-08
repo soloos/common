@@ -7,13 +7,13 @@ import (
 
 type NetDriver struct {
 	offheapDriver *offheap.OffheapDriver
-	peers         offheap.LKVTableWithBytes64
+	peerTable     offheap.LKVTableWithBytes64
 }
 
 func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver, name string) error {
 	var err error
 	p.offheapDriver = offheapDriver
-	err = p.offheapDriver.InitLKVTableWithBytes64(&p.peers, name,
+	err = p.offheapDriver.InitLKVTableWithBytes64(&p.peerTable, name,
 		int(types.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
@@ -29,10 +29,8 @@ func (p *NetDriver) InitPeerID(peerID *types.PeerID) {
 
 func (p *NetDriver) GetPeer(peerID types.PeerID) types.PeerUintptr {
 	var ret uintptr
-	ret = p.peers.TryGetObjectWithAcquire(peerID)
-	if ret != 0 {
-		p.peers.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(ret))
-	}
+	ret = p.peerTable.TryGetObject(peerID)
+	p.peerTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(ret))
 	return types.PeerUintptr(ret)
 }
 
@@ -59,7 +57,7 @@ func (p *NetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int)
 		loaded         bool
 	)
 
-	uObject, afterSetNewObj = p.peers.MustGetObjectWithAcquire(*peerID)
+	uObject, afterSetNewObj = p.peerTable.MustGetObject(*peerID)
 	loaded = afterSetNewObj == nil
 	uPeer = types.PeerUintptr(uObject)
 	if afterSetNewObj != nil {
@@ -67,7 +65,7 @@ func (p *NetDriver) MustGetPeer(peerID *types.PeerID, addr string, protocol int)
 		uPeer.Ptr().ServiceProtocol = protocol
 		afterSetNewObj()
 	}
-	p.peers.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uPeer))
+	p.peerTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uPeer))
 
 	return uPeer, loaded
 }

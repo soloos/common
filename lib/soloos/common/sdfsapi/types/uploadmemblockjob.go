@@ -18,13 +18,13 @@ func (u UploadMemBlockJobUintptr) Ptr() *UploadMemBlockJob {
 }
 
 type UploadMemBlockJob struct {
-	MetaDataStateMutex     sync.Mutex
 	MetaDataState          sdbapitypes.MetaDataState
 	SyncDataSig            sync.WaitGroup
 	UNetINode              NetINodeUintptr
 	UNetBlock              NetBlockUintptr
 	UMemBlock              MemBlockUintptr
 	MemBlockIndex          int32
+	UploadMaskMutex        sync.Mutex
 	UploadMaskWaitingIndex int
 	UploadMask             [2]offheap.ChunkMask
 	UploadMaskWaiting      offheap.ChunkMaskUintptr

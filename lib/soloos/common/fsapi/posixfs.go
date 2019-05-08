@@ -92,12 +92,12 @@ type PosixFS interface {
 	FsInit()
 
 	// other
-	FetchFsINodeByID(fsINodeID sdfsapitypes.FsINodeID, fsINode *sdfsapitypes.FsINode) error
-	FetchFsINodeByPath(fsINodePath string, fsINode *sdfsapitypes.FsINode) error
+	FetchFsINodeByID(pFsINodeMeta *sdfsapitypes.FsINodeMeta, fsINodeID sdfsapitypes.FsINodeID) error
+	FetchFsINodeByPath(pFsINodeMeta *sdfsapitypes.FsINodeMeta, fsINodePath string) error
 	ListFsINodeByParentPath(parentPath string,
 		isFetchAllCols bool,
 		beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-		literalFunc func(sdfsapitypes.FsINode) bool,
+		literalFunc func(sdfsapitypes.FsINodeMeta) bool,
 	) error
 	DeleteFsINodeByPath(fsINodePath string) error
 	RenameWithFullPath(oldFsINodeName, newFsINodePath string) error
@@ -107,13 +107,13 @@ type PosixFS interface {
 	FdTableFdAddAppendPosition(fdID uint64, delta uint64)
 	FdTableFdAddReadPosition(fdID uint64, delta uint64)
 
-	SimpleOpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (sdfsapitypes.FsINode, error)
-	SimpleWriteWithMem(uNetINode sdfsapitypes.NetINodeUintptr, data []byte, offset uint64) error
-	SimpleReadWithMem(uNetINode sdfsapitypes.NetINodeUintptr, data []byte, offset uint64) (int, error)
-	SimpleFlush(uNetINode sdfsapitypes.NetINodeUintptr) error
+	SimpleOpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (sdfsapitypes.FsINodeMeta, error)
+	SimpleWriteWithMem(fsINodeID sdfsapitypes.FsINodeID, data []byte, offset uint64) error
+	SimpleReadWithMem(fsINodeID sdfsapitypes.FsINodeID, data []byte, offset uint64) (int, error)
+	SimpleFlush(fsINodeID sdfsapitypes.FsINodeID) error
 
 	SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, gid uint32) Status
-	SimpleMkdir(fsINode *sdfsapitypes.FsINode,
+	SimpleMkdir(fsINodeMeta *sdfsapitypes.FsINodeMeta,
 		fsINodeID *sdfsapitypes.FsINodeID, parentID sdfsapitypes.FsINodeID,
 		perms uint32, name string,
 		uid uint32, gid uint32, rdev uint32) Status

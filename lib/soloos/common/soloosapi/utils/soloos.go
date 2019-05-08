@@ -1,7 +1,6 @@
 package base
 
 import (
-	"soloos/common/fsapi"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/libsdfs"
 	"soloos/swal/libswal"
@@ -17,10 +16,7 @@ type SoloOS struct {
 	soloosbase.SoloOSEnv
 
 	SDFSClientDriver libsdfs.ClientDriver
-	SDFSClient       libsdfs.Client
-	PosixFS          fsapi.PosixFS
 	SWALClientDriver libswal.ClientDriver
-	SWALClient       libswal.Client
 }
 
 func InitSoloOSInstance(options Options) error {

@@ -10,10 +10,5 @@ func (p *SoloOS) initSWAL() error {
 		return err
 	}
 
-	err = p.SWALClientDriver.InitClient(&p.SWALClient)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

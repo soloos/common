@@ -17,3 +17,9 @@ func (p *SWALMemberGroup) Append(value SWALMember) {
 func (p *SWALMemberGroup) Slice() []SWALMember {
 	return p.Arr[:p.Len]
 }
+
+func (p *SWALMemberGroup) SetSWALMembers(swalMembers []SWALMember) {
+	for i := 0; i < len(p.Arr) && i < len(swalMembers); i++ {
+		p.Append(swalMembers[i])
+	}
+}

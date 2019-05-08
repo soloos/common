@@ -10,14 +10,5 @@ func (p *SoloOS) initSDFS() error {
 		return err
 	}
 
-	err = p.SDFSClientDriver.InitClient(&p.SDFSClient,
-		defautlNetBlockCap,
-		defautlMemBlockCap, defautlMemBlocksLimit)
-	if err != nil {
-		return err
-	}
-
-	p.PosixFS = p.SDFSClient.GetPosixFS()
-
 	return nil
 }

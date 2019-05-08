@@ -1,6 +1,8 @@
 package types
 
 import (
+	"bytes"
+	sdbapitypes "soloos/common/sdbapi/types"
 	"soloos/sdbone/offheap"
 	"unsafe"
 )
@@ -11,8 +13,8 @@ const (
 )
 
 type TopicID struct {
-	Data    [TopicIDBytesNums]byte
-	dataLen int
+	Bytes    [TopicIDBytesNums]byte
+	bytesLen int
 }
 type TopicUintptr uintptr
 
@@ -23,16 +25,38 @@ func StrToTopicID(topicIDStr string) TopicID {
 }
 
 func (p TopicID) Str() string {
-	return string(p.Data[:p.dataLen])
+	return string(p.Bytes[:p.bytesLen])
 }
 
 func (p *TopicID) SetStr(topicIDStr string) {
-	p.dataLen = len(topicIDStr)
-	copy(p.Data[:p.dataLen], topicIDStr)
+	p.bytesLen = len(topicIDStr)
+	copy(p.Bytes[:p.bytesLen], topicIDStr)
+}
+
+func (p *TopicID) SetBytes(in [TopicIDBytesNums]byte) {
+	var index = bytes.IndexByte(in[:], 0)
+	if index == -1 {
+		p.bytesLen = TopicIDBytesNums
+		copy(p.Bytes[:], in[:])
+	} else {
+		p.bytesLen = index
+		copy(p.Bytes[:index], in[:index])
+	}
+}
+
+func (u TopicUintptr) Ptr() *Topic { return (*Topic)(unsafe.Pointer(u)) }
+
+type TopicMeta struct {
+	TopicID         TopicID
+	SWALMemberGroup SWALMemberGroup
 }
 
 type Topic struct {
 	offheap.LKVTableObjectWithBytes64
-	TopicID         TopicID
-	SWALMemberGroup SWALMemberGroup
+	IsDBMetaDataInited sdbapitypes.MetaDataState
+	Meta               TopicMeta
+}
+
+func (p *Topic) Reset() {
+	p.IsDBMetaDataInited.Reset()
 }

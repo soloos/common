@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdbapitypes "soloos/common/sdbapi/types"
 	"soloos/sdbone/offheap"
 	"unsafe"
 )
@@ -22,8 +23,7 @@ type FsINodeUintptr uintptr
 
 func (u FsINodeUintptr) Ptr() *FsINode { return (*FsINode)(unsafe.Pointer(u)) }
 
-type FsINode struct {
-	HSharedPointer    offheap.HSharedPointer
+type FsINodeMeta struct {
 	LastModifyACMTime int64
 	LoadInMemAt       int64
 
@@ -31,7 +31,8 @@ type FsINode struct {
 	HardLinkIno FsINodeID
 	NetINodeID  NetINodeID
 	ParentID    FsINodeID
-	Name        string
+	nameLen     int
+	nameBytes   [MaxFsINodeNameLen]byte
 	Type        int
 	Atime       DirTreeTime
 	Ctime       DirTreeTime
@@ -44,9 +45,31 @@ type FsINode struct {
 	Uid         uint32
 	Gid         uint32
 	Rdev        uint32
-	UNetINode   NetINodeUintptr
+}
+
+func (p *FsINodeMeta) SetName(nameStr string) {
+	p.nameLen = len(nameStr)
+	if p.nameLen > MaxFsINodeNameLen {
+		p.nameLen = MaxFsINodeNameLen
+	}
+	copy(p.nameBytes[:p.nameLen], []byte(nameStr))
+}
+
+func (p *FsINodeMeta) Name() string {
+	return string(p.nameBytes[:p.nameLen])
+}
+
+func (p *FsINodeMeta) NameLen() int {
+	return p.nameLen
+}
+
+type FsINode struct {
+	offheap.LKVTableObjectWithUint64 `db:"-"`
+	Meta                             FsINodeMeta
+	UNetINode                        NetINodeUintptr
+	IsDBMetaDataInited               sdbapitypes.MetaDataState `db:"-"`
 }
 
 func (p *FsINode) Reset() {
-	p.HSharedPointer.Reset()
+	// p.LKVTableObjectWithUint64.Reset()
 }

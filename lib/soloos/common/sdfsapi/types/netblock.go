@@ -4,7 +4,6 @@ import (
 	sdbapitypes "soloos/common/sdbapi/types"
 	snettypes "soloos/common/snet/types"
 	"soloos/sdbone/offheap"
-	"sync"
 	"unsafe"
 )
 
@@ -25,16 +24,14 @@ type NetBlock struct {
 	Len             int        `db:"netblock_len"`
 	Cap             int        `db:"netblock_cap"`
 
-	StorDataBackends    snettypes.PeerGroup       `db:"-"`
-	IsDBMetaDataInited  sdbapitypes.MetaDataState `db:"-"`
-	DBMetaDataInitMutex sync.Mutex                `db:"-"`
+	StorDataBackends   snettypes.PeerGroup       `db:"-"`
+	IsDBMetaDataInited sdbapitypes.MetaDataState `db:"-"`
 
 	SyncDataBackends                    snettypes.PeerGroup       `db:"-"`
 	SyncDataPrimaryBackendTransferCount int                       `db:"-"`
 	IsSyncDataBackendsInited            sdbapitypes.MetaDataState `db:"-"`
 	LocalDataBackend                    snettypes.PeerUintptr     `db:"-"`
 	IsLocalDataBackendInited            sdbapitypes.MetaDataState `db:"-"`
-	MemMetaDataInitMutex                sync.Mutex                `db:"-"`
 }
 
 func (p *NetBlock) NetINodeIDStr() string { return string(p.NetINodeID[:]) }

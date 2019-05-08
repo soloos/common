@@ -19,6 +19,12 @@ func InitTmpPeerID(peerID *PeerID) {
 	util.InitUUID64((*[64]byte)(peerID))
 }
 
+func StrToPeerID(peerIDStr string) PeerID {
+	var ret PeerID
+	ret.SetStr(peerIDStr)
+	return ret
+}
+
 func (p PeerID) Str() string {
 	return string(p[:])
 }
