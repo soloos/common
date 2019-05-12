@@ -40,7 +40,7 @@ func (p *ClientDriver) AsyncCall(uPeer types.PeerUintptr,
 	}
 
 	reqID := client.AllocRequestID()
-	err = client.PrepareWaitResponse(reqID, resp)
+	err = client.prepareWaitResponse(reqID, resp)
 	if err != nil {
 		return err
 	}

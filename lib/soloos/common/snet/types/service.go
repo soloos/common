@@ -5,10 +5,4 @@ const (
 )
 
 type ServiceID = [ServiceIDLen]byte
-type ServiceRequest struct {
-	ReqID        uint64
-	ReqBodySize  uint32
-	ReqParamSize uint32
-	Conn         *Connection
-}
-type Service func(req ServiceRequest) error
+type Service func(req NetQuery) error

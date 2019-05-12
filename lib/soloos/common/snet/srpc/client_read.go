@@ -5,13 +5,31 @@ import (
 	"soloos/sdbone/offheap"
 )
 
-func (p *Client) PrepareWaitResponse(reqID uint64, resp *types.Response) error {
+func (p *Client) prepareWaitResponse(reqID uint64, resp *types.Response) error {
 	resp.NetConnReadSig = offheap.MutexUintptr(p.clientDriver.netConnReadSigPool.AllocRawObject())
 	resp.NetConnReadSig.Ptr().Lock()
 
 	p.reqSigMapMutex.Lock()
 	p.reqSigMap[reqID] = resp.NetConnReadSig
 	p.reqSigMapMutex.Unlock()
+	return nil
+}
+
+func (p *Client) activiateRequestSig(reqID uint64) error {
+	var netConnReadSig offheap.MutexUintptr
+
+	p.reqSigMapMutex.Lock()
+	netConnReadSig = p.reqSigMap[reqID]
+	delete(p.reqSigMap, reqID)
+	p.reqSigMapMutex.Unlock()
+
+	if netConnReadSig == 0 {
+		return types.ErrObjectNotExists
+	}
+
+	// activiate req
+	netConnReadSig.Ptr().Unlock()
+
 	return nil
 }
 
@@ -32,20 +50,6 @@ func (p *Client) WaitResponse(req *types.Request, resp *types.Response) error {
 
 func (p *Client) ReadResponse(respBody []byte) error {
 	return p.Conn.ReadAll(respBody)
-}
-
-func (p *Client) activiateRequestSig(reqID uint64) error {
-	var netConnReadSig offheap.MutexUintptr
-
-	p.reqSigMapMutex.Lock()
-	netConnReadSig = p.reqSigMap[reqID]
-	delete(p.reqSigMap, reqID)
-	p.reqSigMapMutex.Unlock()
-
-	// activiate req
-	netConnReadSig.Ptr().Unlock()
-
-	return nil
 }
 
 func (p *Client) cronReadResponse() error {
@@ -74,8 +78,8 @@ func (p *Client) cronReadResponse() error {
 		}
 
 		// wait read done
-		p.Conn.ContinueReadSig.Lock()
-		p.Conn.ContinueReadSig.Unlock()
+		p.Conn.ReadAcquire()
+		p.Conn.ReadRelease()
 	}
 
 FETCH_DATA_DONE:

@@ -19,7 +19,7 @@ func (p *Server) Init(network, address string) error {
 	p.network = network
 	p.address = address
 	p.services = make(map[types.ServiceID]types.Service)
-	p.RegisterService("/Close", func(serviceReq types.ServiceRequest) error {
+	p.RegisterService("/Close", func(serviceReq types.NetQuery) error {
 		return serviceReq.Conn.Close(types.ErrClosedByUser)
 	})
 	return nil
@@ -62,7 +62,7 @@ func (p *Server) serveListener(ln net.Listener) error {
 func (p *Server) serveConn(netConn net.Conn) {
 	var (
 		conn          types.Connection
-		header        types.RequestHeader
+		reqHeader     types.RequestHeader
 		serviceID     types.ServiceID
 		service       types.Service
 		reqID         uint64
@@ -76,21 +76,21 @@ func (p *Server) serveConn(netConn net.Conn) {
 	conn.SetNetConn(netConn)
 
 	for {
-		// read header
-		err = conn.ReadRequestHeader(p.MaxMessageLength, &header)
+		// read reqHeader
+		err = conn.ReadRequestHeader(p.MaxMessageLength, &reqHeader)
 		if err != nil {
 			goto CONN_END
 		}
 
-		header.ServiceID(&serviceID)
+		reqHeader.ServiceID(&serviceID)
 		service, serviceExists = p.services[serviceID]
 
 		// call service
 		go func() {
-			reqID = header.ID()
+			reqID = reqHeader.ID()
 			localService = service
-			reqBodySize = conn.LastReadLimit
-			reqParamSize = header.ParamSize()
+			reqBodySize = reqHeader.BodySize()
+			reqParamSize = reqHeader.ParamSize()
 
 			if serviceExists == false {
 				conn.SkipReadRemaining()
@@ -103,11 +103,12 @@ func (p *Server) serveConn(netConn net.Conn) {
 				}
 			}
 
-			var serviceReq = types.ServiceRequest{
-				ReqID:        header.ID(),
-				ReqBodySize:  reqBodySize,
-				ReqParamSize: reqParamSize,
-				Conn:         &conn,
+			var serviceReq = types.NetQuery{
+				ReqID:          reqID,
+				ReqBodySize:    reqBodySize,
+				ReqParamSize:   reqParamSize,
+				Conn:           &conn,
+				ConnBytesLimit: reqBodySize,
 			}
 			err = localService(serviceReq)
 			if err != nil {
@@ -115,9 +116,9 @@ func (p *Server) serveConn(netConn net.Conn) {
 			}
 		}()
 
-		if header.BodySize() > 0 {
-			conn.ContinueReadSig.Lock()
-			conn.ContinueReadSig.Unlock()
+		if reqHeader.BodySize() > 0 {
+			conn.ReadAcquire()
+			conn.ReadRelease()
 		}
 
 		if err != nil {

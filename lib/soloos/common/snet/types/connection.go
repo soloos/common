@@ -9,8 +9,6 @@ import (
 type Connection struct {
 	NetConn net.Conn
 
-	ContinueReadSig sync.Mutex
-
 	LastReadLimit uint32
 	readMutex     sync.Mutex
 

@@ -45,7 +45,7 @@ func runSRPCServer() (string, error) {
 	srpcServerAddr = allocAddr()
 	util.AssertErrIsNil(srpcServer.Init("tcp", srpcServerAddr))
 
-	srpcServer.RegisterService("/test", func(serviceReq types.ServiceRequest) error {
+	srpcServer.RegisterService("/test", func(serviceReq types.NetQuery) error {
 		var err error
 		{
 			// read

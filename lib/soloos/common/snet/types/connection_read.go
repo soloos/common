@@ -14,13 +14,11 @@ func (p *Connection) ReadRelease() {
 }
 
 func (p *Connection) AfterReadHeaderError() {
-	p.ContinueReadSig.Unlock()
 	p.ReadRelease()
 }
 
 func (p *Connection) AfterReadHeaderSuccess() error {
 	if p.LastReadLimit == 0 {
-		p.ContinueReadSig.Unlock()
 		p.ReadRelease()
 	}
 	return nil
@@ -42,7 +40,6 @@ func (p *Connection) innerAfterReadHeader(maxMessageLength, bodySize uint32, net
 
 func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestHeader) error {
 	p.ReadAcquire()
-	p.ContinueReadSig.Lock()
 
 	var (
 		offset, n int
@@ -53,7 +50,6 @@ func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestH
 		n, err = p.NetConn.Read(header[offset:len(header)])
 		if err != nil {
 			p.ReadRelease()
-			p.ContinueReadSig.Unlock()
 			return err
 		}
 	}
@@ -63,7 +59,6 @@ func (p *Connection) ReadRequestHeader(maxMessageLength uint32, header *RequestH
 
 func (p *Connection) ReadResponseHeader(maxMessageLength uint32, header *ResponseHeader) error {
 	p.ReadAcquire()
-	p.ContinueReadSig.Lock()
 
 	var (
 		offset, n int
@@ -74,7 +69,6 @@ func (p *Connection) ReadResponseHeader(maxMessageLength uint32, header *Respons
 		n, err = p.NetConn.Read(header[offset:len(header)])
 		if err != nil {
 			p.ReadRelease()
-			p.ContinueReadSig.Unlock()
 			return err
 		}
 	}
@@ -99,14 +93,12 @@ func (p *Connection) Read(b []byte) (int, error) {
 	}
 
 	if err != nil {
-		p.ContinueReadSig.Unlock()
 		p.ReadRelease()
 		return n, err
 	}
 
 	p.LastReadLimit -= uint32(n)
 	if p.LastReadLimit == 0 {
-		p.ContinueReadSig.Unlock()
 		p.ReadRelease()
 	}
 
