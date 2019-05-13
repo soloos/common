@@ -7,13 +7,9 @@ import (
 )
 
 type Connection struct {
-	NetConn net.Conn
-
-	LastReadLimit uint32
-	readMutex     sync.Mutex
-
-	LastWriteLimit uint32
-	writeMutex     sync.Mutex
+	NetConn    net.Conn
+	readMutex  sync.Mutex
+	writeMutex sync.Mutex
 }
 
 func (p *Connection) SetNetConn(netConn net.Conn) {
@@ -49,4 +45,30 @@ func (p *Connection) Close(closeResonErr error) error {
 	}
 
 	return nil
+}
+
+func (p *Connection) ReadAcquire() {
+	p.readMutex.Lock()
+}
+
+func (p *Connection) ReadRelease() {
+	p.readMutex.Unlock()
+}
+
+func (p *Connection) WaitReadDone() {
+	p.readMutex.Lock()
+	p.readMutex.Unlock()
+}
+
+func (p *Connection) WriteAcquire() {
+	p.writeMutex.Lock()
+}
+
+func (p *Connection) WriteRelease() {
+	p.writeMutex.Unlock()
+}
+
+func (p *Connection) WaitWriteDone() {
+	p.writeMutex.Lock()
+	p.writeMutex.Unlock()
 }

@@ -31,7 +31,7 @@ func (p *MemBlock) Contains(offset, end int) bool {
 	return p.AvailMask.Contains(offset, end)
 }
 
-func (p *MemBlock) PWriteWithConn(conn *snettypes.Connection, length int, offset int) (isSuccess bool) {
+func (p *MemBlock) PWriteWithNetQuery(netQuery *snettypes.NetQuery, length int, offset int) (isSuccess bool) {
 	_, isSuccess = p.AvailMask.MergeIncludeNeighbour(offset, offset+length)
 	if isSuccess {
 		var err error
@@ -39,9 +39,9 @@ func (p *MemBlock) PWriteWithConn(conn *snettypes.Connection, length int, offset
 			length = p.Bytes.Cap - offset
 		}
 		bytes := (*(*[]byte)(unsafe.Pointer(&p.Bytes)))
-		err = conn.ReadAll(bytes[offset : offset+length])
+		err = netQuery.ReadAll(bytes[offset : offset+length])
 		if err != nil {
-			log.Warn("PWriteWithConn error", err)
+			log.Warn("PWriteWithNetQuery error", err)
 			isSuccess = false
 		}
 	}
@@ -56,9 +56,9 @@ func (p *MemBlock) PWriteWithMem(data []byte, offset int) (isSuccess bool) {
 	return
 }
 
-func (p *MemBlock) PReadWithConn(conn *snettypes.Connection, length int, offset int) error {
+func (p *MemBlock) PReadWithNetQuery(netQuery *snettypes.NetQuery, length int, offset int) error {
 	var err error
-	err = conn.WriteAll((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length])
+	err = netQuery.WriteAll((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length])
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,21 @@ import (
 	"soloos/common/snet/types"
 )
 
+func (p *ClientDriver) sendCloseCmd(client *Client) error {
+	var (
+		req types.Request
+		err error
+	)
+
+	req.Init(client.AllocRequestID(), &client.doingNetQueryConn, "/Close")
+	err = client.Write(&req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *ClientDriver) Call(uPeer types.PeerUintptr,
 	serviceID string,
 	req *types.Request,
@@ -39,13 +54,13 @@ func (p *ClientDriver) AsyncCall(uPeer types.PeerUintptr,
 		return err
 	}
 
-	reqID := client.AllocRequestID()
-	err = client.prepareWaitResponse(reqID, resp)
+	req.Init(client.AllocRequestID(), &client.doingNetQueryConn, serviceID)
+	err = client.prepareWaitResponse(req.ReqID, resp)
 	if err != nil {
 		return err
 	}
 
-	err = client.Write(reqID, serviceID, req)
+	err = client.Write(req)
 	if err != nil {
 		return err
 	}

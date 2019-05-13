@@ -78,7 +78,14 @@ func (p *RequestHeader) SetServiceID(serviceID string) {
 }
 
 type Request struct {
-	ID          uint64
+	NetQuery
+	ServiceID   string
 	Param       []byte
 	OffheapBody OffheapFastCopyer
+}
+
+func (p *Request) Init(reqID uint64, conn *Connection, serviceID string) {
+	p.NetQuery.ReqID = reqID
+	p.NetQuery.Init(conn)
+	p.ServiceID = serviceID
 }

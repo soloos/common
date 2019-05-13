@@ -5,4 +5,4 @@ const (
 )
 
 type ServiceID = [ServiceIDLen]byte
-type Service func(req NetQuery) error
+type Service func(req *NetQuery) error

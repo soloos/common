@@ -19,8 +19,8 @@ func (p *Server) Init(network, address string) error {
 	p.network = network
 	p.address = address
 	p.services = make(map[types.ServiceID]types.Service)
-	p.RegisterService("/Close", func(serviceReq types.NetQuery) error {
-		return serviceReq.Conn.Close(types.ErrClosedByUser)
+	p.RegisterService("/Close", func(serviceReq *types.NetQuery) error {
+		return serviceReq.ConnClose(types.ErrClosedByUser)
 	})
 	return nil
 }
@@ -65,19 +65,19 @@ func (p *Server) serveConn(netConn net.Conn) {
 		reqHeader     types.RequestHeader
 		serviceID     types.ServiceID
 		service       types.Service
-		reqID         uint64
-		localService  types.Service
-		reqBodySize   uint32
-		reqParamSize  uint32
+		serviceReq    types.NetQuery
 		serviceExists bool
 		err           error
 	)
 
 	conn.SetNetConn(netConn)
 
+	serviceReq = types.NetQuery{}
+	serviceReq.Init(&conn)
+
 	for {
 		// read reqHeader
-		err = conn.ReadRequestHeader(p.MaxMessageLength, &reqHeader)
+		err = serviceReq.ReadRequestHeader(p.MaxMessageLength, &reqHeader)
 		if err != nil {
 			goto CONN_END
 		}
@@ -85,40 +85,21 @@ func (p *Server) serveConn(netConn net.Conn) {
 		reqHeader.ServiceID(&serviceID)
 		service, serviceExists = p.services[serviceID]
 
+		if serviceExists == false {
+			serviceReq.SkipReadRemaining()
+			serviceReq.SimpleResponse(serviceReq.ReqID, nil)
+			goto QUERY_DONE
+		}
+
 		// call service
-		go func() {
-			reqID = reqHeader.ID()
-			localService = service
-			reqBodySize = reqHeader.BodySize()
-			reqParamSize = reqHeader.ParamSize()
+		go func(localService types.Service, localServiceReq types.NetQuery) {
+			localService(&localServiceReq)
+			localServiceReq.EnsureServiceReadDone()
+		}(service, serviceReq)
 
-			if serviceExists == false {
-				conn.SkipReadRemaining()
-				conn.SimpleResponse(reqID, nil)
-				return
-			} else {
-				err = conn.AfterReadHeaderSuccess()
-				if err != nil {
-					return
-				}
-			}
-
-			var serviceReq = types.NetQuery{
-				ReqID:          reqID,
-				ReqBodySize:    reqBodySize,
-				ReqParamSize:   reqParamSize,
-				Conn:           &conn,
-				ConnBytesLimit: reqBodySize,
-			}
-			err = localService(serviceReq)
-			if err != nil {
-				return
-			}
-		}()
-
-		if reqHeader.BodySize() > 0 {
-			conn.ReadAcquire()
-			conn.ReadRelease()
+	QUERY_DONE:
+		if serviceReq.BodySize > 0 {
+			conn.WaitReadDone()
 		}
 
 		if err != nil {

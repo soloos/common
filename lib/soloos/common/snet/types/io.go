@@ -14,7 +14,7 @@ func (p *OffheapFastCopyer) BodySize() int {
 	return p.CopyEnd - p.CopyOffset
 }
 
-func (p *OffheapFastCopyer) Copy(conn *Connection) error {
+func (p *OffheapFastCopyer) Copy(netQuery *NetQuery) error {
 	if p.OffheapBytes == 0 {
 		return nil
 	}
@@ -23,5 +23,5 @@ func (p *OffheapFastCopyer) Copy(conn *Connection) error {
 		return nil
 	}
 
-	return conn.WriteAll((*((*[1 << 31]byte)(unsafe.Pointer(p.OffheapBytes))))[p.CopyOffset:p.CopyEnd])
+	return netQuery.WriteAll((*((*[1 << 31]byte)(unsafe.Pointer(p.OffheapBytes))))[p.CopyOffset:p.CopyEnd])
 }

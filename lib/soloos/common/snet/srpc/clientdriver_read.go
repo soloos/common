@@ -18,7 +18,7 @@ func (p *ClientDriver) ReadResponse(uPeer types.PeerUintptr,
 		return err
 	}
 
-	err = client.ReadResponse(respBody)
+	err = client.ReadResponse(resp, respBody)
 	if err != nil {
 		return err
 	}

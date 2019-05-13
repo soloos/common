@@ -46,7 +46,6 @@ func (p *ResponseHeader) SetParamSize(reqParamSize uint32) {
 }
 
 type Response struct {
-	BodySize       uint32
-	ParamSize      uint32
+	NetQuery
 	NetConnReadSig offheap.MutexUintptr
 }

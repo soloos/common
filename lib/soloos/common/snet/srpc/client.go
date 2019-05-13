@@ -10,15 +10,17 @@ import (
 )
 
 type Client struct {
-	Conn             types.Connection
+	doingNetQueryChan chan types.NetQuery
+	doingNetQueryConn types.Connection
+
 	MaxMessageLength uint32
 
-	clientDriver       *ClientDriver
-	remoteAddr         string
-	maxRequestID       uint64
-	lastResponseHeader types.ResponseHeader
-	reqSigMapMutex     sync.Mutex
-	reqSigMap          map[uint64]offheap.MutexUintptr // map RequestID to netConnReadSigsIndex
+	clientDriver *ClientDriver
+	remoteAddr   string
+	maxRequestID uint64
+
+	reqSigMapMutex sync.Mutex
+	reqSigMap      map[uint64]offheap.MutexUintptr // map RequestID to netConnReadSigsIndex
 }
 
 func (p *Client) Init(clientDriver *ClientDriver, address string) error {
@@ -33,7 +35,8 @@ func (p *Client) Init(clientDriver *ClientDriver, address string) error {
 
 func (p *Client) Start() error {
 	var err error
-	err = p.Conn.Connect(p.remoteAddr)
+	p.doingNetQueryChan = make(chan types.NetQuery, 1)
+	err = p.doingNetQueryConn.Connect(p.remoteAddr)
 	if err != nil {
 		return err
 	}
@@ -51,7 +54,7 @@ func (p *Client) Start() error {
 
 func (p *Client) Close(closeResonErr error) error {
 	var err error
-	err = p.Conn.Close(closeResonErr)
+	err = p.doingNetQueryConn.Close(closeResonErr)
 	if err != nil {
 		return err
 	}

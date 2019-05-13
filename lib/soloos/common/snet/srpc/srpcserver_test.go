@@ -45,15 +45,15 @@ func runSRPCServer() (string, error) {
 	srpcServerAddr = allocAddr()
 	util.AssertErrIsNil(srpcServer.Init("tcp", srpcServerAddr))
 
-	srpcServer.RegisterService("/test", func(serviceReq types.NetQuery) error {
+	srpcServer.RegisterService("/test", func(serviceReq *types.NetQuery) error {
 		var err error
 		{
 			// read
 			// var serviceReadBuf = make([]byte, reqBodySize)
-			if len(serviceReadBuf) != int(serviceReq.ReqBodySize) {
+			if len(serviceReadBuf) != int(serviceReq.BodySize) {
 				panic("error")
 			}
-			err = serviceReq.Conn.ReadAll(serviceReadBuf)
+			err = serviceReq.ReadAll(serviceReadBuf)
 			if err != nil {
 				return err
 			}
@@ -67,7 +67,7 @@ func runSRPCServer() (string, error) {
 
 		{
 			// write
-			err = serviceReq.Conn.SimpleResponse(serviceReq.ReqID, rpcMessageBytes)
+			err = serviceReq.SimpleResponse(serviceReq.ReqID, rpcMessageBytes)
 			if err != nil {
 				return err
 			}
@@ -112,8 +112,8 @@ func TestSRPCServer(t *testing.T) {
 			if true {
 				go func() {
 					var (
-						req             types.Request
-						resp            types.Response
+						req             [7]types.Request
+						resp            [7]types.Response
 						protocolBuilder flatbuffers.Builder
 					)
 
@@ -123,18 +123,45 @@ func TestSRPCServer(t *testing.T) {
 					protocol.MessageTest2AddData0(&protocolBuilder, data0)
 					protocol.MessageTest2AddData1(&protocolBuilder, 322)
 					protocolBuilder.Finish(protocol.MessageTest0End(&protocolBuilder))
-					req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req, &resp))
-					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req, &resp))
-					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req, &resp))
-					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req, &resp))
-					assert.NoError(t, clientDriver.Call(uPeer, "/test", &req, &resp))
-					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req, &resp))
-					var respBody = make([]byte, resp.BodySize)
-					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req, &resp, respBody))
+					for i := 0; i < len(req); i++ {
+						req[i].Param = protocolBuilder.Bytes[protocolBuilder.Head():]
+					}
+
+					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req[0], &resp[0]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[0], &resp[0], nil))
+
+					{
+						util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req[1], &resp[1]))
+						util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req[2], &resp[2]))
+						var wg sync.WaitGroup
+						wg.Add(1)
+						go func() {
+							util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[1], &resp[1]))
+							util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[1], &resp[1], nil))
+							util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[2], &resp[2]))
+							util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[2], &resp[2], nil))
+							wg.Done()
+						}()
+						wg.Wait()
+					}
+
+					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req[3], &resp[3]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[3], &resp[3], nil))
+
+					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/test", &req[4], &resp[4]))
+					util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[4], &resp[4]))
+					var respBody = make([]byte, resp[4].BodySize)
+					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[4], &resp[4], respBody))
 					assert.Equal(t, rpcMessageBytes, respBody)
-					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req, &resp))
+
+					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req[5], &resp[5]))
+					util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[5], &resp[5]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[5], &resp[5], nil))
+
+					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req[6], &resp[6]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[6], &resp[6], nil))
+
 					serviceSig.Done()
 				}()
 			} else {

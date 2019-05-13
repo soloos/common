@@ -69,20 +69,6 @@ GET_CLIENT_DONE:
 	return
 }
 
-func (p *ClientDriver) sendCloseCmd(client *Client) error {
-	var (
-		req types.Request
-		err error
-	)
-
-	err = client.Write(client.AllocRequestID(), "/Close", &req)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (p *ClientDriver) RegisterClient(uPeer types.PeerUintptr, client interface{}) error {
 	p.setClient(uPeer, client.(*Client))
 	return nil
