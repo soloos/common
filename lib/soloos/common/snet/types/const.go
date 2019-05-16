@@ -6,5 +6,6 @@ const (
 
 const (
 	ProtocolDisk = iota
+	ProtocolSWAL
 	ProtocolSRPC
 )
