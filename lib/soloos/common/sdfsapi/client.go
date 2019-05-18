@@ -7,4 +7,5 @@ import (
 type Client interface {
 	Close() error
 	GetPosixFS() fsapi.PosixFS
+	SetSWALClient(itSWALClient interface{}) error
 }

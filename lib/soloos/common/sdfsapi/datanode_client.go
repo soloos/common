@@ -1,26 +1,15 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/types"
 )
-
-type PReadMemBlockWithDisk func(uNetINode types.NetINodeUintptr,
-	uPeer snettypes.PeerUintptr,
-	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
-	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
-	offset uint64, length int) (int, error)
-type UploadMemBlockWithDisk func(uJob types.UploadMemBlockJobUintptr,
-	uploadPeerIndex int, transferPeersCount int) error
-type UploadMemBlockWithSWAL func(uJob types.UploadMemBlockJobUintptr,
-	uploadPeerIndex int, transferPeersCount int) error
 
 type DataNodeClient struct {
 	*soloosbase.SoloOSEnv
-	preadMemBlockWithDisk  PReadMemBlockWithDisk
-	uploadMemBlockWithDisk UploadMemBlockWithDisk
-	uploadMemBlockWithSWAL UploadMemBlockWithSWAL
+	preadMemBlockWithDisk  sdfsapitypes.PReadMemBlockWithDisk
+	uploadMemBlockWithDisk sdfsapitypes.UploadMemBlockWithDisk
+	uploadMemBlockWithSWAL sdfsapitypes.UploadMemBlockWithSWAL
 }
 
 func (p *DataNodeClient) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
@@ -28,14 +17,14 @@ func (p *DataNodeClient) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
 	return nil
 }
 
-func (p *DataNodeClient) SetPReadMemBlockWithDisk(preadMemBlockWithDisk PReadMemBlockWithDisk) {
+func (p *DataNodeClient) SetPReadMemBlockWithDisk(preadMemBlockWithDisk sdfsapitypes.PReadMemBlockWithDisk) {
 	p.preadMemBlockWithDisk = preadMemBlockWithDisk
 }
 
-func (p *DataNodeClient) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk UploadMemBlockWithDisk) {
+func (p *DataNodeClient) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk sdfsapitypes.UploadMemBlockWithDisk) {
 	p.uploadMemBlockWithDisk = uploadMemBlockWithDisk
 }
 
-func (p *DataNodeClient) SetUploadMemBlockWithSWAL(uploadMemBlockWithSWAL UploadMemBlockWithSWAL) {
+func (p *DataNodeClient) SetUploadMemBlockWithSWAL(uploadMemBlockWithSWAL sdfsapitypes.UploadMemBlockWithSWAL) {
 	p.uploadMemBlockWithSWAL = uploadMemBlockWithSWAL
 }
