@@ -26,13 +26,14 @@ type Server struct {
 	Options Options
 }
 
-func NewServer() *Server {
-	var ret = new(Server)
-	ret.Init()
-	return ret
-}
+func (p *Server) Init(options Options) error {
+	var err error
 
-func (p *Server) Init() error {
+	err = p.loadOptions(options)
+	if err != nil {
+		return err
+	}
+
 	p.views = make(map[string]*View)
 	p.httpMux = p.NewServeMux()
 
@@ -77,8 +78,28 @@ func (p *Server) SetCloseAfterHandle() {
 	p.isClosedAfterHandle = true
 }
 
-func (p *Server) Close() {
-	p.NetListener.Close()
+func (p *Server) HookAccessWhiteListRequest(ir *Request) bool {
+	if nil == p.Options.AccessWhiteList {
+		return true
+	}
+
+	for _, value := range p.Options.AccessWhiteList {
+		if isOk, _ := regexp.MatchString(value, ir.RemoteIp); true == isOk {
+			return true
+		}
+	}
+
+	Handle404(ir)
+	return false
+}
+
+func (p *Server) Router(path string, handler func(*Request)) {
+	p.httpMux.HandleFunc(path, handler)
+}
+
+func (p *Server) HandlerToServeHTTPFunc(handler func(*Request)) func(http.ResponseWriter, *http.Request) {
+	h := &HandleFunc{p, handler}
+	return h.ServeHTTP
 }
 
 func (p *Server) Serve() error {
@@ -111,26 +132,7 @@ func (p *Server) Serve() error {
 
 }
 
-func (p *Server) HookAccessWhiteListRequest(ir *Request) bool {
-	if nil == p.Options.AccessWhiteList {
-		return true
-	}
-
-	for _, value := range p.Options.AccessWhiteList {
-		if isOk, _ := regexp.MatchString(value, ir.RemoteIp); true == isOk {
-			return true
-		}
-	}
-
-	Handle404(ir)
-	return false
-}
-
-func (p *Server) Router(path string, handler func(*Request)) {
-	p.httpMux.HandleFunc(path, handler)
-}
-
-func (p *Server) HandlerToServeHTTPFunc(handler func(*Request)) func(http.ResponseWriter, *http.Request) {
-	h := &HandleFunc{p, handler}
-	return h.ServeHTTP
+func (p *Server) Close() error {
+	p.NetListener.Close()
+	return nil
 }

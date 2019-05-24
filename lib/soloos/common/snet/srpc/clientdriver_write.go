@@ -1,12 +1,12 @@
 package srpc
 
 import (
-	"soloos/common/snet/types"
+	"soloos/common/snettypes"
 )
 
 func (p *ClientDriver) sendCloseCmd(client *Client) error {
 	var (
-		req types.Request
+		req snettypes.Request
 		err error
 	)
 
@@ -19,10 +19,10 @@ func (p *ClientDriver) sendCloseCmd(client *Client) error {
 	return nil
 }
 
-func (p *ClientDriver) Call(uPeer types.PeerUintptr,
+func (p *ClientDriver) Call(uPeer snettypes.PeerUintptr,
 	serviceID string,
-	req *types.Request,
-	resp *types.Response) error {
+	req *snettypes.Request,
+	resp *snettypes.Response) error {
 	var (
 		err error
 	)
@@ -40,10 +40,10 @@ func (p *ClientDriver) Call(uPeer types.PeerUintptr,
 	return nil
 }
 
-func (p *ClientDriver) AsyncCall(uPeer types.PeerUintptr,
+func (p *ClientDriver) AsyncCall(uPeer snettypes.PeerUintptr,
 	serviceID string,
-	req *types.Request,
-	resp *types.Response) error {
+	req *snettypes.Request,
+	resp *snettypes.Response) error {
 	var (
 		client *Client
 		err    error
@@ -68,9 +68,9 @@ func (p *ClientDriver) AsyncCall(uPeer types.PeerUintptr,
 	return nil
 }
 
-func (p *ClientDriver) WaitResponse(uPeer types.PeerUintptr,
-	req *types.Request,
-	resp *types.Response) error {
+func (p *ClientDriver) WaitResponse(uPeer snettypes.PeerUintptr,
+	req *snettypes.Request,
+	resp *snettypes.Response) error {
 	var (
 		client *Client
 		err    error

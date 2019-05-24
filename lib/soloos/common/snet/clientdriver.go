@@ -2,13 +2,13 @@ package snet
 
 import (
 	"soloos/common/snet/srpc"
-	"soloos/common/snet/types"
+	"soloos/common/snettypes"
 	"soloos/sdbone/offheap"
 )
 
 type ClientDriver struct {
 	offheapDriver    *offheap.OffheapDriver
-	rpcClientDrivers [255]types.RpcClientDriver // map protocol to RpcClientDriver
+	rpcClientDrivers [255]snettypes.RpcClientDriver // map protocol to RpcClientDriver
 }
 
 func (p *ClientDriver) Init(offheapDriver *offheap.OffheapDriver) error {
@@ -25,11 +25,11 @@ func (p *ClientDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	if err != nil {
 		return err
 	}
-	p.rpcClientDrivers[types.ProtocolSRPC] = srpcClientDriver
+	p.rpcClientDrivers[snettypes.ProtocolSRPC] = srpcClientDriver
 
 	return nil
 }
 
-func (p *ClientDriver) GetRPCClientDriver(protocol int) types.RpcClientDriver {
+func (p *ClientDriver) GetRPCClientDriver(protocol int) snettypes.RpcClientDriver {
 	return p.rpcClientDrivers[protocol]
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"soloos/common/snet"
-	snettypes "soloos/common/snet/types"
+	"soloos/common/snet/types"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
 )

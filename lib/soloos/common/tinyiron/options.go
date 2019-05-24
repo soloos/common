@@ -1,8 +1,6 @@
 package tinyiron
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,7 +8,6 @@ import (
 )
 
 type Options struct {
-	TitlePrefix        string `json:"TitlePrefix"`
 	RunMode            string `json:"RunMode"`
 	ServeType          string `json:"ServeType"`
 	ListenStr          string `json:"ListenStr"`
@@ -18,9 +15,7 @@ type Options struct {
 	AccessWhiteListStr string `json:"AccessWhiteList"`
 
 	SiteViewDir              string `json:"SiteViewDir"`
-	SiteStaticBaseUrl        string `json:"SiteStaticBaseUrl"`
 	SiteStaticBasePath       string `json:"SiteStaticBasePath"`
-	SiteStaticUploadBaseUrl  string `json:"SiteStaticUploadBaseUrl"`
 	SiteStaticUploadBasePath string `json:"SiteStaticUploadBasePath"`
 
 	BaseDir           string   `json:"-"`
@@ -29,38 +24,16 @@ type Options struct {
 	IsTMPLAutoRefresh bool     `json:"-"`
 }
 
-func (p *Server) LoadOptions(options Options) error {
+func (p *Server) loadOptions(options Options) error {
 	var err error
-	if err = p.SanitizeOptions(&options); err != nil {
+	if err = p.sanitizeOptions(&options); err != nil {
 		return err
 	}
 	p.Options = options
 	return nil
 }
 
-func (p *Server) LoadOptionsFile(optionsFilepath string) error {
-	var (
-		err     error
-		content []byte
-		options Options
-	)
-
-	if content, err = ioutil.ReadFile(optionsFilepath); err != nil {
-		return err
-	}
-
-	if err = json.Unmarshal(content, &options); err != nil {
-		return err
-	}
-
-	if err = p.LoadOptions(options); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *Server) SanitizeOptions(options *Options) error {
+func (p *Server) sanitizeOptions(options *Options) error {
 	var err error
 
 	if options.BaseDir, err = os.Getwd(); err != nil {

@@ -1,0 +1,17 @@
+namespace swalprotocol;
+
+table CommonResponse {
+    Code:int;
+    Error:string;
+}
+
+table TopicPrepareFsINodeRequest {
+    TopicID:uint64;
+    FsINodeID:uint64;
+}
+
+table TopicPrepareNetBlockRequest {
+    TopicID:uint64;
+    FsINodeID:uint64;
+    IndexInNetINode:int;
+}

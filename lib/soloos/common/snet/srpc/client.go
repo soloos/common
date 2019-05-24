@@ -2,7 +2,7 @@ package srpc
 
 import (
 	"soloos/common/log"
-	"soloos/common/snet/types"
+	"soloos/common/snettypes"
 	"soloos/sdbone/offheap"
 	"strings"
 	"sync"
@@ -10,8 +10,8 @@ import (
 )
 
 type Client struct {
-	doingNetQueryChan chan types.NetQuery
-	doingNetQueryConn types.Connection
+	doingNetQueryChan chan snettypes.NetQuery
+	doingNetQueryConn snettypes.Connection
 
 	MaxMessageLength uint32
 
@@ -35,7 +35,7 @@ func (p *Client) Init(clientDriver *ClientDriver, address string) error {
 
 func (p *Client) Start() error {
 	var err error
-	p.doingNetQueryChan = make(chan types.NetQuery, 1)
+	p.doingNetQueryChan = make(chan snettypes.NetQuery, 1)
 	err = p.doingNetQueryConn.Connect(p.remoteAddr)
 	if err != nil {
 		return err

@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package fuse provides APIs to implement filesystems in
-// userspace in terms of raw FUSE protocol.
+// userspace in terms of raw FUSE sdfsprotocol.
 //
 // A filesystem is implemented by implementing its server that provides a
 // PosixFS interface. Typically the server embeds
@@ -71,7 +71,7 @@
 // Higher level interfaces
 //
 // As said above this packages provides way to implement filesystems in terms of
-// raw FUSE protocol. Additionally packages nodefs and pathfs provide ways to
+// raw FUSE sdfsprotocol. Additionally packages nodefs and pathfs provide ways to
 // implement filesystem at higher levels:
 //
 // Package github.com/hanwen/go-fuse/fuse/nodefs provides way to implement

@@ -1,8 +1,8 @@
 package sdfsapi
 
 import (
-	"soloos/sdfs/protocol"
-	snettypes "soloos/common/snet/types"
+	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -14,14 +14,14 @@ func SetNetINodeInfoResponseError(protocolBuilder *flatbuffers.Builder, code int
 		commonResponseOff flatbuffers.UOffsetT
 	)
 	errOff = protocolBuilder.CreateString(err)
-	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, int32(code))
-	protocol.CommonResponseAddError(protocolBuilder, errOff)
-	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+	sdfsprotocol.CommonResponseStart(protocolBuilder)
+	sdfsprotocol.CommonResponseAddCode(protocolBuilder, int32(code))
+	sdfsprotocol.CommonResponseAddError(protocolBuilder, errOff)
+	commonResponseOff = sdfsprotocol.CommonResponseEnd(protocolBuilder)
 
-	protocol.NetINodeInfoResponseStart(protocolBuilder)
-	protocol.NetINodeInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocolBuilder.Finish(protocol.NetINodeInfoResponseEnd(protocolBuilder))
+	sdfsprotocol.NetINodeInfoResponseStart(protocolBuilder)
+	sdfsprotocol.NetINodeInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocolBuilder.Finish(sdfsprotocol.NetINodeInfoResponseEnd(protocolBuilder))
 }
 
 func SetNetINodeInfoResponse(protocolBuilder *flatbuffers.Builder,
@@ -30,16 +30,16 @@ func SetNetINodeInfoResponse(protocolBuilder *flatbuffers.Builder,
 	var (
 		commonResponseOff flatbuffers.UOffsetT
 	)
-	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
-	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+	sdfsprotocol.CommonResponseStart(protocolBuilder)
+	sdfsprotocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
+	commonResponseOff = sdfsprotocol.CommonResponseEnd(protocolBuilder)
 
-	protocol.NetINodeInfoResponseStart(protocolBuilder)
-	protocol.NetINodeInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocol.NetINodeInfoResponseAddSize(protocolBuilder, size)
-	protocol.NetINodeInfoResponseAddNetBlockCap(protocolBuilder, int32(netBlockCap))
-	protocol.NetINodeInfoResponseAddMemBlockCap(protocolBuilder, int32(memBlockCap))
-	protocolBuilder.Finish(protocol.NetINodeInfoResponseEnd(protocolBuilder))
+	sdfsprotocol.NetINodeInfoResponseStart(protocolBuilder)
+	sdfsprotocol.NetINodeInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	sdfsprotocol.NetINodeInfoResponseAddSize(protocolBuilder, size)
+	sdfsprotocol.NetINodeInfoResponseAddNetBlockCap(protocolBuilder, int32(netBlockCap))
+	sdfsprotocol.NetINodeInfoResponseAddMemBlockCap(protocolBuilder, int32(memBlockCap))
+	protocolBuilder.Finish(sdfsprotocol.NetINodeInfoResponseEnd(protocolBuilder))
 }
 
 func SetNetINodePReadResponseError(protocolBuilder *flatbuffers.Builder, code int, err string) {
@@ -49,14 +49,14 @@ func SetNetINodePReadResponseError(protocolBuilder *flatbuffers.Builder, code in
 		commonResponseOff flatbuffers.UOffsetT
 	)
 	errOff = protocolBuilder.CreateString(err)
-	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, int32(code))
-	protocol.CommonResponseAddError(protocolBuilder, errOff)
-	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+	sdfsprotocol.CommonResponseStart(protocolBuilder)
+	sdfsprotocol.CommonResponseAddCode(protocolBuilder, int32(code))
+	sdfsprotocol.CommonResponseAddError(protocolBuilder, errOff)
+	commonResponseOff = sdfsprotocol.CommonResponseEnd(protocolBuilder)
 
-	protocol.NetINodePReadResponseStart(protocolBuilder)
-	protocol.NetINodePReadResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocolBuilder.Finish(protocol.NetINodePReadResponseEnd(protocolBuilder))
+	sdfsprotocol.NetINodePReadResponseStart(protocolBuilder)
+	sdfsprotocol.NetINodePReadResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocolBuilder.Finish(sdfsprotocol.NetINodePReadResponseEnd(protocolBuilder))
 }
 
 func SetNetINodePReadResponse(protocolBuilder *flatbuffers.Builder, length int32) {
@@ -64,12 +64,12 @@ func SetNetINodePReadResponse(protocolBuilder *flatbuffers.Builder, length int32
 	var (
 		commonResponseOff flatbuffers.UOffsetT
 	)
-	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
-	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+	sdfsprotocol.CommonResponseStart(protocolBuilder)
+	sdfsprotocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
+	commonResponseOff = sdfsprotocol.CommonResponseEnd(protocolBuilder)
 
-	protocol.NetINodePReadResponseStart(protocolBuilder)
-	protocol.NetINodePReadResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocol.NetINodePReadResponseAddLength(protocolBuilder, length)
-	protocolBuilder.Finish(protocol.NetINodePReadResponseEnd(protocolBuilder))
+	sdfsprotocol.NetINodePReadResponseStart(protocolBuilder)
+	sdfsprotocol.NetINodePReadResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	sdfsprotocol.NetINodePReadResponseAddLength(protocolBuilder, length)
+	protocolBuilder.Finish(sdfsprotocol.NetINodePReadResponseEnd(protocolBuilder))
 }

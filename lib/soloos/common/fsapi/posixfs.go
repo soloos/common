@@ -1,11 +1,11 @@
 package fsapi
 
 import (
-	. "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
+	. "soloos/common/fsapitypes"
+	"soloos/common/sdfsapitypes"
 )
 
-// PosixFS is an interface close to the FUSE wire protocol.
+// PosixFS is an interface close to the FUSE wire sdfsprotocol.
 //
 // Unless you really know what you are doing, you should not implement
 // this, but rather the nodefs.Node or pathfs.FileSystem interfaces; the
@@ -102,10 +102,10 @@ type PosixFS interface {
 	DeleteFsINodeByPath(fsINodePath string) error
 	RenameWithFullPath(oldFsINodeName, newFsINodePath string) error
 
-	FdTableAllocFd(fsINodeID sdfsapitypes.FsINodeID) uint64
-	FdTableGetFd(fdID uint64) sdfsapitypes.FsINodeFileHandler
-	FdTableFdAddAppendPosition(fdID uint64, delta uint64)
-	FdTableFdAddReadPosition(fdID uint64, delta uint64)
+	FdTableAllocFd(fsINodeID sdfsapitypes.FsINodeID) sdfsapitypes.FsINodeFileHandlerID
+	FdTableGetFd(fdID sdfsapitypes.FsINodeFileHandlerID) sdfsapitypes.FsINodeFileHandler
+	FdTableFdAddAppendPosition(fdID sdfsapitypes.FsINodeFileHandlerID, delta uint64)
+	FdTableFdAddReadPosition(fdID sdfsapitypes.FsINodeFileHandlerID, delta uint64)
 
 	SimpleOpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (sdfsapitypes.FsINodeMeta, error)
 	SimpleWriteWithMem(fsINodeID sdfsapitypes.FsINodeID, data []byte, offset uint64) error
@@ -117,4 +117,9 @@ type PosixFS interface {
 		fsINodeID *sdfsapitypes.FsINodeID, parentID sdfsapitypes.FsINodeID,
 		perms uint32, name string,
 		uid uint32, gid uint32, rdev uint32) Status
+
+	SetFsINodeBlockPlacement(fsINodeID sdfsapitypes.FsINodeID, policy sdfsapitypes.MemBlockPlacementPolicy) error
+
+	GetFsINodeByID(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeUintptr, error)
+	ReleaseFsINode(uFsINode sdfsapitypes.FsINodeUintptr)
 }

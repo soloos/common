@@ -1,14 +1,14 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uNetINode types.NetINodeUintptr) error {
+func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uNetINode sdfsapitypes.NetINodeUintptr) error {
 	var (
 		req             snettypes.Request
 		resp            snettypes.Response
@@ -18,9 +18,9 @@ func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uN
 	)
 
 	netINodeIDOff = protocolBuilder.CreateByteString(uNetINode.Ptr().ID[:])
-	protocol.NetINodeSyncRequestStart(&protocolBuilder)
-	protocol.NetINodeSyncRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	protocolBuilder.Finish(protocol.NetINodeSyncRequestEnd(&protocolBuilder))
+	sdfsprotocol.NetINodeSyncRequestStart(&protocolBuilder)
+	sdfsprotocol.NetINodeSyncRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	protocolBuilder.Finish(sdfsprotocol.NetINodeSyncRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	err = p.SNetClientDriver.Call(uDataNode,
@@ -36,7 +36,7 @@ func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uN
 	}
 
 	var (
-		commonResponse protocol.CommonResponse
+		commonResponse sdfsprotocol.CommonResponse
 	)
 
 	commonResponse.Init(body, flatbuffers.GetUOffsetT(body))

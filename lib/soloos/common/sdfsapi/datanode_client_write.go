@@ -1,15 +1,15 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
+func (p *DataNodeClient) UploadMemBlock(uJob sdfsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int, transferPeersCount int,
 ) error {
 	var (
@@ -28,7 +28,7 @@ func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
 	return nil
 }
 
-func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUintptr,
+func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob sdfsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int, transferPeersCount int,
 ) error {
 	var (
@@ -37,14 +37,14 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 		protocolBuilder     flatbuffers.Builder
 		netINodeIDOff       flatbuffers.UOffsetT
 		backendOff          flatbuffers.UOffsetT
-		uNetBlock           types.NetBlockUintptr
+		uNetBlock           sdfsapitypes.NetBlockUintptr
 		netINodeWriteOffset int
 		netINodeWriteLength int
 		memBlockCap         int
 		peerOff, addrOff    flatbuffers.UOffsetT
 		backendOffs         = make([]flatbuffers.UOffsetT, 8)
 		uploadChunkMask     offheap.ChunkMask
-		commonResp          protocol.CommonResponse
+		commonResp          sdfsprotocol.CommonResponse
 		respBody            []byte
 		i                   int
 		uPeer               snettypes.PeerUintptr
@@ -67,17 +67,17 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 				uPeer = uNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex+1+i]
 				peerOff = protocolBuilder.CreateByteVector(uPeer.Ptr().ID[:])
 				addrOff = protocolBuilder.CreateString(uPeer.Ptr().AddressStr())
-				protocol.SNetPeerStart(&protocolBuilder)
-				protocol.SNetPeerAddPeerID(&protocolBuilder, peerOff)
-				protocol.SNetPeerAddAddress(&protocolBuilder, addrOff)
+				sdfsprotocol.SNetPeerStart(&protocolBuilder)
+				sdfsprotocol.SNetPeerAddPeerID(&protocolBuilder, peerOff)
+				sdfsprotocol.SNetPeerAddAddress(&protocolBuilder, addrOff)
 				if i < cap(backendOffs) {
-					backendOffs[i] = protocol.SNetPeerEnd(&protocolBuilder)
+					backendOffs[i] = sdfsprotocol.SNetPeerEnd(&protocolBuilder)
 				} else {
-					backendOffs = append(backendOffs, protocol.SNetPeerEnd(&protocolBuilder))
+					backendOffs = append(backendOffs, sdfsprotocol.SNetPeerEnd(&protocolBuilder))
 				}
 			}
 
-			protocol.NetINodePWriteRequestStartTransferBackendsVector(&protocolBuilder, transferPeersCount)
+			sdfsprotocol.NetINodePWriteRequestStartTransferBackendsVector(&protocolBuilder, transferPeersCount)
 			for i = transferPeersCount - 1; i >= 0; i-- {
 				protocolBuilder.PrependUOffsetT(backendOffs[i])
 			}
@@ -85,14 +85,14 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 		}
 
 		netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
-		protocol.NetINodePWriteRequestStart(&protocolBuilder)
+		sdfsprotocol.NetINodePWriteRequestStart(&protocolBuilder)
 		if transferPeersCount > 0 {
-			protocol.NetINodePWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
+			sdfsprotocol.NetINodePWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
 		}
-		protocol.NetINodePWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-		protocol.NetINodePWriteRequestAddOffset(&protocolBuilder, uint64(netINodeWriteOffset))
-		protocol.NetINodePWriteRequestAddLength(&protocolBuilder, int32(netINodeWriteLength))
-		protocolBuilder.Finish(protocol.NetINodePWriteRequestEnd(&protocolBuilder))
+		sdfsprotocol.NetINodePWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+		sdfsprotocol.NetINodePWriteRequestAddOffset(&protocolBuilder, uint64(netINodeWriteOffset))
+		sdfsprotocol.NetINodePWriteRequestAddLength(&protocolBuilder, int32(netINodeWriteLength))
+		protocolBuilder.Finish(sdfsprotocol.NetINodePWriteRequestEnd(&protocolBuilder))
 		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 		uPeer = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
@@ -109,7 +109,7 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 		}
 		commonResp.Init(respBody[:(resp.ParamSize)], flatbuffers.GetUOffsetT(respBody[:(resp.ParamSize)]))
 		if commonResp.Code() != snettypes.CODE_OK {
-			err = types.ErrNetBlockPWrite
+			err = sdfsapitypes.ErrNetBlockPWrite
 			goto PWRITE_DONE
 		}
 		protocolBuilder.Reset()

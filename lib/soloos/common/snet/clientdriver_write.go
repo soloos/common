@@ -1,13 +1,13 @@
 package snet
 
-import "soloos/common/snet/types"
+import "soloos/common/snettypes"
 
-func (p *ClientDriver) Call(uPeer types.PeerUintptr,
+func (p *ClientDriver) Call(uPeer snettypes.PeerUintptr,
 	serviceID string,
-	req *types.Request,
-	resp *types.Response) error {
+	req *snettypes.Request,
+	resp *snettypes.Response) error {
 	var (
-		rpcClientDriver types.RpcClientDriver
+		rpcClientDriver snettypes.RpcClientDriver
 		err             error
 	)
 	rpcClientDriver = p.rpcClientDrivers[uPeer.Ptr().ServiceProtocol]

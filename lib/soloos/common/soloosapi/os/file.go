@@ -1,12 +1,26 @@
 package os
 
-import "os"
+import (
+	"os"
+	"soloos/common/fsapi"
+	"soloos/common/log"
+	"soloos/common/sdfsapitypes"
+)
 
 type FileMode = os.FileMode
 type FileInfo = os.FileInfo
 
 type File struct {
-	file *os.File
+	isSoloOSFile  bool
+	soloOSPosixFS fsapi.PosixFS
+	soloOSFdID    sdfsapitypes.FsINodeFileHandlerID
+	file          *os.File
+}
+
+func (p *File) SetSoloOSFsINode(fdID sdfsapitypes.FsINodeFileHandlerID, posixFS fsapi.PosixFS) {
+	p.soloOSFdID = fdID
+	p.soloOSPosixFS = posixFS
+	p.isSoloOSFile = true
 }
 
 func (p *File) Fd() uintptr {
@@ -34,10 +48,25 @@ func (p *File) Read(b []byte) (n int, err error) {
 }
 
 func (p *File) Write(b []byte) (n int, err error) {
+	log.Debug("fuck file Write", len(b), p.isSoloOSFile, p.soloOSFdID)
+	if p.isSoloOSFile {
+		var (
+			fd  = p.soloOSPosixFS.FdTableGetFd(p.soloOSFdID)
+			err error
+		)
+		err = p.soloOSPosixFS.SimpleWriteWithMem(fd.FsINodeID, b, fd.AppendPosition)
+		if err != nil {
+			log.Warn(err)
+			return 0, err
+		}
+
+		p.soloOSPosixFS.FdTableFdAddAppendPosition(p.soloOSFdID, uint64(len(b)))
+	}
 	return p.file.Write(b)
 }
 
 func (p *File) WriteAt(b []byte, off int64) (n int, err error) {
+	log.Debug("fuck file WriteAt", len(b), off)
 	return p.file.WriteAt(b, off)
 }
 

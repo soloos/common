@@ -3,8 +3,8 @@ package srpc
 import (
 	"fmt"
 	"runtime"
-	"soloos/common/snet/protocol"
-	"soloos/common/snet/types"
+	"soloos/common/snetprotocol"
+	"soloos/common/snettypes"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
 	"sync"
@@ -45,7 +45,7 @@ func runSRPCServer() (string, error) {
 	srpcServerAddr = allocAddr()
 	util.AssertErrIsNil(srpcServer.Init("tcp", srpcServerAddr))
 
-	srpcServer.RegisterService("/test", func(serviceReq *types.NetQuery) error {
+	srpcServer.RegisterService("/test", func(serviceReq *snettypes.NetQuery) error {
 		var err error
 		{
 			// read
@@ -58,7 +58,7 @@ func runSRPCServer() (string, error) {
 				return err
 			}
 
-			var o protocol.MessageTest0
+			var o snetprotocol.MessageTest0
 			o.Init(serviceReadBuf, flatbuffers.GetUOffsetT(serviceReadBuf))
 			if assert.ObjectsAreEqualValues(rpcMessageBytes, o.Data0()) == false {
 				panic(string(o.Data0()))
@@ -97,14 +97,14 @@ func TestSRPCServer(t *testing.T) {
 		serviceSig   sync.WaitGroup
 		clientDriver ClientDriver
 		peerPool     offheap.RawObjectPool
-		uPeer        types.PeerUintptr
+		uPeer        snettypes.PeerUintptr
 	)
 	serviceSig.Add(callTimes)
 
 	assert.NoError(t, clientDriver.Init(&defaultOffheapDriver))
 
-	assert.NoError(t, peerPool.Init(int(types.PeerStructSize), -1, nil, nil))
-	uPeer = types.PeerUintptr(peerPool.AllocRawObject())
+	assert.NoError(t, peerPool.Init(int(snettypes.PeerStructSize), -1, nil, nil))
+	uPeer = snettypes.PeerUintptr(peerPool.AllocRawObject())
 	uPeer.Ptr().SetAddress(addr)
 
 	go func() {
@@ -112,17 +112,17 @@ func TestSRPCServer(t *testing.T) {
 			if true {
 				go func() {
 					var (
-						req             [7]types.Request
-						resp            [7]types.Response
+						req             [7]snettypes.Request
+						resp            [7]snettypes.Response
 						protocolBuilder flatbuffers.Builder
 					)
 
 					protocolBuilder.Reset()
 					data0 := protocolBuilder.CreateString(rpcMessage)
-					protocol.MessageTest2Start(&protocolBuilder)
-					protocol.MessageTest2AddData0(&protocolBuilder, data0)
-					protocol.MessageTest2AddData1(&protocolBuilder, 322)
-					protocolBuilder.Finish(protocol.MessageTest0End(&protocolBuilder))
+					snetprotocol.MessageTest2Start(&protocolBuilder)
+					snetprotocol.MessageTest2AddData0(&protocolBuilder, data0)
+					snetprotocol.MessageTest2AddData1(&protocolBuilder, 322)
+					protocolBuilder.Finish(snetprotocol.MessageTest0End(&protocolBuilder))
 
 					for i := 0; i < len(req); i++ {
 						req[i].Param = protocolBuilder.Bytes[protocolBuilder.Head():]
@@ -189,22 +189,22 @@ func BenchmarkSRPCServer(b *testing.B) {
 	var (
 		clientDriver ClientDriver
 		peerPool     offheap.RawObjectPool
-		uPeer        types.PeerUintptr
+		uPeer        snettypes.PeerUintptr
 	)
 
 	util.AssertErrIsNil(clientDriver.Init(&defaultOffheapDriver))
 
-	util.AssertErrIsNil(peerPool.Init(int(types.PeerStructSize), -1, nil, nil))
-	uPeer = types.PeerUintptr(peerPool.AllocRawObject())
+	util.AssertErrIsNil(peerPool.Init(int(snettypes.PeerStructSize), -1, nil, nil))
+	uPeer = snettypes.PeerUintptr(peerPool.AllocRawObject())
 	uPeer.Ptr().SetAddress(addr)
 
 	var protocolBuilder flatbuffers.Builder
 	protocolBuilder.Reset()
 	data0 := protocolBuilder.CreateString(rpcMessage)
-	protocol.MessageTest2Start(&protocolBuilder)
-	protocol.MessageTest2AddData0(&protocolBuilder, data0)
-	protocol.MessageTest2AddData1(&protocolBuilder, 322)
-	protocolBuilder.Finish(protocol.MessageTest0End(&protocolBuilder))
+	snetprotocol.MessageTest2Start(&protocolBuilder)
+	snetprotocol.MessageTest2AddData0(&protocolBuilder, data0)
+	snetprotocol.MessageTest2AddData1(&protocolBuilder, 322)
+	protocolBuilder.Finish(snetprotocol.MessageTest0End(&protocolBuilder))
 
 	// var resp = make([]byte, resp.BodySize)
 	var respBody = make([]byte, len(rpcMessageBytes))
@@ -218,10 +218,10 @@ func BenchmarkSRPCServer(b *testing.B) {
 		if true {
 			go func() {
 				var (
-					req = types.Request{
+					req = snettypes.Request{
 						Param: reqBody,
 					}
-					resp types.Response
+					resp snettypes.Response
 				)
 
 				// util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/test", &req, &resp))

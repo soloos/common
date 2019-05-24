@@ -1,19 +1,15 @@
 COMMON_LDFLAGS=""
 COMMON_PREFIX=""
 
-SOLOOS_SNET_PROTOS = $(shell find lib/soloos/common/snet -name '*.fbs')
-GENERATED_PROTOS = $(shell find lib/soloos/common/snet -name "*.fbs"| sed 's/\.fbs/\.fbs\.go/g')
-SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
-
 GOBUILD = $(SDFS_PREFIX) go build
 
 clean-test-cache:
 	go clean -testcache
 
-%.fbs.go: $(SOLOOS_SNET_PROTOS)
-	flatc -o ./lib/soloos/common/snet -g $(SOLOOS_SNET_PROTOS)
-
-fbs: $(GENERATED_PROTOS)
+fbs:
+	flatc -o ./lib/soloos/common/ -g lib/soloos/common/snetprotocol/test.fbs
+	flatc -o ./lib/soloos/common/ -g lib/soloos/common/sdfsprotocol/sdfs.fbs
+	flatc -o ./lib/soloos/common/ -g lib/soloos/common/swalprotocol/swal.fbs
 
 soloos-tool:
 	$(GOBUILD) -o ./bin/soloos-tool soloos-tool

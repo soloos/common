@@ -1,28 +1,28 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 	"golang.org/x/xerrors"
 )
 
 func SetCommonResponseCode(protocolBuilder *flatbuffers.Builder, code int) {
-	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, int32(code))
-	protocolBuilder.Finish(protocol.CommonResponseEnd(protocolBuilder))
+	sdfsprotocol.CommonResponseStart(protocolBuilder)
+	sdfsprotocol.CommonResponseAddCode(protocolBuilder, int32(code))
+	protocolBuilder.Finish(sdfsprotocol.CommonResponseEnd(protocolBuilder))
 }
 
-func CommonResponseToError(obj *protocol.CommonResponse) error {
+func CommonResponseToError(obj *sdfsprotocol.CommonResponse) error {
 	switch obj.Code() {
 	case snettypes.CODE_OK:
 		return nil
 	case snettypes.CODE_404:
-		return types.ErrObjectNotExists
+		return sdfsapitypes.ErrObjectNotExists
 	case snettypes.CODE_502:
-		return types.ErrRemoteService
+		return sdfsapitypes.ErrRemoteService
 	}
 
 	return xerrors.New(string(obj.Error()))

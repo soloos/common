@@ -1,8 +1,8 @@
 package sdfsapi
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 )
 
 type DataNodeClient struct {

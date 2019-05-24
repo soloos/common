@@ -37,3 +37,9 @@
 [submodule "3rdlib/github.com/fatih/color"]
 	path = 3rdlib/github.com/fatih/color
 	url = git@github.com:fatih/color
+[submodule "3rdlib/github.com/sasha-s/go-deadlock"]
+	path = 3rdlib/github.com/sasha-s/go-deadlock
+	url = git@github.com:sasha-s/go-deadlock.git
+[submodule "3rdlib/github.com/petermattis/goid"]
+	path = 3rdlib/github.com/petermattis/goid
+	url = git@github.com:petermattis/goid.git

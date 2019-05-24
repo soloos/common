@@ -1,8 +1,8 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -14,14 +14,14 @@ func SetNetINodeNetBlockInfoResponseError(protocolBuilder *flatbuffers.Builder, 
 		commonResponseOff flatbuffers.UOffsetT
 	)
 	errOff = protocolBuilder.CreateString(err)
-	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, int32(code))
-	protocol.CommonResponseAddError(protocolBuilder, errOff)
-	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+	sdfsprotocol.CommonResponseStart(protocolBuilder)
+	sdfsprotocol.CommonResponseAddCode(protocolBuilder, int32(code))
+	sdfsprotocol.CommonResponseAddError(protocolBuilder, errOff)
+	commonResponseOff = sdfsprotocol.CommonResponseEnd(protocolBuilder)
 
-	protocol.NetINodeNetBlockInfoResponseStart(protocolBuilder)
-	protocol.NetINodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
+	sdfsprotocol.NetINodeNetBlockInfoResponseStart(protocolBuilder)
+	sdfsprotocol.NetINodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocolBuilder.Finish(sdfsprotocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
 }
 
 func SetNetINodeNetBlockInfoResponse(protocolBuilder *flatbuffers.Builder,
@@ -36,29 +36,29 @@ func SetNetINodeNetBlockInfoResponse(protocolBuilder *flatbuffers.Builder,
 
 	backendOffs := make([]flatbuffers.UOffsetT, len(backends))
 
-	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
-	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+	sdfsprotocol.CommonResponseStart(protocolBuilder)
+	sdfsprotocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
+	commonResponseOff = sdfsprotocol.CommonResponseEnd(protocolBuilder)
 
 	for i = 0; i < len(backends); i++ {
 		peerOff = protocolBuilder.CreateByteVector(backends[i].Ptr().ID[:])
 		addrOff = protocolBuilder.CreateString(backends[i].Ptr().AddressStr())
-		protocol.SNetPeerStart(protocolBuilder)
-		protocol.SNetPeerAddPeerID(protocolBuilder, peerOff)
-		protocol.SNetPeerAddAddress(protocolBuilder, addrOff)
-		backendOffs[i] = protocol.SNetPeerEnd(protocolBuilder)
+		sdfsprotocol.SNetPeerStart(protocolBuilder)
+		sdfsprotocol.SNetPeerAddPeerID(protocolBuilder, peerOff)
+		sdfsprotocol.SNetPeerAddAddress(protocolBuilder, addrOff)
+		backendOffs[i] = sdfsprotocol.SNetPeerEnd(protocolBuilder)
 	}
 
-	protocol.NetINodeNetBlockInfoResponseStartBackendsVector(protocolBuilder, len(backends))
+	sdfsprotocol.NetINodeNetBlockInfoResponseStartBackendsVector(protocolBuilder, len(backends))
 	for i = len(backends) - 1; i >= 0; i-- {
 		protocolBuilder.PrependUOffsetT(backendOffs[i])
 	}
 	backendOff = protocolBuilder.EndVector(len(backends))
 
-	protocol.NetINodeNetBlockInfoResponseStart(protocolBuilder)
-	protocol.NetINodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocol.NetINodeNetBlockInfoResponseAddBackends(protocolBuilder, backendOff)
-	protocol.NetINodeNetBlockInfoResponseAddLen(protocolBuilder, netBlockLen)
-	protocol.NetINodeNetBlockInfoResponseAddCap(protocolBuilder, netBlockCap)
-	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
+	sdfsprotocol.NetINodeNetBlockInfoResponseStart(protocolBuilder)
+	sdfsprotocol.NetINodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	sdfsprotocol.NetINodeNetBlockInfoResponseAddBackends(protocolBuilder, backendOff)
+	sdfsprotocol.NetINodeNetBlockInfoResponseAddLen(protocolBuilder, netBlockLen)
+	sdfsprotocol.NetINodeNetBlockInfoResponseAddCap(protocolBuilder, netBlockCap)
+	protocolBuilder.Finish(sdfsprotocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
 }

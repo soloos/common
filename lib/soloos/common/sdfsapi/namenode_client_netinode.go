@@ -1,15 +1,15 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
-	uNetINode types.NetINodeUintptr,
+	uNetINode sdfsapitypes.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int,
 ) error {
 	var (
@@ -21,12 +21,12 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	)
 
 	netINodeIDOff = protocolBuilder.CreateByteString(uNetINode.Ptr().ID[:])
-	protocol.NetINodeInfoRequestStart(&protocolBuilder)
-	protocol.NetINodeInfoRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	protocol.NetINodeInfoRequestAddSize(&protocolBuilder, size)
-	protocol.NetINodeInfoRequestAddNetBlockCap(&protocolBuilder, int32(netBlockCap))
-	protocol.NetINodeInfoRequestAddMemBlockCap(&protocolBuilder, int32(memBlockCap))
-	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoRequestEnd(&protocolBuilder))
+	sdfsprotocol.NetINodeInfoRequestStart(&protocolBuilder)
+	sdfsprotocol.NetINodeInfoRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	sdfsprotocol.NetINodeInfoRequestAddSize(&protocolBuilder, size)
+	sdfsprotocol.NetINodeInfoRequestAddNetBlockCap(&protocolBuilder, int32(netBlockCap))
+	sdfsprotocol.NetINodeInfoRequestAddMemBlockCap(&protocolBuilder, int32(memBlockCap))
+	protocolBuilder.Finish(sdfsprotocol.NetINodeNetBlockInfoRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	if isMustGet {
@@ -47,8 +47,8 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	}
 
 	var (
-		netINodeInfo   protocol.NetINodeInfoResponse
-		commonResponse protocol.CommonResponse
+		netINodeInfo   sdfsprotocol.NetINodeInfoResponse
+		commonResponse sdfsprotocol.CommonResponse
 	)
 
 	netINodeInfo.Init(body, flatbuffers.GetUOffsetT(body))
@@ -65,17 +65,17 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	return nil
 }
 
-func (p *NameNodeClient) GetNetINodeMetaData(uNetINode types.NetINodeUintptr) error {
+func (p *NameNodeClient) GetNetINodeMetaData(uNetINode sdfsapitypes.NetINodeUintptr) error {
 	return p.doGetNetINodeMetaData(false, uNetINode, 0, 0, 0)
 }
 
-func (p *NameNodeClient) MustGetNetINodeMetaData(uNetINode types.NetINodeUintptr,
+func (p *NameNodeClient) MustGetNetINodeMetaData(uNetINode sdfsapitypes.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int,
 ) error {
 	return p.doGetNetINodeMetaData(true, uNetINode, size, netBlockCap, memBlockCap)
 }
 
-func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
+func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode sdfsapitypes.NetINodeUintptr,
 	size uint64) error {
 	var (
 		req             snettypes.Request
@@ -86,10 +86,10 @@ func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
 	)
 
 	netINodeIDOff = protocolBuilder.CreateByteString(uNetINode.Ptr().ID[:])
-	protocol.NetINodeCommitSizeInDBRequestStart(&protocolBuilder)
-	protocol.NetINodeCommitSizeInDBRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	protocol.NetINodeCommitSizeInDBRequestAddSize(&protocolBuilder, size)
-	protocolBuilder.Finish(protocol.NetINodeCommitSizeInDBRequestEnd(&protocolBuilder))
+	sdfsprotocol.NetINodeCommitSizeInDBRequestStart(&protocolBuilder)
+	sdfsprotocol.NetINodeCommitSizeInDBRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	sdfsprotocol.NetINodeCommitSizeInDBRequestAddSize(&protocolBuilder, size)
+	protocolBuilder.Finish(sdfsprotocol.NetINodeCommitSizeInDBRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	err = p.SNetClientDriver.Call(p.nameNodePeer,
@@ -105,7 +105,7 @@ func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
 	}
 
 	var (
-		commonResponse protocol.CommonResponse
+		commonResponse sdfsprotocol.CommonResponse
 	)
 
 	commonResponse.Init(body, flatbuffers.GetUOffsetT(body))

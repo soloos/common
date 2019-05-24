@@ -7,7 +7,19 @@ func TestSanitizeOptions(t *testing.T) {
 		err error
 	)
 
-	var server = NewServer()
-	err = server.LoadOptionsFile("./options.json")
+	var options = Options{
+		RunMode:         "dev",
+		ServeType:       "server",
+		ListenStr:       "127.0.0.1:7812",
+		LogPath:         "./test.log",
+		AccessWhiteList: []string{},
+
+		SiteViewDir:              "./",
+		SiteStaticBasePath:       "./",
+		SiteStaticUploadBasePath: "./",
+	}
+
+	var server Server
+	err = server.Init(options)
 	AssertErrIsNilForTest(t, err)
 }

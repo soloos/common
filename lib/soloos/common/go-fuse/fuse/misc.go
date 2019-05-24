@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 	"reflect"
-	. "soloos/common/fsapi/types"
+	. "soloos/common/fsapitypes"
 	"syscall"
 	"time"
 	"unsafe"

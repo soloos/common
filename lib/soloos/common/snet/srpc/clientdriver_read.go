@@ -1,12 +1,12 @@
 package srpc
 
 import (
-	"soloos/common/snet/types"
+	"soloos/common/snettypes"
 )
 
-func (p *ClientDriver) ReadResponse(uPeer types.PeerUintptr,
-	req *types.Request,
-	resp *types.Response,
+func (p *ClientDriver) ReadResponse(uPeer snettypes.PeerUintptr,
+	req *snettypes.Request,
+	resp *snettypes.Response,
 	respBody []byte) error {
 	var (
 		client *Client

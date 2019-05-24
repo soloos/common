@@ -1,7 +1,7 @@
 package sdfsapi
 
 import (
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/soloosbase"
 )
 
 type ClientDriver interface {

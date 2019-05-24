@@ -3,7 +3,7 @@ package srpc
 import (
 	"net"
 	"soloos/common/log"
-	"soloos/common/snet/types"
+	"soloos/common/snettypes"
 )
 
 type Server struct {
@@ -11,22 +11,22 @@ type Server struct {
 	ln               net.Listener
 	network          string
 	address          string
-	services         map[types.ServiceID]types.Service
+	services         map[snettypes.ServiceID]snettypes.Service
 }
 
 func (p *Server) Init(network, address string) error {
 	p.MaxMessageLength = 1024 * 1024 * 512
 	p.network = network
 	p.address = address
-	p.services = make(map[types.ServiceID]types.Service)
-	p.RegisterService("/Close", func(serviceReq *types.NetQuery) error {
-		return serviceReq.ConnClose(types.ErrClosedByUser)
+	p.services = make(map[snettypes.ServiceID]snettypes.Service)
+	p.RegisterService("/Close", func(serviceReq *snettypes.NetQuery) error {
+		return serviceReq.ConnClose(snettypes.ErrClosedByUser)
 	})
 	return nil
 }
 
-func (p *Server) RegisterService(serviceIDStr string, service types.Service) {
-	var serviceID types.ServiceID
+func (p *Server) RegisterService(serviceIDStr string, service snettypes.Service) {
+	var serviceID snettypes.ServiceID
 	copy(serviceID[:], []byte(serviceIDStr))
 	p.services[serviceID] = service
 }
@@ -61,18 +61,18 @@ func (p *Server) serveListener(ln net.Listener) error {
 
 func (p *Server) serveConn(netConn net.Conn) {
 	var (
-		conn          types.Connection
-		reqHeader     types.RequestHeader
-		serviceID     types.ServiceID
-		service       types.Service
-		serviceReq    types.NetQuery
+		conn          snettypes.Connection
+		reqHeader     snettypes.RequestHeader
+		serviceID     snettypes.ServiceID
+		service       snettypes.Service
+		serviceReq    snettypes.NetQuery
 		serviceExists bool
 		err           error
 	)
 
 	conn.SetNetConn(netConn)
 
-	serviceReq = types.NetQuery{}
+	serviceReq = snettypes.NetQuery{}
 	serviceReq.Init(&conn)
 
 	for {
@@ -92,7 +92,7 @@ func (p *Server) serveConn(netConn net.Conn) {
 		}
 
 		// call service
-		go func(localService types.Service, localServiceReq types.NetQuery) {
+		go func(localService snettypes.Service, localServiceReq snettypes.NetQuery) {
 			localService(&localServiceReq)
 			localServiceReq.EnsureServiceReadDone()
 		}(service, serviceReq)

@@ -1,17 +1,17 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *protocol.NetINodeNetBlockInfoResponse,
-	uNetINode types.NetINodeUintptr,
+func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *sdfsprotocol.NetINodeNetBlockInfoResponse,
+	uNetINode sdfsapitypes.NetINodeUintptr,
 	netBlockIndex int32,
-	uNetBlock types.NetBlockUintptr,
+	uNetBlock sdfsapitypes.NetBlockUintptr,
 ) error {
 	var (
 		req             snettypes.Request
@@ -22,11 +22,11 @@ func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *protocol.NetINode
 	)
 
 	netINodeIDOff = protocolBuilder.CreateString(uNetINode.Ptr().IDStr())
-	protocol.NetINodeNetBlockInfoRequestStart(&protocolBuilder)
-	protocol.NetINodeNetBlockInfoRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	protocol.NetINodeNetBlockInfoRequestAddNetBlockIndex(&protocolBuilder, int32(netBlockIndex))
-	protocol.NetINodeNetBlockInfoRequestAddCap(&protocolBuilder, int32(uNetINode.Ptr().NetBlockCap))
-	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoRequestEnd(&protocolBuilder))
+	sdfsprotocol.NetINodeNetBlockInfoRequestStart(&protocolBuilder)
+	sdfsprotocol.NetINodeNetBlockInfoRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	sdfsprotocol.NetINodeNetBlockInfoRequestAddNetBlockIndex(&protocolBuilder, int32(netBlockIndex))
+	sdfsprotocol.NetINodeNetBlockInfoRequestAddCap(&protocolBuilder, int32(uNetINode.Ptr().NetBlockCap))
+	protocolBuilder.Finish(sdfsprotocol.NetINodeNetBlockInfoRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	// TODO choose namenode
@@ -44,7 +44,7 @@ func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *protocol.NetINode
 
 	var (
 		pNetBlock      = uNetBlock.Ptr()
-		commonResponse protocol.CommonResponse
+		commonResponse sdfsprotocol.CommonResponse
 	)
 	netBlockInfo.Init(body, flatbuffers.GetUOffsetT(body))
 	netBlockInfo.CommonResponse(&commonResponse)

@@ -6,7 +6,7 @@ package fuse
 
 import (
 	"io"
-	. "soloos/common/fsapi/types"
+	. "soloos/common/fsapitypes"
 	"syscall"
 )
 

@@ -1,8 +1,8 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -19,10 +19,10 @@ func (p *NameNodeClient) RegisterDataNode(peerID snettypes.PeerID, serveAddr str
 
 	peerIDOff = protocolBuilder.CreateByteString(peerID[:])
 	addrOff = protocolBuilder.CreateString(serveAddr)
-	protocol.SNetPeerStart(&protocolBuilder)
-	protocol.SNetPeerAddPeerID(&protocolBuilder, peerIDOff)
-	protocol.SNetPeerAddAddress(&protocolBuilder, addrOff)
-	protocolBuilder.Finish(protocol.SNetPeerEnd(&protocolBuilder))
+	sdfsprotocol.SNetPeerStart(&protocolBuilder)
+	sdfsprotocol.SNetPeerAddPeerID(&protocolBuilder, peerIDOff)
+	sdfsprotocol.SNetPeerAddAddress(&protocolBuilder, addrOff)
+	protocolBuilder.Finish(sdfsprotocol.SNetPeerEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	err = p.SNetClientDriver.Call(p.nameNodePeer,
@@ -38,7 +38,7 @@ func (p *NameNodeClient) RegisterDataNode(peerID snettypes.PeerID, serveAddr str
 	}
 
 	var (
-		commonResponse protocol.CommonResponse
+		commonResponse sdfsprotocol.CommonResponse
 	)
 
 	commonResponse.Init(body, flatbuffers.GetUOffsetT(body))

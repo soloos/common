@@ -1,18 +1,18 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeClient) PReadMemBlock(uNetINode types.NetINodeUintptr,
+func (p *DataNodeClient) PReadMemBlock(uNetINode sdfsapitypes.NetINodeUintptr,
 	uPeer snettypes.PeerUintptr,
-	uNetBlock types.NetBlockUintptr,
+	uNetBlock sdfsapitypes.NetBlockUintptr,
 	netBlockIndex int32,
-	uMemBlock types.MemBlockUintptr,
+	uMemBlock sdfsapitypes.MemBlockUintptr,
 	memBlockIndex int32,
 	offset uint64, length int,
 ) (int, error) {
@@ -25,14 +25,14 @@ func (p *DataNodeClient) PReadMemBlock(uNetINode types.NetINodeUintptr,
 		return p.doPReadMemBlockWithSRPC(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
-	return 0, types.ErrServiceNotExists
+	return 0, sdfsapitypes.ErrServiceNotExists
 }
 
-func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr,
+func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode sdfsapitypes.NetINodeUintptr,
 	uPeer snettypes.PeerUintptr,
-	uNetBlock types.NetBlockUintptr,
+	uNetBlock sdfsapitypes.NetBlockUintptr,
 	netBlockIndex int32,
-	uMemBlock types.MemBlockUintptr,
+	uMemBlock sdfsapitypes.MemBlockUintptr,
 	memBlockIndex int32,
 	offset uint64, length int,
 ) (int, error) {
@@ -45,11 +45,11 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	)
 
 	netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
-	protocol.NetINodePReadRequestStart(&protocolBuilder)
-	protocol.NetINodePReadRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	protocol.NetINodePReadRequestAddOffset(&protocolBuilder, offset)
-	protocol.NetINodePReadRequestAddLength(&protocolBuilder, int32(length))
-	protocolBuilder.Finish(protocol.NetINodePReadRequestEnd(&protocolBuilder))
+	sdfsprotocol.NetINodePReadRequestStart(&protocolBuilder)
+	sdfsprotocol.NetINodePReadRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	sdfsprotocol.NetINodePReadRequestAddOffset(&protocolBuilder, offset)
+	sdfsprotocol.NetINodePReadRequestAddLength(&protocolBuilder, int32(length))
+	protocolBuilder.Finish(sdfsprotocol.NetINodePReadRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	// TODO choose datanode
@@ -60,8 +60,8 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	}
 
 	var (
-		netBlockPReadResp           protocol.NetINodePReadResponse
-		commonResp                  protocol.CommonResponse
+		netBlockPReadResp           sdfsprotocol.NetINodePReadResponse
+		commonResp                  sdfsprotocol.CommonResponse
 		param                       = make([]byte, resp.ParamSize)
 		offsetInMemBlock, readedLen int
 	)
@@ -73,7 +73,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	netBlockPReadResp.Init(param, flatbuffers.GetUOffsetT(param))
 	netBlockPReadResp.CommonResponse(&commonResp)
 	if commonResp.Code() != snettypes.CODE_OK {
-		return 0, types.ErrNetBlockPRead
+		return 0, sdfsapitypes.ErrNetBlockPRead
 	}
 
 	offsetInMemBlock = int(offset - uint64(uMemBlock.Ptr().Bytes.Cap)*uint64(memBlockIndex))

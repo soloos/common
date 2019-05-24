@@ -17,7 +17,7 @@ subdirectories of the FUSE mount.
   - `PathFileSystem`: define filesystems in terms path names.
   - `NodeFileSystem`: define filesystems in terms of inodes.
   - `PosixFS`: define filesystems in terms of FUSE's raw
-  wire protocol.
+  wire sdfsprotocol.
 
 * Both NodeFileSystem and PathFileSystem support manipulation of true
   hardlinks.

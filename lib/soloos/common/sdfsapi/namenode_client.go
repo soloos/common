@@ -1,8 +1,8 @@
 package sdfsapi
 
 import (
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 )
 
 type NameNodeClient struct {
