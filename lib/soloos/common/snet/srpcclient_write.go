@@ -1,10 +1,10 @@
-package srpc
+package snet
 
 import (
 	"soloos/common/snettypes"
 )
 
-func (p *Client) Write(req *snettypes.Request) error {
+func (p *SRPCClient) Write(req *snettypes.Request) error {
 	var (
 		err error
 	)

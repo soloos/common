@@ -8,7 +8,8 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uNetINode sdfsapitypes.NetINodeUintptr) error {
+func (p *DataNodeClient) NetINodeSync(dataNodePeerID snettypes.PeerID,
+	uNetINode sdfsapitypes.NetINodeUintptr) error {
 	var (
 		req             snettypes.Request
 		resp            snettypes.Response
@@ -23,14 +24,14 @@ func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uN
 	protocolBuilder.Finish(sdfsprotocol.NetINodeSyncRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-	err = p.SNetClientDriver.Call(uDataNode,
+	err = p.SNetClientDriver.Call(dataNodePeerID,
 		"/NetINode/Sync", &req, &resp)
 	if err != nil {
 		return err
 	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	err = p.SNetClientDriver.ReadResponse(uDataNode, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(dataNodePeerID, &req, &resp, body)
 	if err != nil {
 		return err
 	}

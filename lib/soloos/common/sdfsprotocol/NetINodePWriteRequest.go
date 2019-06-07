@@ -58,16 +58,13 @@ func (rcv *NetINodePWriteRequest) MutateLength(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-func (rcv *NetINodePWriteRequest) TransferBackends(obj *SNetPeer, j int) bool {
+func (rcv *NetINodePWriteRequest) TransferBackends(j int) []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
-		x := rcv._tab.Vector(o)
-		x += flatbuffers.UOffsetT(j) * 4
-		x = rcv._tab.Indirect(x)
-		obj.Init(rcv._tab.Bytes, x)
-		return true
+		a := rcv._tab.Vector(o)
+		return rcv._tab.ByteVector(a + flatbuffers.UOffsetT(j*4))
 	}
-	return false
+	return nil
 }
 
 func (rcv *NetINodePWriteRequest) TransferBackendsLength() int {

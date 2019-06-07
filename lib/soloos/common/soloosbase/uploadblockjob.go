@@ -58,6 +58,13 @@ func (p *UploadBlockJob) GetProcessingChunkMask() offheap.ChunkMask {
 	return p.uploadMasks[p.uploadMaskProcessingIndex]
 }
 
+func (p *UploadBlockJob) GetWaitingChunkMask() offheap.ChunkMask {
+	if p.uploadMaskProcessingIndex == 0 {
+		return p.uploadMasks[1]
+	}
+	return p.uploadMasks[0]
+}
+
 func (p *UploadBlockJob) ResetProcessingChunkMask() {
 	p.uploadMasks[p.uploadMaskProcessingIndex].Reset()
 }

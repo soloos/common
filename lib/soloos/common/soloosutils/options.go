@@ -1,9 +1,11 @@
 package soloosutils
 
 type Options struct {
-	SDFSNameNodeServeAddr string
-	SDFSDBDriver          string
-	SDFSDsn               string
+	SNetDriverServeAddr string
+
+	SDFSNameNodePeerID string
+	SDFSDBDriver       string
+	SDFSDsn            string
 
 	SWALDefaultNetBlockCap int
 	SWALDefaultMemBlockCap int

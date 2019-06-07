@@ -9,27 +9,34 @@ import (
 )
 
 func (p *DataNodeClient) PReadMemBlock(uNetINode sdfsapitypes.NetINodeUintptr,
-	uPeer snettypes.PeerUintptr,
 	uNetBlock sdfsapitypes.NetBlockUintptr,
 	netBlockIndex int32,
 	uMemBlock sdfsapitypes.MemBlockUintptr,
 	memBlockIndex int32,
 	offset uint64, length int,
 ) (int, error) {
-	if uNetBlock.Ptr().LocalDataBackend != 0 {
-		return p.preadMemBlockWithDisk(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
+	if uNetBlock.Ptr().IsLocalDataBackendExists {
+		return p.preadMemBlockWithDisk(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
-	switch uPeer.Ptr().ServiceProtocol {
+	var peer snettypes.Peer
+	var err error
+	peer, err = p.SNetDriver.GetPeer(uNetBlock.Ptr().StorDataBackends.Arr[0])
+	if err != nil {
+		return 0, err
+	}
+
+	switch peer.ServiceProtocol {
 	case snettypes.ProtocolSRPC:
-		return p.doPReadMemBlockWithSRPC(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
+		return p.doPReadMemBlockWithSRPC(peer.ID,
+			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
 	return 0, sdfsapitypes.ErrServiceNotExists
 }
 
-func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode sdfsapitypes.NetINodeUintptr,
-	uPeer snettypes.PeerUintptr,
+func (p *DataNodeClient) doPReadMemBlockWithSRPC(peerID snettypes.PeerID,
+	uNetINode sdfsapitypes.NetINodeUintptr,
 	uNetBlock sdfsapitypes.NetBlockUintptr,
 	netBlockIndex int32,
 	uMemBlock sdfsapitypes.MemBlockUintptr,
@@ -53,7 +60,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode sdfsapitypes.NetINode
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	// TODO choose datanode
-	err = p.SNetClientDriver.Call(uPeer,
+	err = p.SNetClientDriver.Call(peerID,
 		"/NetINode/PRead", &req, &resp)
 	if err != nil {
 		return 0, err
@@ -65,7 +72,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode sdfsapitypes.NetINode
 		param                       = make([]byte, resp.ParamSize)
 		offsetInMemBlock, readedLen int
 	)
-	err = p.SNetClientDriver.ReadResponse(uPeer, &req, &resp, param)
+	err = p.SNetClientDriver.ReadResponse(peerID, &req, &resp, param)
 	if err != nil {
 		return 0, err
 	}
@@ -78,7 +85,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode sdfsapitypes.NetINode
 
 	offsetInMemBlock = int(offset - uint64(uMemBlock.Ptr().Bytes.Cap)*uint64(memBlockIndex))
 	readedLen = int(resp.BodySize - resp.ParamSize)
-	err = p.SNetClientDriver.ReadResponse(uPeer, &req, &resp,
+	err = p.SNetClientDriver.ReadResponse(peerID, &req, &resp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])
 	if err != nil {
 		return 0, err

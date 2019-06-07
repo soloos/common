@@ -2,8 +2,8 @@ package sdfsapi
 
 import (
 	"soloos/common/sdfsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -30,14 +30,14 @@ func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *sdfsprotocol.NetI
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	// TODO choose namenode
-	err = p.SNetClientDriver.Call(p.nameNodePeer,
+	err = p.SNetClientDriver.Call(p.nameNodePeerID,
 		"/NetBlock/PrepareMetaData", &req, &resp)
 	if err != nil {
 		return err
 	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	err = p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(p.nameNodePeerID, &req, &resp, body)
 	if err != nil {
 		return err
 	}

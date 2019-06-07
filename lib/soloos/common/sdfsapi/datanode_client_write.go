@@ -12,11 +12,8 @@ import (
 func (p *DataNodeClient) UploadMemBlock(uJob sdfsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int, transferPeersCount int,
 ) error {
-	var (
-		uDataNode snettypes.PeerUintptr
-	)
-	uDataNode = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
-	switch uDataNode.Ptr().ServiceProtocol {
+	var dataNode, _ = p.SoloOSEnv.SNetDriver.GetPeer(uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex])
+	switch dataNode.ServiceProtocol {
 	case snettypes.ProtocolDisk:
 		return p.uploadMemBlockWithDisk(uJob, uploadPeerIndex, transferPeersCount)
 	case snettypes.ProtocolSWAL:
@@ -47,7 +44,7 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob sdfsapitypes.UploadMemBlo
 		commonResp          sdfsprotocol.CommonResponse
 		respBody            []byte
 		i                   int
-		uPeer               snettypes.PeerUintptr
+		backendPeer         snettypes.Peer
 		err                 error
 	)
 
@@ -64,9 +61,9 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob sdfsapitypes.UploadMemBlo
 
 		if transferPeersCount > 0 {
 			for i = 0; i < transferPeersCount; i++ {
-				uPeer = uNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex+1+i]
-				peerOff = protocolBuilder.CreateByteVector(uPeer.Ptr().ID[:])
-				addrOff = protocolBuilder.CreateString(uPeer.Ptr().AddressStr())
+				backendPeer, _ = p.SNetDriver.GetPeer(uNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex+1+i])
+				peerOff = protocolBuilder.CreateByteVector(backendPeer.ID[:])
+				addrOff = protocolBuilder.CreateString(backendPeer.AddressStr())
 				sdfsprotocol.SNetPeerStart(&protocolBuilder)
 				sdfsprotocol.SNetPeerAddPeerID(&protocolBuilder, peerOff)
 				sdfsprotocol.SNetPeerAddAddress(&protocolBuilder, addrOff)
@@ -95,15 +92,19 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob sdfsapitypes.UploadMemBlo
 		protocolBuilder.Finish(sdfsprotocol.NetINodePWriteRequestEnd(&protocolBuilder))
 		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-		uPeer = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
-		err = p.SNetClientDriver.Call(uPeer,
+		backendPeer, err = p.SNetDriver.GetPeer(uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex])
+		if err != nil {
+			goto PWRITE_DONE
+		}
+
+		err = p.SNetClientDriver.Call(backendPeer.ID,
 			"/NetINode/PWrite", &req, &resp)
 		if err != nil {
 			goto PWRITE_DONE
 		}
 
 		respBody = make([]byte, resp.ParamSize)
-		err = p.SNetClientDriver.ReadResponse(uPeer, &req, &resp, respBody)
+		err = p.SNetClientDriver.ReadResponse(backendPeer.ID, &req, &resp, respBody)
 		if err != nil {
 			goto PWRITE_DONE
 		}

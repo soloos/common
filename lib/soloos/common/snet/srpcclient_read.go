@@ -1,18 +1,18 @@
-package srpc
+package snet
 
 import (
 	"soloos/common/snettypes"
 )
 
-func (p *Client) WaitResponse(req *snettypes.Request, resp *snettypes.Response) error {
+func (p *SRPCClient) WaitResponse(req *snettypes.Request, resp *snettypes.Response) error {
 	return p.doWaitResponse(req, resp)
 }
 
-func (p *Client) ReadResponse(resp *snettypes.Response, respBody []byte) error {
+func (p *SRPCClient) ReadResponse(resp *snettypes.Response, respBody []byte) error {
 	return resp.NetQuery.ReadAll(respBody)
 }
 
-func (p *Client) cronReadResponse() error {
+func (p *SRPCClient) cronReadResponse() error {
 	var (
 		netQuery   snettypes.NetQuery
 		respHeader snettypes.ResponseHeader

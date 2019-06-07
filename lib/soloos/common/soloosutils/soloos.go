@@ -42,29 +42,17 @@ func (p *SoloOS) Init(options Options,
 		return err
 	}
 
-	p.SDFSClientDriver = sdfsClientDriver
-	err = p.SDFSClientDriver.Init(&p.SoloOSEnv,
-		options.SDFSNameNodeServeAddr,
-		options.SDFSDBDriver, options.SDFSDsn)
+	err = p.SoloOSEnv.SNetDriver.StartClient(options.SNetDriverServeAddr)
 	if err != nil {
 		return err
 	}
 
-	p.SWALClientDriver = swalClientDriver
-	err = p.SWALClientDriver.Init(&p.SoloOSEnv,
-		options.SWALAgentPeerID, options.SWALAgentServeAddr,
-		options.SWALDBDriver, options.SWALDsn,
-		options.SWALDefaultNetBlockCap, options.SWALDefaultMemBlockCap)
+	err = p.initSDFS(sdfsClientDriver)
 	if err != nil {
 		return err
 	}
 
-	err = p.initSDFS()
-	if err != nil {
-		return err
-	}
-
-	err = p.initSWAL()
+	err = p.initSWAL(swalClientDriver)
 	if err != nil {
 		return err
 	}

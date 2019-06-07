@@ -2,8 +2,8 @@ package sdfsapi
 
 import (
 	"soloos/common/sdfsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -30,10 +30,10 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	if isMustGet {
-		err = p.SNetClientDriver.Call(p.nameNodePeer,
+		err = p.SNetClientDriver.Call(p.nameNodePeerID,
 			"/NetINode/MustGet", &req, &resp)
 	} else {
-		err = p.SNetClientDriver.Call(p.nameNodePeer,
+		err = p.SNetClientDriver.Call(p.nameNodePeerID,
 			"/NetINode/Get", &req, &resp)
 	}
 	if err != nil {
@@ -41,7 +41,7 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	err = p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(p.nameNodePeerID, &req, &resp, body)
 	if err != nil {
 		return err
 	}
@@ -92,14 +92,14 @@ func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode sdfsapitypes.NetINodeU
 	protocolBuilder.Finish(sdfsprotocol.NetINodeCommitSizeInDBRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-	err = p.SNetClientDriver.Call(p.nameNodePeer,
+	err = p.SNetClientDriver.Call(p.nameNodePeerID,
 		"/NetINode/CommitSizeInDB", &req, &resp)
 	if err != nil {
 		return err
 	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	err = p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(p.nameNodePeerID, &req, &resp, body)
 	if err != nil {
 		return err
 	}

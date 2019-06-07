@@ -1,6 +1,7 @@
 package snettypes
 
 import (
+	"bytes"
 	"soloos/sdbone/offheap"
 	"unsafe"
 
@@ -26,7 +27,11 @@ func StrToPeerID(peerIDStr string) PeerID {
 }
 
 func (p PeerID) Str() string {
-	return string(p[:])
+	var pos = bytes.IndexByte(p[:], 0)
+	if pos == -1 {
+		return string(p[:])
+	}
+	return string(p[:pos])
 }
 
 func (p *PeerID) SetStr(peerIDStr string) {
@@ -35,12 +40,45 @@ func (p *PeerID) SetStr(peerIDStr string) {
 
 func (u PeerUintptr) Ptr() *Peer { return (*Peer)(unsafe.Pointer(u)) }
 
+type PeerJSON struct {
+	PeerID          string
+	Address         string
+	ServiceProtocol int
+}
+
+type GetPeerRespJSON struct {
+	Errno  int      `json:"errno"`
+	ErrMsg string   `json:"errmsg"`
+	Data   PeerJSON `json:"data"`
+}
+
+func PeerJSONToPeer(peerJSON PeerJSON) Peer {
+	var ret Peer
+	ret.ID = StrToPeerID(peerJSON.PeerID)
+	ret.SetAddress(peerJSON.Address)
+	ret.ServiceProtocol = peerJSON.ServiceProtocol
+	return ret
+}
+
+func PeerToPeerJSON(peer Peer) PeerJSON {
+	var ret PeerJSON
+	ret.PeerID = peer.PeerIDStr()
+	ret.Address = peer.AddressStr()
+	ret.ServiceProtocol = peer.ServiceProtocol
+	return ret
+}
+
 type Peer struct {
 	offheap.LKVTableObjectWithBytes64 `db:"-"`
 
 	addressLen      int
 	Address         [128]byte
 	ServiceProtocol int
+}
+
+func (p *Peer) SetAddressBytes(addr []byte) {
+	p.addressLen = len(addr)
+	copy(p.Address[:p.addressLen], addr)
 }
 
 func (p *Peer) SetAddress(addr string) {
@@ -52,4 +90,6 @@ func (p *Peer) AddressStr() string {
 	return string(p.Address[:p.addressLen])
 }
 
-func (p *Peer) PeerIDStr() string { return string(p.ID[:]) }
+func (p *Peer) PeerID() PeerID { return PeerID(p.ID) }
+
+func (p *Peer) PeerIDStr() string { return PeerID(p.ID).Str() }

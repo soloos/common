@@ -1,4 +1,4 @@
-package srpc
+package snet
 
 import (
 	"net"
@@ -6,7 +6,7 @@ import (
 	"soloos/common/snettypes"
 )
 
-type Server struct {
+type SRPCServer struct {
 	MaxMessageLength uint32
 	ln               net.Listener
 	network          string
@@ -14,7 +14,7 @@ type Server struct {
 	services         map[snettypes.ServiceID]snettypes.Service
 }
 
-func (p *Server) Init(network, address string) error {
+func (p *SRPCServer) Init(network, address string) error {
 	p.MaxMessageLength = 1024 * 1024 * 512
 	p.network = network
 	p.address = address
@@ -25,13 +25,13 @@ func (p *Server) Init(network, address string) error {
 	return nil
 }
 
-func (p *Server) RegisterService(serviceIDStr string, service snettypes.Service) {
+func (p *SRPCServer) RegisterService(serviceIDStr string, service snettypes.Service) {
 	var serviceID snettypes.ServiceID
 	copy(serviceID[:], []byte(serviceIDStr))
 	p.services[serviceID] = service
 }
 
-func (p *Server) Serve() error {
+func (p *SRPCServer) Serve() error {
 	var err error
 	p.ln, err = makeListener(p.network, p.address)
 	if err != nil {
@@ -43,7 +43,7 @@ func (p *Server) Serve() error {
 	return nil
 }
 
-func (p *Server) serveListener(ln net.Listener) error {
+func (p *SRPCServer) serveListener(ln net.Listener) error {
 	var (
 		netConn net.Conn
 		err     error
@@ -59,7 +59,7 @@ func (p *Server) serveListener(ln net.Listener) error {
 	}
 }
 
-func (p *Server) serveConn(netConn net.Conn) {
+func (p *SRPCServer) serveConn(netConn net.Conn) {
 	var (
 		conn          snettypes.Connection
 		reqHeader     snettypes.RequestHeader
@@ -118,6 +118,6 @@ CONN_END:
 	}
 }
 
-func (p *Server) Close() error {
+func (p *SRPCServer) Close() error {
 	return p.ln.Close()
 }

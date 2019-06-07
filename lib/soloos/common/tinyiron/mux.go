@@ -11,13 +11,13 @@ import (
 )
 
 type ServeMux struct {
-	server       *Server
-	mu           sync.RWMutex
-	m            map[string]muxEntry
-	hosts        bool // whether any patterns contain hostnames
-	serveHTTPer  ServeHTTPer
-	reqSeter SetReuqestFunc
-	reqGeter GetReuqestFunc
+	server      *Server
+	mu          sync.RWMutex
+	m           map[string]muxEntry
+	hosts       bool // whether any patterns contain hostnames
+	serveHTTPer ServeHTTPer
+	reqSeter    SetReuqestFunc
+	reqGeter    GetReuqestFunc
 }
 
 // NewServeMux allocates and returns a new ServeMux.

@@ -5,10 +5,9 @@ import (
 )
 
 // DataNode
-type GetDataNode func(peerID snettypes.PeerID) snettypes.PeerUintptr
+type GetDataNode func(peerID snettypes.PeerID) (snettypes.Peer, error)
 type ChooseDataNodesForNewNetBlock func(uNetINode NetINodeUintptr) (snettypes.PeerGroup, error)
 type PReadMemBlockWithDisk func(uNetINode NetINodeUintptr,
-	uPeer snettypes.PeerUintptr,
 	uNetBlock NetBlockUintptr, netBlockIndex int32,
 	uMemBlock MemBlockUintptr, memBlockIndex int32,
 	offset uint64, length int) (int, error)

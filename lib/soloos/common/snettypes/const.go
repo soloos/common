@@ -5,7 +5,8 @@ const (
 )
 
 const (
-	ProtocolDisk = iota
+	ProtocolUnknown = -1
+	ProtocolDisk    = iota
 	ProtocolSWAL
 	ProtocolSRPC
 )

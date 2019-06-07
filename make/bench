@@ -14,9 +14,6 @@ bench-common-sdfsapitypes:
 bench-common-snet:
 	cd src/soloos/common/snet/ && go test -bench=. -benchmem 
 
-bench-common-snet-srpc:
-	cd src/soloos/common/snet/srpc/ && go test -bench=. -benchmem 
-
 bench-common-soloosapi-os:
 	cd src/soloos/common/soloosapi/os/ && go test -bench=. -benchmem 
 
@@ -26,4 +23,4 @@ bench-common-soloosutils:
 bench-common-tinyiron:
 	cd src/soloos/common/tinyiron/ && go test -bench=. -benchmem 
 
-bench: bench-common-go-fuse-fuse bench-common-go-fuse-splice bench-common-sdfsapi bench-common-sdfsapitypes bench-common-snet bench-common-snet-srpc bench-common-soloosapi-os bench-common-soloosutils bench-common-tinyiron
+bench: bench-common-go-fuse-fuse bench-common-go-fuse-splice bench-common-sdfsapi bench-common-sdfsapitypes bench-common-snet bench-common-soloosapi-os bench-common-soloosutils bench-common-tinyiron

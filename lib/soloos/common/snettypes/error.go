@@ -8,4 +8,5 @@ var (
 	ErrWrongVersion    = xerrors.New("wrong version")
 	ErrServiceNotFound = xerrors.New("service not found")
 	ErrClosedByUser    = xerrors.New("closed by user")
+	Err502             = xerrors.New("502")
 )

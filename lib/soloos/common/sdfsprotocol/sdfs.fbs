@@ -8,6 +8,7 @@ table CommonResponse {
 table SNetPeer {
     PeerID:string;
     Address:string;
+    Protocol:int;
 }
 
 table NetINodeCommitSizeInDBRequest {
@@ -39,14 +40,14 @@ table NetINodeNetBlockInfoResponse {
     CommonResponse:CommonResponse;
     Len:int;
     Cap:int;
-    Backends:[SNetPeer];
+    Backends:[string];
 }
 
 table NetINodePWriteRequest {
     NetINodeID:string;
     Offset:uint64;
     Length:int;
-    TransferBackends:[SNetPeer];
+    TransferBackends:[string];
 }
 
 table NetINodeSyncRequest {

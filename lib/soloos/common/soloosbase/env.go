@@ -8,7 +8,7 @@ import (
 type SoloOSEnv struct {
 	OffheapDriver    offheap.OffheapDriver
 	SNetDriver       snet.NetDriver
-	SNetClientDriver snet.ClientDriver
+	SNetClientDriver snet.SRPCClientDriver
 }
 
 func (p *SoloOSEnv) Init() error {
@@ -19,12 +19,12 @@ func (p *SoloOSEnv) Init() error {
 		return err
 	}
 
-	err = p.SNetDriver.Init(&p.OffheapDriver, "SoloOSEnv")
+	err = p.SNetDriver.Init(&p.OffheapDriver)
 	if err != nil {
 		return err
 	}
 
-	err = p.SNetClientDriver.Init(&p.OffheapDriver)
+	err = p.SNetClientDriver.Init(&p.OffheapDriver, &p.SNetDriver)
 	if err != nil {
 		return err
 	}

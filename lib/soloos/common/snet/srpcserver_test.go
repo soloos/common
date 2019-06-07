@@ -1,4 +1,4 @@
-package srpc
+package snet
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ var (
 	rpcMessage         = string(rawRpcMessageBytes[:])
 	rpcMessageBytes    = []byte(rpcMessage)
 
-	srpcServer     *Server
+	srpcServer     *SRPCServer
 	srpcServerAddr string
 )
 
@@ -41,7 +41,7 @@ func runSRPCServer() (string, error) {
 		return srpcServerAddr, nil
 	}
 
-	srpcServer = new(Server)
+	srpcServer = new(SRPCServer)
 	srpcServerAddr = allocAddr()
 	util.AssertErrIsNil(srpcServer.Init("tcp", srpcServerAddr))
 
@@ -87,7 +87,9 @@ func runSRPCServer() (string, error) {
 
 func TestSRPCServer(t *testing.T) {
 	var defaultOffheapDriver offheap.OffheapDriver
+	var defaultSNetDriver NetDriver
 	util.AssertErrIsNil(defaultOffheapDriver.Init())
+	util.AssertErrIsNil(defaultSNetDriver.Init(&defaultOffheapDriver))
 
 	addr, err := runSRPCServer()
 	assert.NoError(t, err)
@@ -95,17 +97,19 @@ func TestSRPCServer(t *testing.T) {
 	var (
 		callTimes    = 128
 		serviceSig   sync.WaitGroup
-		clientDriver ClientDriver
+		clientDriver SRPCClientDriver
 		peerPool     offheap.RawObjectPool
-		uPeer        snettypes.PeerUintptr
+		peer         snettypes.Peer
 	)
 	serviceSig.Add(callTimes)
 
-	assert.NoError(t, clientDriver.Init(&defaultOffheapDriver))
+	assert.NoError(t, clientDriver.Init(&defaultOffheapDriver, &defaultSNetDriver))
 
 	assert.NoError(t, peerPool.Init(int(snettypes.PeerStructSize), -1, nil, nil))
-	uPeer = snettypes.PeerUintptr(peerPool.AllocRawObject())
-	uPeer.Ptr().SetAddress(addr)
+	clientDriver.netDriver.InitPeerID((*snettypes.PeerID)(&peer.ID))
+	peer.SetAddress(addr)
+	peer.ServiceProtocol = snettypes.ProtocolSRPC
+	clientDriver.netDriver.RegisterPeer(peer)
 
 	go func() {
 		for i := 0; i < callTimes; i += 1 {
@@ -128,39 +132,39 @@ func TestSRPCServer(t *testing.T) {
 						req[i].Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 					}
 
-					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req[0], &resp[0]))
-					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[0], &resp[0], nil))
+					util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[0], &resp[0]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[0], &resp[0], nil))
 
 					{
-						util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req[1], &resp[1]))
-						util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req[2], &resp[2]))
+						util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[1], &resp[1]))
+						util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[2], &resp[2]))
 						var wg sync.WaitGroup
 						wg.Add(1)
 						go func() {
-							util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[1], &resp[1]))
-							util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[1], &resp[1], nil))
-							util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[2], &resp[2]))
-							util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[2], &resp[2], nil))
+							util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[1], &resp[1]))
+							util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[1], &resp[1], nil))
+							util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[2], &resp[2]))
+							util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[2], &resp[2], nil))
 							wg.Done()
 						}()
 						wg.Wait()
 					}
 
-					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req[3], &resp[3]))
-					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[3], &resp[3], nil))
+					util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[3], &resp[3]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[3], &resp[3], nil))
 
-					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/test", &req[4], &resp[4]))
-					util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[4], &resp[4]))
+					util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/test", &req[4], &resp[4]))
+					util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[4], &resp[4]))
 					var respBody = make([]byte, resp[4].BodySize)
-					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[4], &resp[4], respBody))
+					util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[4], &resp[4], respBody))
 					assert.Equal(t, rpcMessageBytes, respBody)
 
-					util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/notexist", &req[5], &resp[5]))
-					util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req[5], &resp[5]))
-					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[5], &resp[5], nil))
+					util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[5], &resp[5]))
+					util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[5], &resp[5]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[5], &resp[5], nil))
 
-					util.AssertErrIsNil(clientDriver.Call(uPeer, "/notexist", &req[6], &resp[6]))
-					util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req[6], &resp[6], nil))
+					util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[6], &resp[6]))
+					util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[6], &resp[6], nil))
 
 					serviceSig.Done()
 				}()
@@ -172,14 +176,16 @@ func TestSRPCServer(t *testing.T) {
 
 	serviceSig.Wait()
 
-	assert.NoError(t, clientDriver.CloseClient(uPeer))
+	assert.NoError(t, clientDriver.CloseClient(peer.ID))
 
 	time.Sleep(1 * time.Second)
 }
 
 func BenchmarkSRPCServer(b *testing.B) {
 	var defaultOffheapDriver offheap.OffheapDriver
+	var defaultSNetDriver NetDriver
 	util.AssertErrIsNil(defaultOffheapDriver.Init())
+	util.AssertErrIsNil(defaultSNetDriver.Init(&defaultOffheapDriver))
 
 	// cleanRpcGOServer()
 	runtime.GC()
@@ -187,16 +193,18 @@ func BenchmarkSRPCServer(b *testing.B) {
 	util.AssertErrIsNil(err)
 
 	var (
-		clientDriver ClientDriver
+		clientDriver SRPCClientDriver
 		peerPool     offheap.RawObjectPool
 		uPeer        snettypes.PeerUintptr
+		peerID       snettypes.PeerID
 	)
 
-	util.AssertErrIsNil(clientDriver.Init(&defaultOffheapDriver))
+	util.AssertErrIsNil(clientDriver.Init(&defaultOffheapDriver, &defaultSNetDriver))
 
 	util.AssertErrIsNil(peerPool.Init(int(snettypes.PeerStructSize), -1, nil, nil))
 	uPeer = snettypes.PeerUintptr(peerPool.AllocRawObject())
 	uPeer.Ptr().SetAddress(addr)
+	peerID = uPeer.Ptr().ID
 
 	var protocolBuilder flatbuffers.Builder
 	protocolBuilder.Reset()
@@ -224,12 +232,12 @@ func BenchmarkSRPCServer(b *testing.B) {
 					resp snettypes.Response
 				)
 
-				// util.AssertErrIsNil(clientDriver.AsyncCall(uPeer, "/test", &req, &resp))
-				// util.AssertErrIsNil(clientDriver.WaitResponse(uPeer, &req, &resp))
-				// util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req, &resp, &resp))
+				// util.AssertErrIsNil(clientDriver.AsyncCall(peerID, "/test", &req, &resp))
+				// util.AssertErrIsNil(clientDriver.WaitResponse(peerID, &req, &resp))
+				// util.AssertErrIsNil(clientDriver.ReadResponse(peerID, &req, &resp, &resp))
 
-				util.AssertErrIsNil(clientDriver.Call(uPeer, "/test", &req, &resp))
-				util.AssertErrIsNil(clientDriver.ReadResponse(uPeer, &req, &resp, respBody))
+				util.AssertErrIsNil(clientDriver.Call(peerID, "/test", &req, &resp))
+				util.AssertErrIsNil(clientDriver.ReadResponse(peerID, &req, &resp, respBody))
 
 				// if assert.ObjectsAreEqualValues(rpcMessageBytes, resp) == false{
 				// panic("not equal")
@@ -243,5 +251,5 @@ func BenchmarkSRPCServer(b *testing.B) {
 
 	serviceSig.Wait()
 
-	clientDriver.CloseClient(uPeer)
+	clientDriver.CloseClient(peerID)
 }

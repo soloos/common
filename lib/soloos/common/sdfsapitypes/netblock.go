@@ -30,7 +30,7 @@ type NetBlock struct {
 	SyncDataBackends                    snettypes.PeerGroup       `db:"-"`
 	SyncDataPrimaryBackendTransferCount int                       `db:"-"`
 	IsSyncDataBackendsInited            sdbapitypes.MetaDataState `db:"-"`
-	LocalDataBackend                    snettypes.PeerUintptr     `db:"-"`
+	IsLocalDataBackendExists            bool                      `db:"-"`
 	IsLocalDataBackendInited            sdbapitypes.MetaDataState `db:"-"`
 }
 

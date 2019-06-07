@@ -7,12 +7,12 @@ import (
 
 type NameNodeClient struct {
 	*soloosbase.SoloOSEnv
-	nameNodePeer snettypes.PeerUintptr
+	nameNodePeerID snettypes.PeerID
 }
 
 func (p *NameNodeClient) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	nameNodePeer snettypes.PeerUintptr) error {
+	nameNodePeerID snettypes.PeerID) error {
 	p.SoloOSEnv = soloOSEnv
-	p.nameNodePeer = nameNodePeer
+	p.nameNodePeerID = nameNodePeerID
 	return nil
 }
