@@ -72,16 +72,15 @@ func (p *NetDriverWebServer) ctrGetPeer(ir *tinyiron.Request) {
 	peerID.SetStr(ir.MustFormString("PeerID", ""))
 	var ret, err = p.netDriver.GetPeer(peerID)
 	if err != nil {
-		if err != snettypes.ErrObjectNotExists && p.FetchSNetPeerFromDB == nil {
-			ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
-			return
+		if err == snettypes.ErrObjectNotExists && p.FetchSNetPeerFromDB != nil {
+			ret, err = p.FetchSNetPeerFromDB(peerID)
+			if err != nil {
+				ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
+				return
+			}
 		}
-
-		ret, err = p.FetchSNetPeerFromDB(peerID)
-		if err != nil {
-			ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
-			return
-		}
+		ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
+		return
 	}
 
 	ir.ApiOutput(snettypes.PeerToPeerJSON(ret), snettypes.CODE_OK, "")

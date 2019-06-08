@@ -1,6 +1,7 @@
 package soloosutils
 
 import (
+	"soloos/common/log"
 	"soloos/common/sdfsapi"
 	"soloos/common/soloosbase"
 	"soloos/common/swalapi"
@@ -39,21 +40,25 @@ func (p *SoloOS) Init(options Options,
 	p.options = options
 	err = p.SoloOSEnv.Init()
 	if err != nil {
+		log.Debug("SoloOSEnv Init error", err)
 		return err
 	}
 
 	err = p.SoloOSEnv.SNetDriver.StartClient(options.SNetDriverServeAddr)
 	if err != nil {
+		log.Debug("SoloOSEnv SNetDriver StartClient error", err)
 		return err
 	}
 
 	err = p.initSDFS(sdfsClientDriver)
 	if err != nil {
+		log.Debug("SoloOS initSDFS error", err)
 		return err
 	}
 
 	err = p.initSWAL(swalClientDriver)
 	if err != nil {
+		log.Debug("SoloOS initSWAL error", err)
 		return err
 	}
 

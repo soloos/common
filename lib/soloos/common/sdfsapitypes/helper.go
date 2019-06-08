@@ -34,10 +34,10 @@ type ListFsINodeByParentIDFromDB func(parentID FsINodeID,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(FsINodeMeta) bool,
 ) error
-type UpdateFsINodeInDB func(fsINodeMeta *FsINodeMeta) error
-type InsertFsINodeInDB func(fsINodeMeta *FsINodeMeta) error
-type FetchFsINodeByIDFromDB func(pFsINodeMeta *FsINodeMeta) error
-type FetchFsINodeByNameFromDB func(pFsINodeMeta *FsINodeMeta) error
+type UpdateFsINodeInDB func(fsINodeMeta FsINodeMeta) error
+type InsertFsINodeInDB func(fsINodeMeta FsINodeMeta) error
+type FetchFsINodeByIDFromDB func(fsINodeID FsINodeID) (FsINodeMeta, error)
+type FetchFsINodeByNameFromDB func(parentID FsINodeID, fsINodeName string) (FsINodeMeta, error)
 
 // FsINodeXAttr
 type DeleteFIXAttrInDB func(fsINodeID FsINodeID) error
