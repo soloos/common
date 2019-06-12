@@ -13,6 +13,7 @@ type DBOptionDBSWAL struct {
 }
 
 type DBOptionDBSDFS struct {
+	NameSpaceID           int
 	DefaultNetBlockCap    int
 	DefaultMemBlockCap    int
 	DefaultMemBlocksLimit int32

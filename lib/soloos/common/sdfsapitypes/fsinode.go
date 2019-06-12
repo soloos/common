@@ -27,6 +27,7 @@ type FsINodeMeta struct {
 	LastModifyACMTime int64
 	LoadInMemAt       int64
 
+	NameSpaceID NameSpaceID
 	Ino         FsINodeID
 	HardLinkIno FsINodeID
 	NetINodeID  NetINodeID
