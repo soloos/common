@@ -27,11 +27,10 @@ type NetBlock struct {
 	StorDataBackends   snettypes.PeerGroup       `db:"-"`
 	IsDBMetaDataInited sdbapitypes.MetaDataState `db:"-"`
 
-	SyncDataBackends                    snettypes.PeerGroup       `db:"-"`
-	SyncDataPrimaryBackendTransferCount int                       `db:"-"`
-	IsSyncDataBackendsInited            sdbapitypes.MetaDataState `db:"-"`
-	IsLocalDataBackendExists            bool                      `db:"-"`
-	IsLocalDataBackendInited            sdbapitypes.MetaDataState `db:"-"`
+	SyncDataBackends         snettypes.TransferPeerGroup `db:"-"`
+	IsSyncDataBackendsInited sdbapitypes.MetaDataState   `db:"-"`
+	IsLocalDataBackendExists bool                        `db:"-"`
+	IsLocalDataBackendInited sdbapitypes.MetaDataState   `db:"-"`
 }
 
 func (p *NetBlock) NetINodeIDStr() string { return string(p.NetINodeID[:]) }

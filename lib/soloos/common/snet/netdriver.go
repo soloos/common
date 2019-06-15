@@ -106,7 +106,7 @@ func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
 		afterSetNewObj()
 		uPeer.Ptr().SetAddress(peer.AddressStr())
 		uPeer.Ptr().ServiceProtocol = peer.ServiceProtocol
-		isNeedUpdateInDB = false
+		isNeedUpdateInDB = true
 	} else {
 		isNeedUpdateInDB = uPeer.Ptr().Address != peer.Address ||
 			uPeer.Ptr().ServiceProtocol != peer.ServiceProtocol

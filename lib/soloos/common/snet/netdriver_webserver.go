@@ -109,5 +109,5 @@ func (p *NetDriverWebServer) ctrRegisterPeer(ir *tinyiron.Request) {
 		}
 	}
 
-	ir.ApiOutput(peer, snettypes.CODE_OK, "")
+	ir.ApiOutput(snettypes.PeerToPeerJSON(peer), snettypes.CODE_OK, "")
 }
