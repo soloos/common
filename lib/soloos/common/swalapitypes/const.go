@@ -6,5 +6,5 @@ import (
 
 const (
 	DefaultSWALRPCNetwork  = "tcp"
-	DefaultSWALRPCProtocol = snettypes.ProtocolSRPC
+	DefaultSWALRPCProtocol = snettypes.ProtocolSWAL
 )

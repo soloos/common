@@ -73,7 +73,9 @@ func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, e
 
 // MustGetPee return uPeer and peer is inited before
 func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, protocol int) error {
-	if protocol != snettypes.ProtocolSRPC {
+	switch protocol {
+	case snettypes.ProtocolSRPC, snettypes.ProtocolSDFS, snettypes.ProtocolSWAL:
+	default:
 		return nil
 	}
 

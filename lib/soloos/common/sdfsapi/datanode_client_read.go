@@ -27,7 +27,7 @@ func (p *DataNodeClient) PReadMemBlock(uNetINode sdfsapitypes.NetINodeUintptr,
 	}
 
 	switch peer.ServiceProtocol {
-	case snettypes.ProtocolSRPC:
+	case snettypes.ProtocolSDFS:
 		return p.doPReadMemBlockWithSRPC(peer.ID,
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}

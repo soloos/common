@@ -19,14 +19,14 @@ func (p *DataNodeClient) UploadMemBlock(uJob sdfsapitypes.UploadMemBlockJobUintp
 		return p.uploadMemBlockWithDisk(uJob, uploadPeerIndex, transferPeersCount)
 	case snettypes.ProtocolSWAL:
 		return p.uploadMemBlockWithSWAL(uJob, uploadPeerIndex, transferPeersCount)
-	case snettypes.ProtocolSRPC:
-		return p.doUploadMemBlockWithSRPC(uJob, uploadPeerIndex, transferPeersCount)
+	case snettypes.ProtocolSDFS:
+		return p.doUploadMemBlockWithSDFS(uJob, uploadPeerIndex, transferPeersCount)
 	}
 
 	return nil
 }
 
-func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob sdfsapitypes.UploadMemBlockJobUintptr,
+func (p *DataNodeClient) doUploadMemBlockWithSDFS(uJob sdfsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int, transferPeersCount int,
 ) error {
 	var (

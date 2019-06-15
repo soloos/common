@@ -8,5 +8,6 @@ const (
 	ProtocolUnknown = -1
 	ProtocolDisk    = iota
 	ProtocolSWAL
+	ProtocolSDFS
 	ProtocolSRPC
 )

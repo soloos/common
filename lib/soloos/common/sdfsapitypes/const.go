@@ -7,7 +7,7 @@ import (
 
 const (
 	DefaultSDFSRPCNetwork  = "tcp"
-	DefaultSDFSRPCProtocol = snettypes.ProtocolSRPC
+	DefaultSDFSRPCProtocol = snettypes.ProtocolSDFS
 
 	UUintptrSize = unsafe.Sizeof(uintptr(0))
 	UintptrSize  = int(unsafe.Sizeof(uintptr(0)))
