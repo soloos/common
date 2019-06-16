@@ -26,16 +26,16 @@ func (rcv *TopicPrepareFsINodeRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *TopicPrepareFsINodeRequest) TopicID() uint64 {
+func (rcv *TopicPrepareFsINodeRequest) TopicID() int64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *TopicPrepareFsINodeRequest) MutateTopicID(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(4, n)
+func (rcv *TopicPrepareFsINodeRequest) MutateTopicID(n int64) bool {
+	return rcv._tab.MutateInt64Slot(4, n)
 }
 
 func (rcv *TopicPrepareFsINodeRequest) FsINodeID() uint64 {
@@ -53,8 +53,8 @@ func (rcv *TopicPrepareFsINodeRequest) MutateFsINodeID(n uint64) bool {
 func TopicPrepareFsINodeRequestStart(builder *flatbuffers.Builder) {
 	builder.StartObject(2)
 }
-func TopicPrepareFsINodeRequestAddTopicID(builder *flatbuffers.Builder, TopicID uint64) {
-	builder.PrependUint64Slot(0, TopicID, 0)
+func TopicPrepareFsINodeRequestAddTopicID(builder *flatbuffers.Builder, TopicID int64) {
+	builder.PrependInt64Slot(0, TopicID, 0)
 }
 func TopicPrepareFsINodeRequestAddFsINodeID(builder *flatbuffers.Builder, FsINodeID uint64) {
 	builder.PrependUint64Slot(1, FsINodeID, 0)

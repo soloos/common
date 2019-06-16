@@ -26,16 +26,16 @@ func (rcv *TopicPrepareNetBlockRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *TopicPrepareNetBlockRequest) TopicID() uint64 {
+func (rcv *TopicPrepareNetBlockRequest) TopicID() int64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetUint64(o + rcv._tab.Pos)
+		return rcv._tab.GetInt64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *TopicPrepareNetBlockRequest) MutateTopicID(n uint64) bool {
-	return rcv._tab.MutateUint64Slot(4, n)
+func (rcv *TopicPrepareNetBlockRequest) MutateTopicID(n int64) bool {
+	return rcv._tab.MutateInt64Slot(4, n)
 }
 
 func (rcv *TopicPrepareNetBlockRequest) FsINodeID() uint64 {
@@ -65,8 +65,8 @@ func (rcv *TopicPrepareNetBlockRequest) MutateIndexInNetINode(n int32) bool {
 func TopicPrepareNetBlockRequestStart(builder *flatbuffers.Builder) {
 	builder.StartObject(3)
 }
-func TopicPrepareNetBlockRequestAddTopicID(builder *flatbuffers.Builder, TopicID uint64) {
-	builder.PrependUint64Slot(0, TopicID, 0)
+func TopicPrepareNetBlockRequestAddTopicID(builder *flatbuffers.Builder, TopicID int64) {
+	builder.PrependInt64Slot(0, TopicID, 0)
 }
 func TopicPrepareNetBlockRequestAddFsINodeID(builder *flatbuffers.Builder, FsINodeID uint64) {
 	builder.PrependUint64Slot(1, FsINodeID, 0)

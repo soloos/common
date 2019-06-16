@@ -3,6 +3,7 @@ package fsapi
 import (
 	. "soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
 )
 
 // PosixFS is an interface close to the FUSE wire sdfsprotocol.
@@ -122,4 +123,20 @@ type PosixFS interface {
 
 	GetFsINodeByID(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeUintptr, error)
 	ReleaseFsINode(uFsINode sdfsapitypes.FsINodeUintptr)
+
+	GetNetINode(netINodeID sdfsapitypes.NetINodeID) (sdfsapitypes.NetINodeUintptr, error)
+	ReleaseNetINode(uNetINode sdfsapitypes.NetINodeUintptr)
+	NetINodePWriteWithNetQuery(uNetINode sdfsapitypes.NetINodeUintptr,
+		netQuery *snettypes.NetQuery, dataLength int, offset uint64) error
+	NetINodePWriteWithMem(uNetINode sdfsapitypes.NetINodeUintptr,
+		data []byte, offset uint64) error
+
+	MustGetNetBlock(uNetINode sdfsapitypes.NetINodeUintptr, netBlockIndex int32) (sdfsapitypes.NetBlockUintptr, error)
+	ReleaseNetBlock(uNetBlock sdfsapitypes.NetBlockUintptr)
+	NetBlockSetPReadMemBlockWithDisk(preadWithDisk sdfsapitypes.PReadMemBlockWithDisk)
+	NetBlockSetUploadMemBlockWithDisk(uploadMemBlockWithDisk sdfsapitypes.UploadMemBlockWithDisk)
+
+	MustGetMemBlockWithReadAcquire(uNetINode sdfsapitypes.NetINodeUintptr,
+		memBlockIndex int32) (sdfsapitypes.MemBlockUintptr, bool)
+	ReleaseMemBlockWithReadRelease(uMemBlock sdfsapitypes.MemBlockUintptr)
 }

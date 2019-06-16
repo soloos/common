@@ -6,12 +6,12 @@ table CommonResponse {
 }
 
 table TopicPrepareFsINodeRequest {
-    TopicID:uint64;
+    TopicID:int64;
     FsINodeID:uint64;
 }
 
 table TopicPrepareNetBlockRequest {
-    TopicID:uint64;
+    TopicID:int64;
     FsINodeID:uint64;
     IndexInNetINode:int;
 }

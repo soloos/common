@@ -63,13 +63,10 @@ func (p *DataNodeClient) doUploadMemBlockWithSDFS(uJob sdfsapitypes.UploadMemBlo
 		netINodeWriteLength = req.OffheapBody.CopyEnd - req.OffheapBody.CopyOffset
 
 		if transferPeersCount > 0 {
+			backendOffs = backendOffs[:0]
 			for i = 0; i < transferPeersCount; i++ {
 				backendPeer, _ = p.SNetDriver.GetPeer(pNetBlock.SyncDataBackends.Arr[uploadPeerIndex+1+i].PeerID)
-				if i < cap(backendOffs) {
-					backendOffs[i] = protocolBuilder.CreateString(backendPeer.PeerIDStr())
-				} else {
-					backendOffs = append(backendOffs, protocolBuilder.CreateString(backendPeer.PeerIDStr()))
-				}
+				backendOffs = append(backendOffs, protocolBuilder.CreateString(backendPeer.PeerIDStr()))
 			}
 
 			sdfsprotocol.NetINodePWriteRequestStartTransferBackendsVector(&protocolBuilder, len(backendOffs))

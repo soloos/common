@@ -3,6 +3,7 @@ package sdfsapitypes
 const (
 	BlockPlacementPolicyDefault = byte(iota)
 	BlockPlacementPolicySWAL
+
 	MemBlockPlacementPolicyHeaderBytesNum = 2
 	MemBlockPlacementPolicyBodyOff        = MemBlockPlacementPolicyHeaderBytesNum
 )

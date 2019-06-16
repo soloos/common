@@ -1,8 +1,6 @@
 package swalapi
 
-import (
-	"soloos/common/sdfsapitypes"
-)
+import "soloos/common/sdfsapitypes"
 
 type SendLogSig = bool
 
