@@ -15,3 +15,11 @@ table TopicPrepareNetBlockRequest {
     FsINodeID:uint64;
     IndexInNetINode:int;
 }
+
+table TopicPWriteRequest {
+    TopicID:int64;
+    NetINodeID:string;
+    Offset:uint64;
+    Length:int;
+    TransferBackends:[string];
+}

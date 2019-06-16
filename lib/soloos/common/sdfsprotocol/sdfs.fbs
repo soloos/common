@@ -5,12 +5,6 @@ table CommonResponse {
     Error:string;
 }
 
-table SNetPeer {
-    PeerID:string;
-    Address:string;
-    Protocol:int;
-}
-
 table NetINodeCommitSizeInDBRequest {
     NetINodeID:string;
     Size:uint64;

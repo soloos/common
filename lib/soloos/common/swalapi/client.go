@@ -11,5 +11,5 @@ type Client interface {
 	PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlockUintptr,
 		uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32) error
 	UploadMemBlockWithSWAL(uJob sdfsapitypes.UploadMemBlockJobUintptr,
-		uploadPeerIndex int, transferPeersCount int) error
+		uploadPeerIndex int) error
 }

@@ -4,6 +4,7 @@ const (
 	BlockPlacementPolicyDefault = byte(iota)
 	BlockPlacementPolicySWAL
 	MemBlockPlacementPolicyHeaderBytesNum = 2
+	MemBlockPlacementPolicyBodyOff        = MemBlockPlacementPolicyHeaderBytesNum
 )
 
 type MemBlockPlacementPolicy [16]byte

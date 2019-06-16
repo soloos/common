@@ -12,9 +12,9 @@ type PReadMemBlockWithDisk func(uNetINode NetINodeUintptr,
 	uMemBlock MemBlockUintptr, memBlockIndex int32,
 	offset uint64, length int) (int, error)
 type UploadMemBlockWithDisk func(uJob UploadMemBlockJobUintptr,
-	uploadPeerIndex int, transferPeersCount int) error
+	uploadPeerIndex int) error
 type UploadMemBlockWithSWAL func(uJob UploadMemBlockJobUintptr,
-	uploadPeerIndex int, transferPeersCount int) error
+	uploadPeerIndex int) error
 
 // NetINode
 type GetNetINode func(netINodeID NetINodeID) (NetINodeUintptr, error)

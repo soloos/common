@@ -118,7 +118,7 @@ type PosixFS interface {
 		perms uint32, name string,
 		uid uint32, gid uint32, rdev uint32) Status
 
-	SetFsINodeBlockPlacement(fsINodeID sdfsapitypes.FsINodeID, policy sdfsapitypes.MemBlockPlacementPolicy) error
+	SetNetINodeBlockPlacement(netINodeID sdfsapitypes.NetINodeID, policy sdfsapitypes.MemBlockPlacementPolicy) error
 
 	GetFsINodeByID(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeUintptr, error)
 	ReleaseFsINode(uFsINode sdfsapitypes.FsINodeUintptr)
