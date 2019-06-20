@@ -8,8 +8,7 @@ import (
 )
 
 func InitUUID64(d *[64]byte) {
-	u2, err := uuid.NewV4()
-	AssertErrIsNil(err)
+	u2 := uuid.NewV4()
 
 	copy((*d)[:], []byte(fmt.Sprintf("%x", sha256.Sum256(u2[:]))))
 }

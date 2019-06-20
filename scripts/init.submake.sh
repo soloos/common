@@ -1,5 +1,5 @@
 #!/bin/bash
-filepathPrefix='./lib/'
+filepathPrefix='./'
 mkdir -p ./make
 
 maketestfile="./make/test"
@@ -10,6 +10,11 @@ echo '' > $makebenchfile
 
 TestNode () {
         filepath=${filepathPrefix}$1
+
+        if [[ $filepath == *"vendor"* ]] || [[ $filepath == *"pkg"* ]] || [[ $filepath == *"resource"* ]]; then
+                return
+        fi
+
         if [ "$(find $filepath -maxdepth 1 -name '*_test.go')" ]
         then
                 MODULES="$MODULES $2"
@@ -29,6 +34,11 @@ TestNode () {
 
 BenchNode () {
         filepath=${filepathPrefix}$1
+
+        if [[ $filepath == *"vendor"* ]] || [[ $filepath == *"pkg"* ]] || [[ $filepath == *"resource"* ]]; then
+                return
+        fi
+
         if [ "$(find $filepath -maxdepth 1 -name '*_test.go')" ]
         then
                 MODULES="$MODULES $2"
@@ -48,9 +58,9 @@ BenchNode () {
 }
 
 MODULES=()
-TestNode "soloos" "test"
+TestNode "./" "test"
 echo "test:$MODULES" >> $maketestfile
 
 MODULES=()
-BenchNode "soloos" "bench"
+BenchNode "./" "bench"
 echo "bench:$MODULES" >> $makebenchfile

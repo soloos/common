@@ -1,17 +1,20 @@
 package util
 
 import (
+	"sync"
 	"sync/atomic"
-
-	deadlock "github.com/sasha-s/go-deadlock"
+	// deadlock "github.com/sasha-s/go-deadlock"
 )
 
 // type RawWaitGroup = sync.WaitGroup
 type RawWaitGroup = WaitGroup
 
 type WaitGroup struct {
-	waitProtect deadlock.Mutex
-	deadlock.WaitGroup
+	// waitProtect deadlock.Mutex
+	// deadlock.WaitGroup
+
+	waitProtect sync.Mutex
+	sync.WaitGroup
 
 	AccessorNum int32
 }
@@ -33,8 +36,10 @@ func (p *WaitGroup) Wait() {
 	p.waitProtect.Unlock()
 }
 
-type Mutex = deadlock.Mutex
-type RWMutex = deadlock.RWMutex
+// type Mutex = deadlock.Mutex
+// type RWMutex = deadlock.RWMutex
+type Mutex = sync.Mutex
+type RWMutex = sync.RWMutex
 
 func init() {
 }

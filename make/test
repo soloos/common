@@ -1,26 +1,26 @@
 
-test-common-go-fuse-fuse:
-	go test soloos/common/go-fuse/fuse
+test-go-fuse-fuse:
+	go test .//go-fuse/fuse
 
-test-common-go-fuse-splice:
-	go test soloos/common/go-fuse/splice
+test-go-fuse-splice:
+	go test .//go-fuse/splice
 
-test-common-sdfsapi:
-	go test soloos/common/sdfsapi
+test-sdfsapi:
+	go test .//sdfsapi
 
-test-common-sdfsapitypes:
-	go test soloos/common/sdfsapitypes
+test-sdfsapitypes:
+	go test .//sdfsapitypes
 
-test-common-snet:
-	go test soloos/common/snet
+test-snet:
+	go test .//snet
 
-test-common-soloosapi-os:
-	go test soloos/common/soloosapi/os
+test-soloosapi-os:
+	go test .//soloosapi/os
 
-test-common-soloosutils:
-	go test soloos/common/soloosutils
+test-soloosutils:
+	go test .//soloosutils
 
-test-common-tinyiron:
-	go test soloos/common/tinyiron
+test-tinyiron:
+	go test .//tinyiron
 
-test: test-common-go-fuse-fuse test-common-go-fuse-splice test-common-sdfsapi test-common-sdfsapitypes test-common-snet test-common-soloosapi-os test-common-soloosutils test-common-tinyiron
+test: test-go-fuse-fuse test-go-fuse-splice test-sdfsapi test-sdfsapitypes test-snet test-soloosapi-os test-soloosutils test-tinyiron

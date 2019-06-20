@@ -1,26 +1,26 @@
 
-bench-common-go-fuse-fuse:
-	cd src/soloos/common/go-fuse/fuse/ && go test -bench=. -benchmem 
+bench-go-fuse-fuse:
+	cd src/.//go-fuse/fuse/ && go test -bench=. -benchmem 
 
-bench-common-go-fuse-splice:
-	cd src/soloos/common/go-fuse/splice/ && go test -bench=. -benchmem 
+bench-go-fuse-splice:
+	cd src/.//go-fuse/splice/ && go test -bench=. -benchmem 
 
-bench-common-sdfsapi:
-	cd src/soloos/common/sdfsapi/ && go test -bench=. -benchmem 
+bench-sdfsapi:
+	cd src/.//sdfsapi/ && go test -bench=. -benchmem 
 
-bench-common-sdfsapitypes:
-	cd src/soloos/common/sdfsapitypes/ && go test -bench=. -benchmem 
+bench-sdfsapitypes:
+	cd src/.//sdfsapitypes/ && go test -bench=. -benchmem 
 
-bench-common-snet:
-	cd src/soloos/common/snet/ && go test -bench=. -benchmem 
+bench-snet:
+	cd src/.//snet/ && go test -bench=. -benchmem 
 
-bench-common-soloosapi-os:
-	cd src/soloos/common/soloosapi/os/ && go test -bench=. -benchmem 
+bench-soloosapi-os:
+	cd src/.//soloosapi/os/ && go test -bench=. -benchmem 
 
-bench-common-soloosutils:
-	cd src/soloos/common/soloosutils/ && go test -bench=. -benchmem 
+bench-soloosutils:
+	cd src/.//soloosutils/ && go test -bench=. -benchmem 
 
-bench-common-tinyiron:
-	cd src/soloos/common/tinyiron/ && go test -bench=. -benchmem 
+bench-tinyiron:
+	cd src/.//tinyiron/ && go test -bench=. -benchmem 
 
-bench: bench-common-go-fuse-fuse bench-common-go-fuse-splice bench-common-sdfsapi bench-common-sdfsapitypes bench-common-snet bench-common-soloosapi-os bench-common-soloosutils bench-common-tinyiron
+bench: bench-go-fuse-fuse bench-go-fuse-splice bench-sdfsapi bench-sdfsapitypes bench-snet bench-soloosapi-os bench-soloosutils bench-tinyiron

@@ -7,9 +7,9 @@ clean-test-cache:
 	go clean -testcache
 
 fbs:
-	flatc -o ./lib/soloos/common/ -g lib/soloos/common/snetprotocol/test.fbs
-	flatc -o ./lib/soloos/common/ -g lib/soloos/common/sdfsprotocol/sdfs.fbs
-	flatc -o ./lib/soloos/common/ -g lib/soloos/common/swalprotocol/swal.fbs
+	flatc -o ./ -g ./snetprotocol/test.fbs
+	flatc -o ./ -g ./sdfsprotocol/sdfs.fbs
+	flatc -o ./ -g ./swalprotocol/swal.fbs
 
 soloos-tool:
 	$(GOBUILD) -o ./bin/soloos-tool soloos-tool
