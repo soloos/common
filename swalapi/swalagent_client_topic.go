@@ -1,17 +1,19 @@
 package swalapi
 
 import (
+	"soloos/common/log"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/sdfsprotocol"
 	"soloos/common/snettypes"
 	"soloos/common/swalapitypes"
 	"soloos/common/swalprotocol"
 	"soloos/sdbone/offheap"
+	"time"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *SWALAgentClient) PrepareTopicFsINodeMetaData(peerID snettypes.PeerID,
+func (p *SWALAgentClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 	uTopic swalapitypes.TopicUintptr,
 	fsINodeID sdfsapitypes.FsINodeID,
 ) error {
@@ -20,23 +22,43 @@ func (p *SWALAgentClient) PrepareTopicFsINodeMetaData(peerID snettypes.PeerID,
 		resp            snettypes.Response
 		protocolBuilder flatbuffers.Builder
 		pTopic          = uTopic.Ptr()
-		// uNetBlock sdfsapitypes.NetBlockUintptr
-		err error
+		commonResp      swalprotocol.CommonResponse
+		respBody        []byte
+		err             error
 	)
 
-	swalprotocol.TopicPrepareFsINodeRequestStart(&protocolBuilder)
-	swalprotocol.TopicPrepareFsINodeRequestAddTopicID(&protocolBuilder, pTopic.ID)
-	swalprotocol.TopicPrepareFsINodeRequestAddFsINodeID(&protocolBuilder, fsINodeID)
-	protocolBuilder.Finish(swalprotocol.TopicPrepareFsINodeRequestEnd(&protocolBuilder))
+	swalprotocol.TopicPrepareRequestStart(&protocolBuilder)
+	swalprotocol.TopicPrepareRequestAddTopicID(&protocolBuilder, pTopic.ID)
+	swalprotocol.TopicPrepareRequestAddFsINodeID(&protocolBuilder, fsINodeID)
+	protocolBuilder.Finish(swalprotocol.TopicPrepareRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-	err = p.SNetClientDriver.Call(peerID,
-		"/Topic/Prepare", &req, &resp)
+	for i := 0; i < p.normalCallRetryTimes; i++ {
+		err = p.SNetClientDriver.Call(peerID,
+			"/Topic/Prepare", &req, &resp)
+		if err == nil {
+			break
+		}
+		log.Debug("Topic/Prepare peerID:", peerID.Str(),
+			", topicid:", pTopic.ID,
+			", retryTimes:", i,
+			", err", err)
+		time.Sleep(p.waitAliveEveryRetryWaitTime)
+	}
 	if err != nil {
 		return err
 	}
 
-	return nil
+	respBody = make([]byte, resp.ParamSize)
+	commonResp.Init(respBody[:(resp.ParamSize)], flatbuffers.GetUOffsetT(respBody[:(resp.ParamSize)]))
+	if commonResp.Code() != snettypes.CODE_OK {
+		err = sdfsapitypes.ErrNetBlockPWrite
+		goto QUERY_DONE
+	}
+	protocolBuilder.Reset()
+
+QUERY_DONE:
+	return err
 }
 
 func (p *SWALAgentClient) PrepareTopicNetBlockMetaData(peerID snettypes.PeerID,
@@ -111,28 +133,28 @@ func (p *SWALAgentClient) UploadMemBlockWithSWAL(uTopic swalapitypes.TopicUintpt
 
 		backendPeer, err = p.SNetDriver.GetPeer(pNetBlock.SyncDataBackends.Arr[uploadPeerIndex].PeerID)
 		if err != nil {
-			goto PWRITE_DONE
+			goto QUERY_DONE
 		}
 
 		err = p.SNetClientDriver.Call(backendPeer.ID,
 			"/Topic/PWrite", &req, &resp)
 		if err != nil {
-			goto PWRITE_DONE
+			goto QUERY_DONE
 		}
 
 		respBody = make([]byte, resp.ParamSize)
 		err = p.SNetClientDriver.ReadResponse(backendPeer.ID, &req, &resp, respBody)
 		if err != nil {
-			goto PWRITE_DONE
+			goto QUERY_DONE
 		}
 		commonResp.Init(respBody[:(resp.ParamSize)], flatbuffers.GetUOffsetT(respBody[:(resp.ParamSize)]))
 		if commonResp.Code() != snettypes.CODE_OK {
 			err = sdfsapitypes.ErrNetBlockPWrite
-			goto PWRITE_DONE
+			goto QUERY_DONE
 		}
 		protocolBuilder.Reset()
 	}
 
-PWRITE_DONE:
+QUERY_DONE:
 	return err
 }

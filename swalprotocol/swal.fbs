@@ -5,7 +5,7 @@ table CommonResponse {
     Error:string;
 }
 
-table TopicPrepareFsINodeRequest {
+table TopicPrepareRequest {
     TopicID:int64;
     FsINodeID:uint64;
 }

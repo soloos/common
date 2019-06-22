@@ -6,6 +6,7 @@ require (
 	github.com/fatih/color v1.7.0
 	github.com/gocraft/dbr v0.0.0-20190503023340-d3d1e2876df1
 	github.com/google/flatbuffers v1.11.0
+	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/siddontang/go v0.0.0-20180604090527-bdc77568d726
