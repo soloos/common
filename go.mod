@@ -13,7 +13,7 @@ require (
 	github.com/siddontang/go-mysql v0.0.0-20190618002340-dbe0224ac097
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-	golang.org/x/sys v0.0.0-20190620070143-6f217b454f45
+	golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223
 	golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522
 	soloos/sdbone v0.0.0
 )
