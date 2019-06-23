@@ -1,8 +1,8 @@
 package snet
 
 import (
+	"soloos/common/iron"
 	"soloos/common/snettypes"
-	"soloos/common/tinyiron"
 	"soloos/sdbone/offheap"
 )
 
@@ -33,7 +33,7 @@ func (p *NetDriver) StartServer(webListenStr string,
 	registerSNetPeerInDB RegisterSNetPeerInDB,
 ) error {
 	var err error
-	var options tinyiron.Options
+	var options iron.Options
 	options.ListenStr = webListenStr
 	p.server, err = NewNetDriverWebServer(p,
 		webServeStr,
@@ -48,6 +48,10 @@ func (p *NetDriver) StartServer(webListenStr string,
 		return err
 	}
 
+	return nil
+}
+
+func (p *NetDriver) CloseServer() error {
 	return nil
 }
 
@@ -70,6 +74,10 @@ func MakeSysPeerID(sysPeerID string) snettypes.PeerID {
 func (p *NetDriver) InitPeerID(peerID *snettypes.PeerID) {
 	// todo: ensure peer id unique
 	snettypes.InitTmpPeerID(peerID)
+}
+
+func (p *NetDriver) ListPeer(listPeer offheap.LKVTableListObjectWithBytes64) {
+	p.peerTable.ListObject(listPeer)
 }
 
 func (p *NetDriver) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, error) {

@@ -10,4 +10,5 @@ const (
 	ProtocolSWAL
 	ProtocolSDFS
 	ProtocolSRPC
+	ProtocolSilicon
 )

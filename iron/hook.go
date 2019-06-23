@@ -1,4 +1,4 @@
-package tinyiron
+package iron
 
 type HookBase struct {
 	MatchPrefix   string

@@ -1,4 +1,4 @@
-package tinyiron
+package iron
 
 import (
 	"log"
@@ -10,6 +10,7 @@ import (
 type Options struct {
 	RunMode            string `json:"RunMode"`
 	ServeType          string `json:"ServeType"`
+	ServeStr           string `json:"ServeStr"`
 	ListenStr          string `json:"ListenStr"`
 	LogPath            string `json:"LogPath"`
 	AccessWhiteListStr string `json:"AccessWhiteList"`

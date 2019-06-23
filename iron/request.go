@@ -1,4 +1,4 @@
-package tinyiron
+package iron
 
 import (
 	"encoding/json"
@@ -41,7 +41,7 @@ func (p *Request) ApiOutputSuccess(data interface{}) {
 }
 
 func (p *Request) ApiOutput(data interface{}, errno int, errmsg string) {
-	p.W.Header().Add("Server", "tinyiron")
+	p.W.Header().Add("Server", "iron")
 	p.W.Header().Add("Content-Type", "application/json")
 	ret := map[string]interface{}{"data": data, "errno": errno, "errmsg": errmsg}
 	res, _ := json.Marshal(ret)
