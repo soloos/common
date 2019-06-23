@@ -28,7 +28,7 @@ func (p *Server) Render(path string, w http.ResponseWriter, r *http.Request, Vie
 	tmpl.ExecuteTemplate(w, "Frame", ViewData)
 }
 
-func (p *Server) AssignView(path string, _viewFilenames []string) {
+func (p *Server) AssignView(path string, _viewFilenames ...string) {
 	viewFilenames := []string{}
 	for _, v := range _viewFilenames {
 		if "" == v {

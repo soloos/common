@@ -46,12 +46,6 @@ type PeerJSON struct {
 	ServiceProtocol int
 }
 
-type GetPeerRespJSON struct {
-	Errno  int      `json:"errno"`
-	ErrMsg string   `json:"errmsg"`
-	Data   PeerJSON `json:"data"`
-}
-
 func PeerJSONToPeer(peerJSON PeerJSON) Peer {
 	var ret Peer
 	ret.ID = StrToPeerID(peerJSON.PeerID)
@@ -88,6 +82,10 @@ func (p *Peer) SetAddress(addr string) {
 
 func (p *Peer) AddressStr() string {
 	return string(p.Address[:p.addressLen])
+}
+
+func (p *Peer) SetPeerIDFromStr(peerStr string) {
+	copy(p.ID[:], []byte(peerStr))
 }
 
 func (p *Peer) PeerID() PeerID { return PeerID(p.ID) }

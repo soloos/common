@@ -1,12 +1,8 @@
 package snet
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"net/http"
-	"net/url"
+	"soloos/common/iron"
 	"soloos/common/snettypes"
-	"strconv"
 
 	"golang.org/x/xerrors"
 )
@@ -35,57 +31,57 @@ func (p *NetDriverWebClient) Init(netDriver *NetDriver, webServerAddr string) er
 	return nil
 }
 
-func (p *NetDriverWebClient) readResp(resp *http.Response, err error) (snettypes.Peer, error) {
-	var ret snettypes.Peer
-	var respJSON snettypes.GetPeerRespJSON
-	if err != nil {
-		return ret, err
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		goto DONE
-	}
-
-	err = json.Unmarshal(body, &respJSON)
-	if err != nil {
-		goto DONE
-	}
-
-DONE:
-	resp.Body.Close()
-	if err != nil {
-		return ret, err
-	}
-
-	if respJSON.Errno != snettypes.CODE_OK {
-		return ret, xerrors.New(respJSON.ErrMsg)
-	}
-	ret = snettypes.PeerJSONToPeer(respJSON.Data)
-
-	return ret, nil
-}
-
 func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, error) {
-	var urlPath = p.webServerAddr + "/Peer/Get"
-	return p.readResp(http.PostForm(urlPath, url.Values{"PeerID": {peerID.Str()}}))
+	var (
+		ret     snettypes.Peer
+		urlPath = p.webServerAddr + "/Peer/Get"
+		resp    GetPeerRespJSON
+		err     error
+	)
+
+	err = iron.PostJSON(urlPath,
+		GetPeerReqJSON{PeerID: peerID.Str()},
+		&resp)
+	if err != nil {
+		return ret, err
+	}
+
+	if resp.Errno != snettypes.CODE_OK {
+		return ret, xerrors.New(resp.ErrMsg)
+	}
+
+	ret = snettypes.PeerJSONToPeer(resp.Data)
+	return ret, nil
 }
 
 // MustGetPee return uPeer and peer is inited before
 func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, protocol int) error {
+	var (
+		urlPath = p.webServerAddr + "/Peer/Register"
+		resp    RegisterPeerRespJSON
+		err     error
+	)
+
 	switch protocol {
 	case snettypes.ProtocolSRPC, snettypes.ProtocolSDFS, snettypes.ProtocolSWAL:
 	default:
 		return nil
 	}
 
-	var err error
-	var urlPath = p.webServerAddr + "/Peer/Register"
-	var urlValues = url.Values{
-		"PeerID":   {peerID.Str()},
-		"Addr":     {addr},
-		"Protocol": {strconv.Itoa(protocol)},
+	err = iron.PostJSON(urlPath,
+		RegisterPeerReqJSON{
+			PeerID:   peerID.Str(),
+			Addr:     addr,
+			Protocol: protocol,
+		},
+		&resp)
+	if err != nil {
+		return err
 	}
-	_, err = p.readResp(http.PostForm(urlPath, urlValues))
-	return err
+
+	if resp.Errno != snettypes.CODE_OK {
+		return xerrors.New(resp.ErrMsg)
+	}
+
+	return nil
 }

@@ -13,7 +13,9 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"io/ioutil"
 	r "math/rand"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -221,4 +223,33 @@ func RandomCreateBytes(n int, alphabets ...byte) []byte {
 		}
 	}
 	return bytes
+}
+
+func PostJSON(urlPath string, data interface{}, ret interface{}) error {
+	jsonStr, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", urlPath, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(body, ret)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
