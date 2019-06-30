@@ -15,7 +15,7 @@ func (p *SoloOS) initSDFS(sdfsClientDriver sdfsapi.ClientDriver) error {
 		nameNodePeerID,
 		p.options.SDFSDBDriver, p.options.SDFSDsn)
 	if err != nil {
-		log.Debug("SoloOS SDFSClientDriver Init error", err)
+		log.Warn("SoloOS SDFSClientDriver Init error", err)
 		return err
 	}
 

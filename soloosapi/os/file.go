@@ -48,7 +48,7 @@ func (p *File) Read(b []byte) (n int, err error) {
 }
 
 func (p *File) Write(b []byte) (n int, err error) {
-	log.Debug("fuck file Write", len(b), p.isSoloOSFile, p.soloOSFdID)
+	log.Warn("fuck file Write", len(b), p.isSoloOSFile, p.soloOSFdID)
 	if p.isSoloOSFile {
 		var (
 			fd  = p.soloOSPosixFS.FdTableGetFd(p.soloOSFdID)
@@ -66,7 +66,7 @@ func (p *File) Write(b []byte) (n int, err error) {
 }
 
 func (p *File) WriteAt(b []byte, off int64) (n int, err error) {
-	log.Debug("fuck file WriteAt", len(b), off)
+	log.Warn("fuck file WriteAt", len(b), off)
 	return p.file.WriteAt(b, off)
 }
 

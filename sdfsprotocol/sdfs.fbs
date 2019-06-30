@@ -1,5 +1,11 @@
 namespace sdfsprotocol;
 
+table SNetPeer {
+    PeerID:string;
+    Address:string;
+    Protocol:string;
+}
+
 table CommonResponse {
     Code:int;
     Error:string;

@@ -5,7 +5,7 @@ import "soloos/common/snettypes"
 type RegisterPeerReqJSON struct {
 	PeerID   string `json:"PeerID"`
 	Addr     string `json:"Addr"`
-	Protocol int    `json:"Protocol"`
+	Protocol string `json:"Protocol"`
 }
 
 type RegisterPeerRespJSON struct {

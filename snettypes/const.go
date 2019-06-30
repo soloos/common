@@ -6,9 +6,12 @@ const (
 
 const (
 	ProtocolUnknown = -1
-	ProtocolDisk    = iota
-	ProtocolSWAL
-	ProtocolSDFS
-	ProtocolSRPC
-	ProtocolSilicon
+)
+
+var (
+	ProtocolDisk    = InitServiceProtocol("disk")
+	ProtocolSWAL    = InitServiceProtocol("swal")
+	ProtocolSDFS    = InitServiceProtocol("sdfs")
+	ProtocolSRPC    = InitServiceProtocol("srpc")
+	ProtocolSilicon = InitServiceProtocol("silicon")
 )

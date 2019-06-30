@@ -42,16 +42,12 @@ func (rcv *SNetPeer) Address() []byte {
 	return nil
 }
 
-func (rcv *SNetPeer) Protocol() int32 {
+func (rcv *SNetPeer) Protocol() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
-		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
-	return 0
-}
-
-func (rcv *SNetPeer) MutateProtocol(n int32) bool {
-	return rcv._tab.MutateInt32Slot(8, n)
+	return nil
 }
 
 func SNetPeerStart(builder *flatbuffers.Builder) {
@@ -63,8 +59,8 @@ func SNetPeerAddPeerID(builder *flatbuffers.Builder, PeerID flatbuffers.UOffsetT
 func SNetPeerAddAddress(builder *flatbuffers.Builder, Address flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(Address), 0)
 }
-func SNetPeerAddProtocol(builder *flatbuffers.Builder, Protocol int32) {
-	builder.PrependInt32Slot(2, Protocol, 0)
+func SNetPeerAddProtocol(builder *flatbuffers.Builder, Protocol flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(Protocol), 0)
 }
 func SNetPeerEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -123,10 +123,9 @@ func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
 
 	if p.client != nil && isNeedUpdateInDB {
 		err = p.client.RegisterPeer(peer.ID, peer.AddressStr(), peer.ServiceProtocol)
-	}
-
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

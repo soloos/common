@@ -28,7 +28,7 @@ func (p *SRPCClientDriver) Call(peerID snettypes.PeerID,
 
 	err = p.AsyncCall(peerID, serviceID, req, resp)
 	if err != nil {
-		log.Debug("AsyncCall error ", err)
+		log.Info("AsyncCall error ", err)
 		return err
 	}
 
@@ -49,7 +49,7 @@ func (p *SRPCClientDriver) AsyncCall(peerID snettypes.PeerID,
 
 	client, err = p.getClient(peerID)
 	if err != nil {
-		log.Debug("AsyncCall getClient error ", err)
+		log.Info("AsyncCall getClient error ", err)
 		return err
 	}
 

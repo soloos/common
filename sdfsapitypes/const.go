@@ -6,8 +6,7 @@ import (
 )
 
 const (
-	DefaultSDFSRPCNetwork  = "tcp"
-	DefaultSDFSRPCProtocol = snettypes.ProtocolSDFS
+	DefaultSDFSRPCNetwork = "tcp"
 
 	UUintptrSize = unsafe.Sizeof(uintptr(0))
 	UintptrSize  = int(unsafe.Sizeof(uintptr(0)))
@@ -17,4 +16,8 @@ const (
 	FS_MAX_NAME_LENGTH = 128
 
 	MaxFsINodeNameLen = FS_MAX_NAME_LENGTH
+)
+
+var (
+	DefaultSDFSRPCProtocol = snettypes.ProtocolSDFS
 )

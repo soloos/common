@@ -9,22 +9,24 @@ import (
 
 func (p *NameNodeClient) RegisterDataNode(peerID snettypes.PeerID,
 	serveAddr string,
-	protocolType int) error {
+	protocolType snettypes.ServiceProtocol) error {
 	var (
 		req             snettypes.Request
 		resp            snettypes.Response
 		protocolBuilder flatbuffers.Builder
 		peerIDOff       flatbuffers.UOffsetT
 		addrOff         flatbuffers.UOffsetT
+		protocolOff     flatbuffers.UOffsetT
 		err             error
 	)
 
 	peerIDOff = protocolBuilder.CreateByteString(peerID[:])
 	addrOff = protocolBuilder.CreateString(serveAddr)
+	protocolOff = protocolBuilder.CreateString(protocolType.Str())
 	sdfsprotocol.SNetPeerStart(&protocolBuilder)
 	sdfsprotocol.SNetPeerAddPeerID(&protocolBuilder, peerIDOff)
 	sdfsprotocol.SNetPeerAddAddress(&protocolBuilder, addrOff)
-	sdfsprotocol.SNetPeerAddProtocol(&protocolBuilder, int32(protocolType))
+	sdfsprotocol.SNetPeerAddProtocol(&protocolBuilder, protocolOff)
 	protocolBuilder.Finish(sdfsprotocol.SNetPeerEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 

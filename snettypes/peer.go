@@ -15,6 +15,35 @@ const (
 
 type PeerID [PeerIDBytesNum]byte
 type PeerUintptr uintptr
+type ServiceProtocol [8]byte
+
+func InitServiceProtocol(str string) ServiceProtocol {
+	var ret ServiceProtocol
+	copy(ret[:], []byte(str))
+	return ret
+}
+
+func (p *ServiceProtocol) SetProtocolStr(str string) {
+	for i, _ := range p {
+		p[i] = 0
+	}
+	copy(p[:], []byte(str))
+}
+
+func (p *ServiceProtocol) SetProtocolBytes(bytes []byte) {
+	copy(p[:], bytes)
+}
+
+func (p *ServiceProtocol) Str() string {
+	n := -1
+	for i, b := range p {
+		if b == 0 {
+			break
+		}
+		n = i
+	}
+	return string(p[:n+1])
+}
 
 func InitTmpPeerID(peerID *PeerID) {
 	util.InitUUID64((*[64]byte)(peerID))
@@ -43,14 +72,14 @@ func (u PeerUintptr) Ptr() *Peer { return (*Peer)(unsafe.Pointer(u)) }
 type PeerJSON struct {
 	PeerID          string
 	Address         string
-	ServiceProtocol int
+	ServiceProtocol string
 }
 
 func PeerJSONToPeer(peerJSON PeerJSON) Peer {
 	var ret Peer
 	ret.ID = StrToPeerID(peerJSON.PeerID)
 	ret.SetAddress(peerJSON.Address)
-	ret.ServiceProtocol = peerJSON.ServiceProtocol
+	ret.ServiceProtocol.SetProtocolStr(peerJSON.ServiceProtocol)
 	return ret
 }
 
@@ -58,7 +87,7 @@ func PeerToPeerJSON(peer Peer) PeerJSON {
 	var ret PeerJSON
 	ret.PeerID = peer.PeerIDStr()
 	ret.Address = peer.AddressStr()
-	ret.ServiceProtocol = peer.ServiceProtocol
+	ret.ServiceProtocol = peer.ServiceProtocol.Str()
 	return ret
 }
 
@@ -67,7 +96,7 @@ type Peer struct {
 
 	addressLen      int
 	Address         [128]byte
-	ServiceProtocol int
+	ServiceProtocol ServiceProtocol
 }
 
 func (p *Peer) SetAddressBytes(addr []byte) {

@@ -124,7 +124,7 @@ func (p *NetDriverWebServer) ctrRegisterPeer(ir *iron.Request) {
 		LKVTableObjectWithBytes64: offheap.LKVTableObjectWithBytes64{
 			ID: snettypes.StrToPeerID(req.PeerID),
 		},
-		ServiceProtocol: req.Protocol,
+		ServiceProtocol: snettypes.InitServiceProtocol(req.Protocol),
 	}
 	peer.SetAddress(req.Addr)
 

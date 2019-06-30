@@ -109,12 +109,12 @@ func (p *SRPCServer) serveConn(netConn net.Conn) {
 
 CONN_END:
 	if err != nil {
-		log.Debug("serveConn err ", netConn.RemoteAddr().Network(), err)
+		log.Info("serveConn err ", netConn.RemoteAddr().Network(), err)
 	}
 
 	err = conn.Close(err)
 	if err != nil {
-		log.Debug("serveConn err ", netConn.RemoteAddr().Network(), err)
+		log.Info("serveConn err ", netConn.RemoteAddr().Network(), err)
 	}
 }
 

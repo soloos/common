@@ -55,7 +55,7 @@ func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, e
 }
 
 // MustGetPee return uPeer and peer is inited before
-func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, protocol int) error {
+func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, protocol snettypes.ServiceProtocol) error {
 	var (
 		urlPath = p.webServerAddr + "/Peer/Register"
 		resp    RegisterPeerRespJSON
@@ -72,7 +72,7 @@ func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, 
 		RegisterPeerReqJSON{
 			PeerID:   peerID.Str(),
 			Addr:     addr,
-			Protocol: protocol,
+			Protocol: protocol.Str(),
 		},
 		&resp)
 	if err != nil {

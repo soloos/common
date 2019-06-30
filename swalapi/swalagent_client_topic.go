@@ -39,7 +39,7 @@ func (p *SWALAgentClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 		if err == nil {
 			break
 		}
-		log.Debug("Topic/Prepare peerID:", peerID.Str(),
+		log.Info("Topic/Prepare peerID:", peerID.Str(),
 			", topicid:", pTopic.ID,
 			", retryTimes:", i,
 			", err", err)
