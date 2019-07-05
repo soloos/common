@@ -9,9 +9,9 @@ const (
 )
 
 var (
-	ProtocolDisk    = InitServiceProtocol("disk")
-	ProtocolSWAL    = InitServiceProtocol("swal")
-	ProtocolSDFS    = InitServiceProtocol("sdfs")
-	ProtocolSRPC    = InitServiceProtocol("srpc")
-	ProtocolSilicon = InitServiceProtocol("silicon")
+	ProtocolDisk     = InitServiceProtocol("disk")
+	ProtocolSWAL     = InitServiceProtocol("swal")
+	ProtocolSDFS     = InitServiceProtocol("sdfs")
+	ProtocolSRPC     = InitServiceProtocol("srpc")
+	ProtocolSoloBoat = InitServiceProtocol("soloboat")
 )

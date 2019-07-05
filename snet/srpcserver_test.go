@@ -205,6 +205,7 @@ func BenchmarkSRPCServer(b *testing.B) {
 	uPeer = snettypes.PeerUintptr(peerPool.AllocRawObject())
 	uPeer.Ptr().SetAddress(addr)
 	peerID = uPeer.Ptr().ID
+	defaultSNetDriver.RegisterPeer(*uPeer.Ptr())
 
 	var protocolBuilder flatbuffers.Builder
 	protocolBuilder.Reset()

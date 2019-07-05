@@ -44,7 +44,7 @@ BenchNode () {
                 MODULES="$MODULES $2"
                 echo "$2:" >> $makebenchfile
                 # echo -e "\tcd src/$1/ && go test -bench=. -benchmem -cpuprofile profile.out" >> $makebenchfile
-                echo -e "\tcd src/$1/ && go test -bench=. -benchmem " >> $makebenchfile
+                echo -e "\tgo test -bench=. -benchmem $1" >> $makebenchfile
                 echo "" >> $makebenchfile
         fi
 

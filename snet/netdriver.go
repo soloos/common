@@ -18,7 +18,7 @@ func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	var err error
 	p.offheapDriver = offheapDriver
 	err = p.offheapDriver.InitLKVTableWithBytes64(&p.peerTable, "SNetDriver",
-		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
+		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount*6, nil)
 	if err != nil {
 		return err
 	}
