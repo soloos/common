@@ -1,6 +1,6 @@
 package sdbapitypes
 
-import "golang.org/x/xerrors"
+import "soloos/common/xerrors"
 
 var (
 	ErrObjectNotExists    = xerrors.New("object not exists")

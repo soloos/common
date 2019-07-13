@@ -3,8 +3,7 @@ package snet
 import (
 	"soloos/common/iron"
 	"soloos/common/snettypes"
-
-	"golang.org/x/xerrors"
+	"soloos/common/xerrors"
 )
 
 type NetDriverWebClient struct {

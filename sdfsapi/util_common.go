@@ -2,11 +2,11 @@ package sdfsapi
 
 import (
 	"soloos/common/sdfsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
+	"soloos/common/xerrors"
 
 	flatbuffers "github.com/google/flatbuffers/go"
-	"golang.org/x/xerrors"
 )
 
 func SetCommonResponseCode(protocolBuilder *flatbuffers.Builder, code int) {

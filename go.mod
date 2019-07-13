@@ -16,7 +16,6 @@ require (
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	golang.org/x/sys v0.0.0-20190606165138-5da285871e9c
-	golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522
 	google.golang.org/appengine v1.6.1 // indirect
 	soloos/sdbone v0.0.0
 )

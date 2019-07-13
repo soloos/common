@@ -1,7 +1,7 @@
 package sdfsapitypes
 
 import (
-	"golang.org/x/xerrors"
+	"soloos/common/xerrors"
 )
 
 var (

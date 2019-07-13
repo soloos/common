@@ -1,6 +1,6 @@
 package snettypes
 
-import "golang.org/x/xerrors"
+import "soloos/common/xerrors"
 
 var (
 	ErrObjectNotExists = xerrors.New("object is not exists")
