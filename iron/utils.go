@@ -253,3 +253,16 @@ func PostJSON(urlPath string, data interface{}, ret interface{}) error {
 
 	return nil
 }
+
+func HttpGetJSON(url string, ret interface{}) error {
+	var resp, err = http.Get(url)
+	if err != nil {
+		return err
+	}
+	var respBytes []byte
+	respBytes, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(respBytes, ret)
+}

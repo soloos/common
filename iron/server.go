@@ -1,11 +1,11 @@
 package iron
 
 import (
-	"log"
 	"net"
 	"net/http"
 	"net/http/fcgi"
 	"regexp"
+	"soloos/common/log"
 	"time"
 
 	"golang.org/x/net/http2"
@@ -104,7 +104,7 @@ func (p *Server) HandlerToServeHTTPFunc(handler func(*Request)) func(http.Respon
 
 func (p *Server) Serve() error {
 	var err error
-	log.Println("Server started, listen at:", p.Options.ListenStr)
+	log.Info("Server started, listen at:", p.Options.ListenStr)
 
 	p.isClosedAfterHandle = false
 
@@ -126,7 +126,7 @@ func (p *Server) Serve() error {
 		}
 	}
 
-	log.Println("Server closed.")
+	log.Info("Server closed.")
 
 	return nil
 

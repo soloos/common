@@ -1,11 +1,11 @@
 package iron
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"path"
 	"runtime/debug"
+	"soloos/common/log"
 	"strings"
 	"sync"
 )
@@ -69,7 +69,19 @@ func pathMatch(pattern, path string) bool {
 		// should not happen
 		return false
 	}
+
 	n := len(pattern)
+
+	if pattern == "*" {
+		return true
+	}
+
+	if pattern[n-1] == '*' {
+		if strings.HasPrefix(path, pattern[:n-1]) {
+			return true
+		}
+	}
+
 	if pattern[n-1] != '/' {
 		return pattern == path
 	}
@@ -175,8 +187,8 @@ func (mux *ServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if nil == err {
 			return
 		}
-		log.Println(string(debug.Stack()))
-		log.Println(err)
+		log.Error(string(debug.Stack()))
+		log.Error(err)
 		for _, h := range mux.server.Hook.ErrorRecovers {
 			h(ir, err)
 		}
@@ -190,7 +202,7 @@ func (mux *ServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if mux.server.isClosedAfterHandle {
-			log.Println("Server closed.")
+			log.Warn("Server closed.")
 			os.Exit(0)
 		}
 	}()
@@ -200,22 +212,26 @@ func (mux *ServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		_, ok = mux.server.httpMux.m[ir.R.URL.Path]
-		if !ok {
-			if len(ir.R.URL.Path) > 8 && "/static/" == ir.R.URL.Path[0:8] {
-				file := path.Join(mux.server.Options.SiteStaticBasePath, ir.R.URL.Path[8:])
-				if FileExists(file) {
-					http.ServeFile(ir.W, ir.R, file)
-					return
-				}
-			}
-
-			w.WriteHeader(http.StatusNotFound)
-			Handle404(ir)
+		if ok {
+			h, _ := mux.Handler(r)
+			h.TinyironServeHTTP(ir)
 			return
+		}
+
+		if strings.HasPrefix(ir.R.URL.Path, "/static") {
+			file := path.Join(mux.server.Options.SiteStaticBasePath, ir.R.URL.Path[8:])
+			if FileExists(file) {
+				http.ServeFile(ir.W, ir.R, file)
+				return
+			}
 		}
 
 		h, _ := mux.Handler(r)
 		h.TinyironServeHTTP(ir)
+		return
+		// w.WriteHeader(http.StatusNotFound)
+		// Handle404(ir)
+		// return
 	}
 }
 

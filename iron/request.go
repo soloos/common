@@ -43,7 +43,7 @@ func (p *Request) ApiOutputSuccess(data interface{}) {
 func (p *Request) ApiOutput(data interface{}, errno int, errmsg string) {
 	p.W.Header().Add("Server", "iron")
 	p.W.Header().Add("Content-Type", "application/json")
-	ret := map[string]interface{}{"Data": data, "ErrNo": errno, "ErrMsg": errmsg}
+	ret := map[string]interface{}{"data": data, "code": errno, "message": errmsg}
 	res, _ := json.Marshal(ret)
 	p.W.Write(res)
 }
