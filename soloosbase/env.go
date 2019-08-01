@@ -11,7 +11,7 @@ type SoloOSEnv struct {
 	SNetClientDriver snet.SRPCClientDriver
 }
 
-func (p *SoloOSEnv) Init() error {
+func (p *SoloOSEnv) InitWithSNet(snetWebServerAddr string) error {
 	var err error
 
 	err = p.OffheapDriver.Init()
@@ -27,6 +27,13 @@ func (p *SoloOSEnv) Init() error {
 	err = p.SNetClientDriver.Init(&p.OffheapDriver, &p.SNetDriver)
 	if err != nil {
 		return err
+	}
+
+	if snetWebServerAddr != "" {
+		err = p.SNetDriver.PrepareClient(snetWebServerAddr)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

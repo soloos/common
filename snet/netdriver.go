@@ -27,7 +27,7 @@ func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 }
 
 // Serve start NetDriver.NetDriverWebServer
-func (p *NetDriver) StartServer(webListenStr string,
+func (p *NetDriver) PrepareServer(webListenStr string,
 	webServeStr string,
 	fetchSNetPeerFromDB FetchSNetPeerFromDB,
 	registerSNetPeerInDB RegisterSNetPeerInDB,
@@ -43,12 +43,11 @@ func (p *NetDriver) StartServer(webListenStr string,
 		return err
 	}
 
-	err = p.server.Serve()
-	if err != nil {
-		return err
-	}
-
 	return nil
+}
+
+func (p *NetDriver) ServerServe() error {
+	return p.server.Serve()
 }
 
 func (p *NetDriver) CloseServer() error {
@@ -56,7 +55,7 @@ func (p *NetDriver) CloseServer() error {
 }
 
 // InitClient
-func (p *NetDriver) StartClient(webServerAddr string) error {
+func (p *NetDriver) PrepareClient(webServerAddr string) error {
 	var err error
 	p.client, err = NewNetDriverWebClient(p, webServerAddr)
 	if err != nil {
@@ -129,4 +128,8 @@ func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
 	}
 
 	return nil
+}
+
+func (p *NetDriver) RegisterPeerInDB(peer snettypes.Peer) error {
+	return p.server.RegisterSNetPeerInDB(peer)
 }

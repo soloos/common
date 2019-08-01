@@ -44,9 +44,9 @@ func (p *SoloOS) Init(options Options,
 		return err
 	}
 
-	err = p.SoloOSEnv.SNetDriver.StartClient(options.SNetDriverServeAddr)
+	err = p.SoloOSEnv.SNetDriver.PrepareClient(options.SNetDriverServeAddr)
 	if err != nil {
-		log.Warn("SoloOSEnv SNetDriver StartClient error", err)
+		log.Warn("SoloOSEnv SNetDriver PrepareClient error", err)
 		return err
 	}
 
