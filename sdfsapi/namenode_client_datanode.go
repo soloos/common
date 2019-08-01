@@ -7,7 +7,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeClient) DataNodeHeartBeat(peerID snettypes.PeerID,
+func (p *NameNodeClient) DataNodeRegister(peerID snettypes.PeerID,
 	serveAddr string,
 	protocolType snettypes.ServiceProtocol) error {
 	var (

@@ -38,15 +38,9 @@ func (p *SoloOS) Init(options Options,
 	var err error
 
 	p.options = options
-	err = p.SoloOSEnv.Init()
+	err = p.SoloOSEnv.InitWithSNet(options.SNetDriverServeAddr)
 	if err != nil {
 		log.Warn("SoloOSEnv Init error", err)
-		return err
-	}
-
-	err = p.SoloOSEnv.SNetDriver.PrepareClient(options.SNetDriverServeAddr)
-	if err != nil {
-		log.Warn("SoloOSEnv SNetDriver PrepareClient error", err)
 		return err
 	}
 

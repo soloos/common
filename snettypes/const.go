@@ -14,4 +14,5 @@ var (
 	ProtocolSDFS     = InitServiceProtocol("sdfs")
 	ProtocolSRPC     = InitServiceProtocol("srpc")
 	ProtocolSoloBoat = InitServiceProtocol("soloboat")
+	ProtocolWeb      = InitServiceProtocol("web")
 )
