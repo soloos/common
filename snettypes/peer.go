@@ -100,8 +100,7 @@ type Peer struct {
 }
 
 func (p *Peer) SetAddressBytes(addr []byte) {
-	p.addressLen = len(addr)
-	copy(p.Address[:p.addressLen], addr)
+	p.SetAddress(string(addr))
 }
 
 func (p *Peer) SetAddress(addr string) {

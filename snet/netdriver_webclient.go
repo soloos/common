@@ -62,9 +62,9 @@ func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, 
 	)
 
 	switch protocol {
-	case snettypes.ProtocolSRPC, snettypes.ProtocolSDFS, snettypes.ProtocolSWAL:
-	default:
+	case snettypes.ProtocolDisk:
 		return nil
+	default:
 	}
 
 	err = iron.PostJSON(urlPath,
