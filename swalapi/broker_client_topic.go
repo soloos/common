@@ -13,7 +13,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *SWALAgentClient) PrepareTopicMetaData(peerID snettypes.PeerID,
+func (p *BrokerClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 	uTopic swalapitypes.TopicUintptr,
 	fsINodeID sdfsapitypes.FsINodeID,
 ) error {
@@ -61,14 +61,14 @@ QUERY_DONE:
 	return err
 }
 
-func (p *SWALAgentClient) PrepareTopicNetBlockMetaData(peerID snettypes.PeerID,
+func (p *BrokerClient) PrepareTopicNetBlockMetaData(peerID snettypes.PeerID,
 	uTopic swalapitypes.TopicUintptr,
 	uNetBlock sdfsapitypes.NetBlockUintptr,
 	uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32) error {
 	return nil
 }
 
-func (p *SWALAgentClient) UploadMemBlockWithSWAL(uTopic swalapitypes.TopicUintptr,
+func (p *BrokerClient) UploadMemBlockWithSWAL(uTopic swalapitypes.TopicUintptr,
 	uJob sdfsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int) error {
 	var (

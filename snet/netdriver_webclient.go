@@ -62,7 +62,7 @@ func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, 
 	)
 
 	switch protocol {
-	case snettypes.ProtocolDisk:
+	case snettypes.ProtocolLocalFS:
 		return nil
 	default:
 	}

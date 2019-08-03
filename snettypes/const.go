@@ -9,7 +9,7 @@ const (
 )
 
 var (
-	ProtocolDisk     = InitServiceProtocol("disk")
+	ProtocolLocalFS     = InitServiceProtocol("localfs")
 	ProtocolSWAL     = InitServiceProtocol("swal")
 	ProtocolSDFS     = InitServiceProtocol("sdfs")
 	ProtocolSRPC     = InitServiceProtocol("srpc")

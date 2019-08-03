@@ -9,8 +9,8 @@ type Options struct {
 
 	SWALDefaultNetBlockCap int
 	SWALDefaultMemBlockCap int
-	SWALAgentPeerID        string
-	SWALAgentServeAddr     string
+	SWALBrokerPeerID        string
+	SWALBrokerServeAddr     string
 	SWALDBDriver           string
 	SWALDsn                string
 }

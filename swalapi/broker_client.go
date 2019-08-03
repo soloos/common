@@ -5,13 +5,13 @@ import (
 	"time"
 )
 
-type SWALAgentClient struct {
+type BrokerClient struct {
 	*soloosbase.SoloOSEnv
 	normalCallRetryTimes        int
 	waitAliveEveryRetryWaitTime time.Duration
 }
 
-func (p *SWALAgentClient) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
+func (p *BrokerClient) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
 	p.SoloOSEnv = soloOSEnv
 	p.normalCallRetryTimes = 3
 	p.waitAliveEveryRetryWaitTime = time.Second * 3

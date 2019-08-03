@@ -15,7 +15,7 @@ func (p *DataNodeClient) UploadMemBlock(uJob sdfsapitypes.UploadMemBlockJobUintp
 	var dataNode, _ = p.SoloOSEnv.SNetDriver.GetPeer(
 		uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex].PeerID)
 	switch dataNode.ServiceProtocol {
-	case snettypes.ProtocolDisk:
+	case snettypes.ProtocolLocalFS:
 		return p.uploadMemBlockWithDisk(uJob, uploadPeerIndex)
 	case snettypes.ProtocolSWAL:
 		return p.uploadMemBlockWithSWAL(uJob, uploadPeerIndex)
