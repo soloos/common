@@ -16,11 +16,11 @@ require (
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	golang.org/x/sys v0.0.0-20190606165138-5da285871e9c
-	google.golang.org/appengine v1.6.1 // indirect
 	soloos/sdbone v0.0.0
 )
 
 replace (
 	soloos/common v0.0.0 => /soloos/common
 	soloos/sdbone v0.0.0 => /soloos/sdbone
+	soloos/soloboat v0.0.0 => /soloos/soloboat
 )

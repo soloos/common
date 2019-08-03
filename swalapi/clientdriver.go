@@ -9,7 +9,7 @@ type ClientDriver interface {
 	Serve() error
 	Close() error
 	Init(soloOSEnv *soloosbase.SoloOSEnv,
-		brokerPeerIDStr string, brokerServeAddr string,
+		brokerSRPCPeerIDStr string, brokerSRPCServeAddr string,
 		dbDriver string, dsn string,
 		defaultNetBlockCap int, defaultMemBlockCap int) error
 	InitClient(client Client,
