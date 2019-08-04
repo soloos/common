@@ -1,6 +1,7 @@
 package soloosutils
 
 import (
+	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/sdfsapi"
 	"soloos/common/soloosbase"
@@ -19,6 +20,8 @@ type SoloOS struct {
 	SDFSClientDriver sdfsapi.ClientDriver
 	SWALClientDriver swalapi.ClientDriver
 }
+
+var _ = iron.IServer(&SoloOS{})
 
 func InitSoloOSInstance(options Options,
 	sdfsClientDriver sdfsapi.ClientDriver,
@@ -57,6 +60,10 @@ func (p *SoloOS) Init(options Options,
 	}
 
 	return nil
+}
+
+func (p *SoloOS) ServerName() string {
+	return "SoloOS.Instance"
 }
 
 func (p *SoloOS) Serve() error {

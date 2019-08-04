@@ -7,7 +7,6 @@ require (
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gocraft/dbr v0.0.0-20190503023340-d3d1e2876df1
 	github.com/google/flatbuffers v1.11.0
-	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/pkg/errors v0.8.1
 	github.com/satori/go.uuid v1.2.0
