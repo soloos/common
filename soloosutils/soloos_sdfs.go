@@ -9,7 +9,7 @@ import (
 func (p *SoloOS) initSDFS(sdfsClientDriver sdfsapi.ClientDriver) error {
 	var err error
 	var nameNodePeerID snettypes.PeerID
-	nameNodePeerID.SetStr(p.options.SDFSNameNodePeerID)
+	nameNodePeerID.SetStr(p.options.SDFSNameNodeSRPCPeerID)
 	p.SDFSClientDriver = sdfsClientDriver
 	err = p.SDFSClientDriver.Init(&p.SoloOSEnv,
 		nameNodePeerID,
