@@ -1,12 +1,11 @@
-package sdbapitypes
+package snettypes
 
 import (
 	"encoding/json"
-	"soloos/common/snettypes"
 )
 
 type HeartBeatServerOptions struct {
-	PeerID     snettypes.PeerID
+	PeerID     PeerID
 	DurationMS int64
 }
 
@@ -21,7 +20,7 @@ func (p *HeartBeatServerOptions) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	p.PeerID = snettypes.StrToPeerID(ret.PeerID)
+	p.PeerID = StrToPeerID(ret.PeerID)
 	p.DurationMS = ret.DurationMS
 
 	return nil

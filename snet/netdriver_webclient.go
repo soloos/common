@@ -33,13 +33,12 @@ func (p *NetDriverWebClient) Init(netDriver *NetDriver, webServerAddr string) er
 func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, error) {
 	var (
 		ret     snettypes.Peer
-		urlPath = p.webServerAddr + "/Peer/Get"
+		urlPath = p.webServerAddr + "/Peer/Get?PeerID=" + peerID.Str()
 		resp    GetPeerRespJSON
 		err     error
 	)
 
-	err = iron.PostJSON(urlPath,
-		GetPeerReqJSON{PeerID: peerID.Str()},
+	err = iron.HttpGetJSON(urlPath,
 		&resp)
 	if err != nil {
 		return ret, err
@@ -53,7 +52,6 @@ func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, e
 	return ret, nil
 }
 
-// MustGetPee return uPeer and peer is inited before
 func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, protocol snettypes.ServiceProtocol) error {
 	var (
 		urlPath = p.webServerAddr + "/Peer/Register"

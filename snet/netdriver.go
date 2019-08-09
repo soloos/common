@@ -27,18 +27,15 @@ func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 }
 
 // Serve start NetDriver.NetDriverWebServer
-func (p *NetDriver) PrepareServer(webListenStr string,
-	webServeStr string,
+func (p *NetDriver) PrepareServer(webServePrefix string, webServer *iron.Server,
 	fetchSNetPeerFromDB FetchSNetPeerFromDB,
 	registerSNetPeerInDB RegisterSNetPeerInDB,
 ) error {
 	var err error
-	var options iron.Options
-	options.ListenStr = webListenStr
-	p.server, err = NewNetDriverWebServer(p,
-		webServeStr,
-		fetchSNetPeerFromDB, registerSNetPeerInDB,
-		options)
+	p.server = &NetDriverWebServer{}
+	p.server.Init(p,
+		webServePrefix, webServer,
+		fetchSNetPeerFromDB, registerSNetPeerInDB)
 	if err != nil {
 		return err
 	}
@@ -88,7 +85,7 @@ func (p *NetDriver) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, error) {
 			if err != nil {
 				return snettypes.Peer{}, err
 			}
-			err = p.RegisterPeer(peer)
+			err = p.doRegisterPeer(peer, true)
 			return peer, err
 		}
 		return snettypes.Peer{}, snettypes.ErrObjectNotExists
@@ -97,7 +94,7 @@ func (p *NetDriver) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, error) {
 	return *snettypes.PeerUintptr(uPeer).Ptr(), nil
 }
 
-func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
+func (p *NetDriver) doRegisterPeer(peer snettypes.Peer, isSkipRegisterRemote bool) error {
 	var (
 		uObject        offheap.LKVTableObjectUPtrWithBytes64
 		uPeer          snettypes.PeerUintptr
@@ -120,7 +117,7 @@ func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
 	}
 	p.peerTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uPeer))
 
-	if p.client != nil && isNeedUpdateInDB {
+	if p.client != nil && isNeedUpdateInDB && !isSkipRegisterRemote {
 		err = p.client.RegisterPeer(peer.ID, peer.AddressStr(), peer.ServiceProtocol)
 		if err != nil {
 			return err
@@ -128,6 +125,10 @@ func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
 	}
 
 	return nil
+}
+
+func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
+	return p.doRegisterPeer(peer, false)
 }
 
 func (p *NetDriver) RegisterPeerInDB(peer snettypes.Peer) error {

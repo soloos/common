@@ -10,56 +10,28 @@ type FetchSNetPeerFromDB func(peerID snettypes.PeerID) (snettypes.Peer, error)
 type RegisterSNetPeerInDB func(peer snettypes.Peer) error
 
 type NetDriverWebServer struct {
-	netDriver   *NetDriver
-	webServeStr string
-	server      iron.Server
+	netDriver      *NetDriver
+	webServePrefix string
+	server         *iron.Server
 
 	doFetchSNetPeerFromDB  FetchSNetPeerFromDB
 	doRegisterSNetPeerInDB RegisterSNetPeerInDB
 }
 
-func NewNetDriverWebServer(netDriver *NetDriver,
-	webServeAddr string,
-	fetchSNetPeerFromDB FetchSNetPeerFromDB,
-	registerSNetPeerInDB RegisterSNetPeerInDB,
-	webOptions iron.Options) (*NetDriverWebServer, error) {
-	var (
-		ret *NetDriverWebServer = new(NetDriverWebServer)
-		err error
-	)
-
-	ret.Init(netDriver,
-		webServeAddr,
-		fetchSNetPeerFromDB,
-		registerSNetPeerInDB,
-		webOptions)
-	if err != nil {
-		return nil, err
-	}
-
-	return ret, nil
-}
-
 func (p *NetDriverWebServer) Init(netDriver *NetDriver,
-	webServeAddr string,
+	webServePrefix string, webServer *iron.Server,
 	fetchSNetPeerFromDB FetchSNetPeerFromDB,
-	registerSNetPeerInDB RegisterSNetPeerInDB,
-	webOptions iron.Options) error {
-	var err error
+	registerSNetPeerInDB RegisterSNetPeerInDB) error {
 
 	p.netDriver = netDriver
-	p.webServeStr = webServeAddr
+	p.webServePrefix = webServePrefix
+	p.server = webServer
 	p.doFetchSNetPeerFromDB = fetchSNetPeerFromDB
 	p.doRegisterSNetPeerInDB = registerSNetPeerInDB
 
-	err = p.server.Init(webOptions)
-	if err != nil {
-		return err
-	}
-
-	p.server.Router("/Peer/List", p.ctrPeerList)
-	p.server.Router("/Peer/Get", p.ctrGetPeer)
-	p.server.Router("/Peer/Register", p.ctrRegisterPeer)
+	p.server.Router(p.webServePrefix+"/Peer/List", p.ctrPeerList)
+	p.server.Router(p.webServePrefix+"/Peer/Get", p.ctrGetPeer)
+	p.server.Router(p.webServePrefix+"/Peer/Register", p.ctrRegisterPeer)
 
 	return nil
 }
@@ -81,17 +53,11 @@ func (p *NetDriverWebServer) ctrPeerList(ir *iron.Request) {
 func (p *NetDriverWebServer) ctrGetPeer(ir *iron.Request) {
 	var (
 		peerID snettypes.PeerID
-		req    GetPeerReqJSON
 		peer   snettypes.Peer
 		err    error
 	)
-	err = ir.DecodeBodyJSONData(&req)
-	if err != nil {
-		ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
-		return
-	}
 
-	peerID.SetStr(req.PeerID)
+	peerID.SetStr(ir.MustFormString("PeerID", ""))
 	peer, err = p.netDriver.GetPeer(peerID)
 	if err != nil {
 		if err == snettypes.ErrObjectNotExists && p.doFetchSNetPeerFromDB != nil {
@@ -101,7 +67,6 @@ func (p *NetDriverWebServer) ctrGetPeer(ir *iron.Request) {
 				return
 			}
 		}
-		ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
 		return
 	}
 
