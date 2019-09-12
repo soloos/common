@@ -14,7 +14,7 @@ require (
 	github.com/siddontang/go-mysql v0.0.0-20190618002340-dbe0224ac097
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-	golang.org/x/sys v0.0.0-20190606165138-5da285871e9c
+	golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
 	soloos/sdbone v0.0.0
 )
 
