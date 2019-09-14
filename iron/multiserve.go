@@ -1,6 +1,6 @@
 package iron
 
-import "soloos/common/log"
+import "log"
 
 type IServer interface {
 	ServerName() string
@@ -45,7 +45,7 @@ func (p *ServerDriver) Serve() error {
 	for i := 0; i < serverCount; i++ {
 		var ret = <-retChan
 		if ret.Err != nil {
-			log.Warn("Server serve error, ServerName:", ret.Name, ", Err:", ret.Err)
+			log.Println("Server serve error, ServerName:", ret.Name, ", Err:", ret.Err)
 			err = ret.Err
 		}
 	}
@@ -70,7 +70,7 @@ func (p *ServerDriver) Close() error {
 	for i := 0; i < serverCount; i++ {
 		var ret = <-retChan
 		if ret.Err != nil {
-			log.Warn("Server close error, ServerName:", ret.Name, ", Err:", ret.Err)
+			log.Println("Server close error, ServerName:", ret.Name, ", Err:", ret.Err)
 			err = ret.Err
 		}
 	}

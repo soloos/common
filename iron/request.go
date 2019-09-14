@@ -13,6 +13,11 @@ import (
 	"time"
 )
 
+type RequestContext struct {
+	IR          *Request
+	IsReqParsed bool
+}
+
 type Request struct {
 	server   *Server
 	RemoteIp string
