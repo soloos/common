@@ -2,7 +2,7 @@ package snettypes
 
 import (
 	"bytes"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 	"unsafe"
 
 	"soloos/common/util"

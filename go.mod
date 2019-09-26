@@ -16,13 +16,13 @@ require (
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
 	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
-	soloos/sdbone v0.0.0
+	soloos/solodb v0.0.0
 )
 
 replace (
 	soloos/common v0.0.0 => /soloos/common
-	soloos/sdbone v0.0.0 => /soloos/sdbone
-	soloos/sdfs v0.0.0 => /soloos/sdfs
 	soloos/soloboat v0.0.0 => /soloos/soloboat
-	soloos/swal v0.0.0 => /soloos/swal
+	soloos/solodb v0.0.0 => /soloos/solodb
+	soloos/solofs v0.0.0 => /soloos/solofs
+	soloos/solomq v0.0.0 => /soloos/solomq
 )

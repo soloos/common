@@ -3,7 +3,7 @@ package snet
 import (
 	"soloos/common/iron"
 	"soloos/common/snettypes"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 )
 
 type NetDriver struct {

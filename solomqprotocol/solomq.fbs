@@ -1,0 +1,25 @@
+namespace solomqprotocol;
+
+table CommonResponse {
+    Code:int;
+    Error:string;
+}
+
+table TopicPrepareRequest {
+    TopicID:int64;
+    FsINodeID:uint64;
+}
+
+table TopicPrepareNetBlockRequest {
+    TopicID:int64;
+    FsINodeID:uint64;
+    IndexInNetINode:int;
+}
+
+table TopicPWriteRequest {
+    TopicID:int64;
+    NetINodeID:string;
+    Offset:uint64;
+    Length:int;
+    TransferBackends:[string];
+}

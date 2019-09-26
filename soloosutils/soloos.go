@@ -3,9 +3,9 @@ package soloosutils
 import (
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/sdfsapi"
+	"soloos/common/solomqapi"
+	"soloos/common/solofsapi"
 	"soloos/common/soloosbase"
-	"soloos/common/swalapi"
 )
 
 var (
@@ -17,26 +17,26 @@ type SoloOS struct {
 	options Options
 	soloosbase.SoloOSEnv
 
-	SDFSClientDriver sdfsapi.ClientDriver
-	SWALClientDriver swalapi.ClientDriver
+	SOLOFSClientDriver solofsapi.ClientDriver
+	SOLOMQClientDriver solomqapi.ClientDriver
 }
 
 var _ = iron.IServer(&SoloOS{})
 
 func InitSoloOSInstance(options Options,
-	sdfsClientDriver sdfsapi.ClientDriver,
-	swalClientDriver swalapi.ClientDriver,
+	solofsClientDriver solofsapi.ClientDriver,
+	solomqClientDriver solomqapi.ClientDriver,
 ) error {
 	if isDefaultSoloOSInited {
 		return nil
 	}
 	isDefaultSoloOSInited = true
-	return SoloOSInstance.Init(options, sdfsClientDriver, swalClientDriver)
+	return SoloOSInstance.Init(options, solofsClientDriver, solomqClientDriver)
 }
 
 func (p *SoloOS) Init(options Options,
-	sdfsClientDriver sdfsapi.ClientDriver,
-	swalClientDriver swalapi.ClientDriver,
+	solofsClientDriver solofsapi.ClientDriver,
+	solomqClientDriver solomqapi.ClientDriver,
 ) error {
 	var err error
 
@@ -47,15 +47,15 @@ func (p *SoloOS) Init(options Options,
 		return err
 	}
 
-	err = p.initSDFS(sdfsClientDriver)
+	err = p.initSOLOFS(solofsClientDriver)
 	if err != nil {
-		log.Warn("SoloOS initSDFS error", err)
+		log.Warn("SoloOS initSOLOFS error", err)
 		return err
 	}
 
-	err = p.initSWAL(swalClientDriver)
+	err = p.initSOLOMQ(solomqClientDriver)
 	if err != nil {
-		log.Warn("SoloOS initSWAL error", err)
+		log.Warn("SoloOS initSOLOMQ error", err)
 		return err
 	}
 
@@ -68,7 +68,7 @@ func (p *SoloOS) ServerName() string {
 
 func (p *SoloOS) Serve() error {
 	var err error
-	err = p.SWALClientDriver.Serve()
+	err = p.SOLOMQClientDriver.Serve()
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (p *SoloOS) Serve() error {
 
 func (p *SoloOS) Close() error {
 	var err error
-	err = p.SWALClientDriver.Close()
+	err = p.SOLOMQClientDriver.Close()
 	if err != nil {
 		return err
 	}

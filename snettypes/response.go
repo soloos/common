@@ -2,7 +2,7 @@ package snettypes
 
 import (
 	"encoding/binary"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 	"unsafe"
 )
 

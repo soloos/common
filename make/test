@@ -8,11 +8,11 @@ test-go-fuse-splice:
 test-iron:
 	go test .//iron
 
-test-sdfsapi:
-	go test .//sdfsapi
+test-solofsapi:
+	go test .//solofsapi
 
-test-sdfsapitypes:
-	go test .//sdfsapitypes
+test-solofsapitypes:
+	go test .//solofsapitypes
 
 test-snet:
 	go test .//snet
@@ -23,4 +23,4 @@ test-soloosapi-os:
 test-soloosutils:
 	go test .//soloosutils
 
-test: test-go-fuse-fuse test-go-fuse-splice test-iron test-sdfsapi test-sdfsapitypes test-snet test-soloosapi-os test-soloosutils
+test: test-go-fuse-fuse test-go-fuse-splice test-iron test-solofsapi test-solofsapitypes test-snet test-soloosapi-os test-soloosutils

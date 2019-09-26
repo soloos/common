@@ -4,14 +4,14 @@ type Options struct {
 	SNetDriverServeAddr string
 	SoloBoatWebPeerID   string
 
-	SDFSNameNodeSRPCPeerID string
-	SDFSDBDriver           string
-	SDFSDsn                string
+	SOLOFSSolonnSRPCPeerID string
+	SOLOFSDBDriver           string
+	SOLOFSDsn                string
 
-	SWALDefaultNetBlockCap int
-	SWALDefaultMemBlockCap int
-	SWALBrokerSRPCPeerID   string
-	SWALBrokerServeAddr    string
-	SWALDBDriver           string
-	SWALDsn                string
+	SOLOMQDefaultNetBlockCap int
+	SOLOMQDefaultMemBlockCap int
+	SOLOMQBrokerSRPCPeerID   string
+	SOLOMQBrokerServeAddr    string
+	SOLOMQDBDriver           string
+	SOLOMQDsn                string
 }

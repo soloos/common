@@ -4,7 +4,7 @@ import (
 	"soloos/common/snet"
 	"soloos/common/snet/types"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 )
 
 type Tool struct {

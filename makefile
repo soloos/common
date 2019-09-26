@@ -1,15 +1,15 @@
 COMMON_LDFLAGS=""
 COMMON_PREFIX=""
 
-GOBUILD = $(SDFS_PREFIX) go build
+GOBUILD = $(SOLOFS_PREFIX) go build
 
 clean-test-cache:
 	go clean -testcache
 
 fbs:
 	flatc -o ./ -g ./snetprotocol/test.fbs
-	flatc -o ./ -g ./sdfsprotocol/sdfs.fbs
-	flatc -o ./ -g ./swalprotocol/swal.fbs
+	flatc -o ./ -g ./solofsprotocol/solofs.fbs
+	flatc -o ./ -g ./solomqprotocol/solomq.fbs
 
 soloos-tool:
 	$(GOBUILD) -o ./bin/soloos-tool soloos-tool

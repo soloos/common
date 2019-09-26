@@ -3,7 +3,7 @@ package snet
 import (
 	"soloos/common/log"
 	"soloos/common/snettypes"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 	"strings"
 	"sync"
 	"sync/atomic"

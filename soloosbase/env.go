@@ -2,7 +2,7 @@ package soloosbase
 
 import (
 	"soloos/common/snet"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 )
 
 type SoloOSEnv struct {

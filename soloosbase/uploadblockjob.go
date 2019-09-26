@@ -1,7 +1,7 @@
 package soloosbase
 
 import (
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 	"sync"
 	"sync/atomic"
 )

@@ -2,7 +2,7 @@ package snet
 
 import (
 	"soloos/common/snettypes"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 	"sync"
 )
 
