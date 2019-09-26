@@ -5,9 +5,9 @@ import "soloos/common/solofsapitypes"
 type SendLogSig = bool
 
 type Client interface {
-	SetSOLOFSClient(itSOLOFSClient interface{}) error
+	SetSolofsClient(itSolofsClient interface{}) error
 	PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
 		uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error
-	UploadMemBlockWithSOLOMQ(uJob solofsapitypes.UploadMemBlockJobUintptr,
+	UploadMemBlockWithSolomq(uJob solofsapitypes.UploadMemBlockJobUintptr,
 		uploadPeerIndex int) error
 }

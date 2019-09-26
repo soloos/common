@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	DefaultSOLOMQRPCNetwork = "tcp"
+	DefaultSolomqRPCNetwork = "tcp"
 )
 
 var (
-	DefaultSOLOMQRPCProtocol = snettypes.ProtocolSOLOMQ
+	DefaultSolomqRPCProtocol = snettypes.ProtocolSolomq
 )

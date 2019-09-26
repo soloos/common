@@ -1,18 +1,18 @@
 package soloosbase
 
-type DBOptionDBSOLOMQTopicClusterItem struct {
+type DBOptionDBSolomqTopicClusterItem struct {
 	PeerID string
 	Role   int
 }
 
-type DBOptionDBSOLOMQ struct {
+type DBOptionDBSolomq struct {
 	TopicID            string
-	SOLOMQCluter         []DBOptionDBSOLOMQTopicClusterItem
+	SolomqCluter         []DBOptionDBSolomqTopicClusterItem
 	DefaultNetBlockCap int
 	DefaultMemBlockCap int
 }
 
-type DBOptionDBSOLOFS struct {
+type DBOptionDBSolofs struct {
 	NameSpaceID           int
 	DefaultNetBlockCap    int
 	DefaultMemBlockCap    int
@@ -20,6 +20,6 @@ type DBOptionDBSOLOFS struct {
 }
 
 type DBOptions struct {
-	DBSOLOFS DBOptionDBSOLOFS
-	DBSOLOMQ DBOptionDBSOLOMQ
+	DBSolofs DBOptionDBSolofs
+	DBSolomq DBOptionDBSolomq
 }

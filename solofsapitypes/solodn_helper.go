@@ -11,5 +11,5 @@ type PReadMemBlockWithDisk func(uNetINode NetINodeUintptr,
 	offset uint64, length int) (int, error)
 type UploadMemBlockWithDisk func(uJob UploadMemBlockJobUintptr,
 	uploadPeerIndex int) error
-type UploadMemBlockWithSOLOMQ func(uJob UploadMemBlockJobUintptr,
+type UploadMemBlockWithSolomq func(uJob UploadMemBlockJobUintptr,
 	uploadPeerIndex int) error

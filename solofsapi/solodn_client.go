@@ -6,14 +6,14 @@ import (
 )
 
 type SolodnClient struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	preadMemBlockWithDisk  solofsapitypes.PReadMemBlockWithDisk
 	uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk
-	uploadMemBlockWithSOLOMQ solofsapitypes.UploadMemBlockWithSOLOMQ
+	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq
 }
 
-func (p *SolodnClient) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
-	p.SoloOSEnv = soloOSEnv
+func (p *SolodnClient) Init(soloosEnv *soloosbase.SoloosEnv) error {
+	p.SoloosEnv = soloosEnv
 	return nil
 }
 
@@ -25,6 +25,6 @@ func (p *SolodnClient) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk solofsap
 	p.uploadMemBlockWithDisk = uploadMemBlockWithDisk
 }
 
-func (p *SolodnClient) SetUploadMemBlockWithSOLOMQ(uploadMemBlockWithSOLOMQ solofsapitypes.UploadMemBlockWithSOLOMQ) {
-	p.uploadMemBlockWithSOLOMQ = uploadMemBlockWithSOLOMQ
+func (p *SolodnClient) SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq) {
+	p.uploadMemBlockWithSolomq = uploadMemBlockWithSolomq
 }

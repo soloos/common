@@ -7,7 +7,7 @@ import (
 )
 
 type ClientDriver interface {
-	Init(soloOSEnv *soloosbase.SoloOSEnv,
+	Init(soloosEnv *soloosbase.SoloosEnv,
 		solonnSRPCPeerID snettypes.PeerID,
 		dbDriver string, dsn string,
 	) error

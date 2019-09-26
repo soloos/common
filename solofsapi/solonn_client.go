@@ -6,13 +6,13 @@ import (
 )
 
 type SolonnClient struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	solonnPeerID snettypes.PeerID
 }
 
-func (p *SolonnClient) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *SolonnClient) Init(soloosEnv *soloosbase.SoloosEnv,
 	solonnPeerID snettypes.PeerID) error {
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.solonnPeerID = solonnPeerID
 	return nil
 }

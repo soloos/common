@@ -5,12 +5,12 @@ import (
 )
 
 const (
-	SOLOMQMemberRoleUnknown  = -1
-	SOLOMQMemberRoleLeader   = 1
-	SOLOMQMemberRoleFollower = 0
+	SolomqMemberRoleUnknown  = -1
+	SolomqMemberRoleLeader   = 1
+	SolomqMemberRoleFollower = 0
 )
 
-type SOLOMQMember struct {
+type SolomqMember struct {
 	PeerID snettypes.PeerID
 	Role   int
 }

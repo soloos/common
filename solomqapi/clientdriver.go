@@ -8,11 +8,11 @@ import (
 type ClientDriver interface {
 	Serve() error
 	Close() error
-	Init(soloOSEnv *soloosbase.SoloOSEnv,
+	Init(soloosEnv *soloosbase.SoloosEnv,
 		soloBoatWebPeerID string,
-		brokerSRPCPeerIDStr string, brokerSRPCServeAddr string,
+		solomqSRPCPeerIDStr string, solomqSRPCServeAddr string,
 		dbDriver string, dsn string,
 		defaultNetBlockCap int, defaultMemBlockCap int) error
 	InitClient(client Client,
-		topicIDStr string, solomqMembers []solomqapitypes.SOLOMQMember) error
+		topicIDStr string, solomqMembers []solomqapitypes.SolomqMember) error
 }

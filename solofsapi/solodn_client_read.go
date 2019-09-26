@@ -27,7 +27,7 @@ func (p *SolodnClient) PReadMemBlock(uNetINode solofsapitypes.NetINodeUintptr,
 	}
 
 	switch peer.ServiceProtocol {
-	case snettypes.ProtocolSOLOFS:
+	case snettypes.ProtocolSolofs:
 		return p.doPReadMemBlockWithSRPC(peer.ID,
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}

@@ -2,16 +2,16 @@ package soloosutils
 
 type Options struct {
 	SNetDriverServeAddr string
-	SoloBoatWebPeerID   string
+	SoloboatWebPeerID   string
 
-	SOLOFSSolonnSRPCPeerID string
-	SOLOFSDBDriver           string
-	SOLOFSDsn                string
+	SolofsSolonnSRPCPeerID string
+	SolofsDBDriver           string
+	SolofsDsn                string
 
-	SOLOMQDefaultNetBlockCap int
-	SOLOMQDefaultMemBlockCap int
-	SOLOMQBrokerSRPCPeerID   string
-	SOLOMQBrokerServeAddr    string
-	SOLOMQDBDriver           string
-	SOLOMQDsn                string
+	SolomqDefaultNetBlockCap int
+	SolomqDefaultMemBlockCap int
+	SolomqSRPCPeerID   string
+	SolomqServeAddr    string
+	SolomqDBDriver           string
+	SolomqDsn                string
 }

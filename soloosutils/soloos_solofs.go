@@ -6,16 +6,16 @@ import (
 	"soloos/common/snettypes"
 )
 
-func (p *SoloOS) initSOLOFS(solofsClientDriver solofsapi.ClientDriver) error {
+func (p *Soloos) initSolofs(solofsClientDriver solofsapi.ClientDriver) error {
 	var err error
 	var solonnPeerID snettypes.PeerID
-	solonnPeerID.SetStr(p.options.SOLOFSSolonnSRPCPeerID)
-	p.SOLOFSClientDriver = solofsClientDriver
-	err = p.SOLOFSClientDriver.Init(&p.SoloOSEnv,
+	solonnPeerID.SetStr(p.options.SolofsSolonnSRPCPeerID)
+	p.SolofsClientDriver = solofsClientDriver
+	err = p.SolofsClientDriver.Init(&p.SoloosEnv,
 		solonnPeerID,
-		p.options.SOLOFSDBDriver, p.options.SOLOFSDsn)
+		p.options.SolofsDBDriver, p.options.SolofsDsn)
 	if err != nil {
-		log.Warn("SoloOS SOLOFSClientDriver Init error", err)
+		log.Warn("Soloos SolofsClientDriver Init error", err)
 		return err
 	}
 

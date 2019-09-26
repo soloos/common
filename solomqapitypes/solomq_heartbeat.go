@@ -1,6 +1,6 @@
 package solomqapitypes
 
-type BrokerHeartBeat struct {
+type SolomqHeartBeat struct {
 	SRPCPeerID string
 	WebPeerID  string
 }

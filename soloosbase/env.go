@@ -5,13 +5,13 @@ import (
 	"soloos/solodb/offheap"
 )
 
-type SoloOSEnv struct {
+type SoloosEnv struct {
 	OffheapDriver    offheap.OffheapDriver
 	SNetDriver       snet.NetDriver
 	SNetClientDriver snet.SRPCClientDriver
 }
 
-func (p *SoloOSEnv) InitWithSNet(snetWebServerAddr string) error {
+func (p *SoloosEnv) InitWithSNet(snetWebServerAddr string) error {
 	var err error
 
 	err = p.OffheapDriver.Init()

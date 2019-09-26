@@ -12,21 +12,21 @@ import (
 func (p *SolodnClient) UploadMemBlock(uJob solofsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int,
 ) error {
-	var solodn, _ = p.SoloOSEnv.SNetDriver.GetPeer(
+	var solodn, _ = p.SoloosEnv.SNetDriver.GetPeer(
 		uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex].PeerID)
 	switch solodn.ServiceProtocol {
 	case snettypes.ProtocolLocalFS:
 		return p.uploadMemBlockWithDisk(uJob, uploadPeerIndex)
-	case snettypes.ProtocolSOLOMQ:
-		return p.uploadMemBlockWithSOLOMQ(uJob, uploadPeerIndex)
-	case snettypes.ProtocolSOLOFS:
-		return p.doUploadMemBlockWithSOLOFS(uJob, uploadPeerIndex)
+	case snettypes.ProtocolSolomq:
+		return p.uploadMemBlockWithSolomq(uJob, uploadPeerIndex)
+	case snettypes.ProtocolSolofs:
+		return p.doUploadMemBlockWithSolofs(uJob, uploadPeerIndex)
 	}
 
 	return nil
 }
 
-func (p *SolodnClient) doUploadMemBlockWithSOLOFS(uJob solofsapitypes.UploadMemBlockJobUintptr,
+func (p *SolodnClient) doUploadMemBlockWithSolofs(uJob solofsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int,
 ) error {
 	var (

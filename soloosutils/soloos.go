@@ -9,76 +9,76 @@ import (
 )
 
 var (
-	SoloOSInstance        SoloOS
-	isDefaultSoloOSInited bool = false
+	SoloosInstance        Soloos
+	isDefaultSoloosInited bool = false
 )
 
-type SoloOS struct {
+type Soloos struct {
 	options Options
-	soloosbase.SoloOSEnv
+	soloosbase.SoloosEnv
 
-	SOLOFSClientDriver solofsapi.ClientDriver
-	SOLOMQClientDriver solomqapi.ClientDriver
+	SolofsClientDriver solofsapi.ClientDriver
+	SolomqClientDriver solomqapi.ClientDriver
 }
 
-var _ = iron.IServer(&SoloOS{})
+var _ = iron.IServer(&Soloos{})
 
-func InitSoloOSInstance(options Options,
+func InitSoloosInstance(options Options,
 	solofsClientDriver solofsapi.ClientDriver,
 	solomqClientDriver solomqapi.ClientDriver,
 ) error {
-	if isDefaultSoloOSInited {
+	if isDefaultSoloosInited {
 		return nil
 	}
-	isDefaultSoloOSInited = true
-	return SoloOSInstance.Init(options, solofsClientDriver, solomqClientDriver)
+	isDefaultSoloosInited = true
+	return SoloosInstance.Init(options, solofsClientDriver, solomqClientDriver)
 }
 
-func (p *SoloOS) Init(options Options,
+func (p *Soloos) Init(options Options,
 	solofsClientDriver solofsapi.ClientDriver,
 	solomqClientDriver solomqapi.ClientDriver,
 ) error {
 	var err error
 
 	p.options = options
-	err = p.SoloOSEnv.InitWithSNet(options.SNetDriverServeAddr)
+	err = p.SoloosEnv.InitWithSNet(options.SNetDriverServeAddr)
 	if err != nil {
-		log.Warn("SoloOSEnv Init error", err)
+		log.Warn("SoloosEnv Init error", err)
 		return err
 	}
 
-	err = p.initSOLOFS(solofsClientDriver)
+	err = p.initSolofs(solofsClientDriver)
 	if err != nil {
-		log.Warn("SoloOS initSOLOFS error", err)
+		log.Warn("Soloos initSolofs error", err)
 		return err
 	}
 
-	err = p.initSOLOMQ(solomqClientDriver)
+	err = p.initSolomq(solomqClientDriver)
 	if err != nil {
-		log.Warn("SoloOS initSOLOMQ error", err)
-		return err
-	}
-
-	return nil
-}
-
-func (p *SoloOS) ServerName() string {
-	return "SoloOS.Instance"
-}
-
-func (p *SoloOS) Serve() error {
-	var err error
-	err = p.SOLOMQClientDriver.Serve()
-	if err != nil {
+		log.Warn("Soloos initSolomq error", err)
 		return err
 	}
 
 	return nil
 }
 
-func (p *SoloOS) Close() error {
+func (p *Soloos) ServerName() string {
+	return "Soloos.Instance"
+}
+
+func (p *Soloos) Serve() error {
 	var err error
-	err = p.SOLOMQClientDriver.Close()
+	err = p.SolomqClientDriver.Serve()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *Soloos) Close() error {
+	var err error
+	err = p.SolomqClientDriver.Close()
 	if err != nil {
 		return err
 	}

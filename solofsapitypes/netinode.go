@@ -42,13 +42,14 @@ type NetINode struct {
 
 	LastCommitSize uint64 `db:"-"`
 
-	NetINodeID         NetINodeID                `db:"netinode_id"`
-	Size               uint64                    `db:"netinode_size"`
-	NetBlockCap        int                       `db:"netblock_cap"`
-	MemBlockCap        int                       `db:"memblock_cap"`
-	WriteDataRWMutex   sync.RWMutex              `db:"-"`
-	SyncDataSig        util.RawWaitGroup         `db:"-"`
-	LastSyncDataError  error                     `db:"-"`
+	NetINodeID  NetINodeID `db:"netinode_id"`
+	Size        uint64     `db:"netinode_size"`
+	NetBlockCap int        `db:"netblock_cap"`
+	MemBlockCap int        `db:"memblock_cap"`
+
+	WriteDataRWMutex   sync.RWMutex                 `db:"-"`
+	SyncDataSig        util.RawWaitGroup            `db:"-"`
+	LastSyncDataError  error                        `db:"-"`
 	IsDBMetaDataInited solodbapitypes.MetaDataState `db:"-"`
 }
 

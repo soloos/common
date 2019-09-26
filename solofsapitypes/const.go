@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	DefaultSOLOFSRPCNetwork = "tcp"
+	DefaultSolofsRPCNetwork = "tcp"
 
 	UUintptrSize = unsafe.Sizeof(uintptr(0))
 	UintptrSize  = int(unsafe.Sizeof(uintptr(0)))
@@ -19,5 +19,5 @@ const (
 )
 
 var (
-	DefaultSOLOFSRPCProtocol = snettypes.ProtocolSOLOFS
+	DefaultSolofsRPCProtocol = snettypes.ProtocolSolofs
 )

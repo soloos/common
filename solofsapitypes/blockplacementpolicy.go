@@ -2,7 +2,7 @@ package solofsapitypes
 
 const (
 	BlockPlacementPolicyDefault = byte(iota)
-	BlockPlacementPolicySOLOMQ
+	BlockPlacementPolicySolomq
 
 	MemBlockPlacementPolicyHeaderBytesNum = 2
 	MemBlockPlacementPolicyBodyOff        = MemBlockPlacementPolicyHeaderBytesNum

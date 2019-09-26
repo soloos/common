@@ -10,9 +10,9 @@ const (
 
 var (
 	ProtocolLocalFS     = InitServiceProtocol("localfs")
-	ProtocolSOLOMQ     = InitServiceProtocol("solomq")
-	ProtocolSOLOFS     = InitServiceProtocol("solofs")
+	ProtocolSolomq     = InitServiceProtocol("solomq")
+	ProtocolSolofs     = InitServiceProtocol("solofs")
 	ProtocolSRPC     = InitServiceProtocol("srpc")
-	ProtocolSoloBoat = InitServiceProtocol("soloboat")
+	ProtocolSoloboat = InitServiceProtocol("soloboat")
 	ProtocolWeb      = InitServiceProtocol("web")
 )

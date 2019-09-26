@@ -50,7 +50,7 @@ func (u TopicUintptr) Ptr() *Topic { return (*Topic)(unsafe.Pointer(u)) }
 type TopicMeta struct {
 	TopicID         TopicID
 	TopicName       TopicName
-	SOLOMQMemberGroup SOLOMQMemberGroup
+	SolomqMemberGroup SolomqMemberGroup
 }
 
 type Topic struct {

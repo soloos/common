@@ -1,24 +1,24 @@
 package solomqapitypes
 
-type SOLOMQMemberGroup struct {
-	Arr [8]SOLOMQMember
+type SolomqMemberGroup struct {
+	Arr [8]SolomqMember
 	Len int
 }
 
-func (p *SOLOMQMemberGroup) Reset() {
+func (p *SolomqMemberGroup) Reset() {
 	p.Len = 0
 }
 
-func (p *SOLOMQMemberGroup) Append(value SOLOMQMember) {
+func (p *SolomqMemberGroup) Append(value SolomqMember) {
 	p.Arr[p.Len] = value
 	p.Len += 1
 }
 
-func (p *SOLOMQMemberGroup) Slice() []SOLOMQMember {
+func (p *SolomqMemberGroup) Slice() []SolomqMember {
 	return p.Arr[:p.Len]
 }
 
-func (p *SOLOMQMemberGroup) SetSOLOMQMembers(solomqMembers []SOLOMQMember) {
+func (p *SolomqMemberGroup) SetSolomqMembers(solomqMembers []SolomqMember) {
 	for i := 0; i < len(p.Arr) && i < len(solomqMembers); i++ {
 		p.Append(solomqMembers[i])
 	}

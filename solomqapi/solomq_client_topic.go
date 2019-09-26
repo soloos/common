@@ -13,7 +13,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *BrokerClient) PrepareTopicMetaData(peerID snettypes.PeerID,
+func (p *SolomqClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 	uTopic solomqapitypes.TopicUintptr,
 	fsINodeID solofsapitypes.FsINodeID,
 ) error {
@@ -61,14 +61,14 @@ QUERY_DONE:
 	return err
 }
 
-func (p *BrokerClient) PrepareTopicNetBlockMetaData(peerID snettypes.PeerID,
+func (p *SolomqClient) PrepareTopicNetBlockMetaData(peerID snettypes.PeerID,
 	uTopic solomqapitypes.TopicUintptr,
 	uNetBlock solofsapitypes.NetBlockUintptr,
 	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
 	return nil
 }
 
-func (p *BrokerClient) UploadMemBlockWithSOLOMQ(uTopic solomqapitypes.TopicUintptr,
+func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqapitypes.TopicUintptr,
 	uJob solofsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int) error {
 	var (

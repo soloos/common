@@ -7,5 +7,5 @@ import (
 type Client interface {
 	Close() error
 	GetPosixFS() fsapi.PosixFS
-	SetSOLOMQClient(itSOLOMQClient interface{}) error
+	SetSolomqClient(itSolomqClient interface{}) error
 }

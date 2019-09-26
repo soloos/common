@@ -11,16 +11,16 @@ type FileMode = os.FileMode
 type FileInfo = os.FileInfo
 
 type File struct {
-	isSoloOSFile  bool
-	soloOSPosixFS fsapi.PosixFS
-	soloOSFdID    solofsapitypes.FsINodeFileHandlerID
+	isSoloosFile  bool
+	soloosPosixFS fsapi.PosixFS
+	soloosFdID    solofsapitypes.FsINodeFileHandlerID
 	file          *os.File
 }
 
-func (p *File) SetSoloOSFsINode(fdID solofsapitypes.FsINodeFileHandlerID, posixFS fsapi.PosixFS) {
-	p.soloOSFdID = fdID
-	p.soloOSPosixFS = posixFS
-	p.isSoloOSFile = true
+func (p *File) SetSoloosFsINode(fdID solofsapitypes.FsINodeFileHandlerID, posixFS fsapi.PosixFS) {
+	p.soloosFdID = fdID
+	p.soloosPosixFS = posixFS
+	p.isSoloosFile = true
 }
 
 func (p *File) Fd() uintptr {
@@ -48,19 +48,19 @@ func (p *File) Read(b []byte) (n int, err error) {
 }
 
 func (p *File) Write(b []byte) (n int, err error) {
-	log.Warn("fuck file Write", len(b), p.isSoloOSFile, p.soloOSFdID)
-	if p.isSoloOSFile {
+	log.Warn("fuck file Write", len(b), p.isSoloosFile, p.soloosFdID)
+	if p.isSoloosFile {
 		var (
-			fd  = p.soloOSPosixFS.FdTableGetFd(p.soloOSFdID)
+			fd  = p.soloosPosixFS.FdTableGetFd(p.soloosFdID)
 			err error
 		)
-		err = p.soloOSPosixFS.SimpleWriteWithMem(fd.FsINodeID, b, fd.AppendPosition)
+		err = p.soloosPosixFS.SimpleWriteWithMem(fd.FsINodeID, b, fd.AppendPosition)
 		if err != nil {
 			log.Warn(err)
 			return 0, err
 		}
 
-		p.soloOSPosixFS.FdTableFdAddAppendPosition(p.soloOSFdID, uint64(len(b)))
+		p.soloosPosixFS.FdTableFdAddAppendPosition(p.soloosFdID, uint64(len(b)))
 	}
 	return p.file.Write(b)
 }
