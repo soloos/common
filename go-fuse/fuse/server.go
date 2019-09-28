@@ -25,11 +25,11 @@ const (
 )
 
 // Server contains the logic for reading from the FUSE device and
-// translating it to PosixFS interface calls.
+// translating it to PosixFs interface calls.
 type Server struct {
 	// Empty if unmounted.
 	mountPoint string
-	fileSystem fsapi.PosixFS
+	fileSystem fsapi.PosixFs
 
 	// writeMu serializes close and notify writes
 	writeMu sync.Mutex
@@ -123,7 +123,7 @@ func (ms *Server) Unmount() (err error) {
 }
 
 // NewServer creates a server and attaches it to the given directory.
-func NewServer(fs fsapi.PosixFS, mountPoint string, opts *MountOptions) (*Server, error) {
+func NewServer(fs fsapi.PosixFs, mountPoint string, opts *MountOptions) (*Server, error) {
 	if opts == nil {
 		opts = &MountOptions{
 			MaxBackground: _DEFAULT_BACKGROUND_TASKS,

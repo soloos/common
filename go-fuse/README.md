@@ -16,7 +16,7 @@ subdirectories of the FUSE mount.
 * Supports 3 interfaces for writing filesystems:
   - `PathFileSystem`: define filesystems in terms path names.
   - `NodeFileSystem`: define filesystems in terms of inodes.
-  - `PosixFS`: define filesystems in terms of FUSE's raw
+  - `PosixFs`: define filesystems in terms of FUSE's raw
   wire solofsprotocol.
 
 * Both NodeFileSystem and PathFileSystem support manipulation of true

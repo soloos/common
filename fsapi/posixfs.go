@@ -6,7 +6,7 @@ import (
 	"soloos/common/snettypes"
 )
 
-// PosixFS is an interface close to the FUSE wire solofsprotocol.
+// PosixFs is an interface close to the FUSE wire solofsprotocol.
 //
 // Unless you really know what you are doing, you should not implement
 // this, but rather the nodefs.Node or pathfs.FileSystem interfaces; the
@@ -17,8 +17,8 @@ import (
 // Several calls may be made simultaneously, because the server typically calls
 // each method in separate goroutine.
 //
-// A null implementation is provided by NewDefaultPosixFS.
-type PosixFS interface {
+// A null implementation is provided by NewDefaultPosixFs.
+type PosixFs interface {
 	String() string
 
 	// If called, provide debug output through the log package.

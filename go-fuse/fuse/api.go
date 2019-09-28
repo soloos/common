@@ -6,17 +6,17 @@
 // userspace in terms of raw FUSE solofsprotocol.
 //
 // A filesystem is implemented by implementing its server that provides a
-// PosixFS interface. Typically the server embeds
-// NewDefaultPosixFS() and implements only subset of filesystem methods:
+// PosixFs interface. Typically the server embeds
+// NewDefaultPosixFs() and implements only subset of filesystem methods:
 //
 //	type MyFS struct {
-//		fuse.PosixFS
+//		fuse.PosixFs
 //		...
 //	}
 //
 //	func NewMyFS() *MyFS {
 //		return &MyFS{
-//			PosixFS: fuse.NewDefaultPosixFS(),
+//			PosixFs: fuse.NewDefaultPosixFs(),
 //			...
 //		}
 //	}
@@ -32,7 +32,7 @@
 // Then the filesystem can be mounted and served to a client (typically OS
 // kernel) by creating Server:
 //
-//	fs := NewMyFS() // implements PosixFS
+//	fs := NewMyFS() // implements PosixFs
 //	fssrv, err := fuse.NewServer(fs, mountpoint, &fuse.MountOptions{...})
 //	if err != nil {
 //		...
@@ -62,7 +62,7 @@
 //
 //	fs.GetAttr(*GetAttrIn, *AttrOut)
 //
-// etc. Please refer to PosixFS documentation for details.
+// etc. Please refer to PosixFs documentation for details.
 //
 // Typically, each call of the API happens in its own
 // goroutine, so take care to make the file system thread-safe.

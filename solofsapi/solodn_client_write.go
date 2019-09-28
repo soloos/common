@@ -15,7 +15,7 @@ func (p *SolodnClient) UploadMemBlock(uJob solofsapitypes.UploadMemBlockJobUintp
 	var solodn, _ = p.SoloosEnv.SNetDriver.GetPeer(
 		uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex].PeerID)
 	switch solodn.ServiceProtocol {
-	case snettypes.ProtocolLocalFS:
+	case snettypes.ProtocolLocalFs:
 		return p.uploadMemBlockWithDisk(uJob, uploadPeerIndex)
 	case snettypes.ProtocolSolomq:
 		return p.uploadMemBlockWithSolomq(uJob, uploadPeerIndex)
