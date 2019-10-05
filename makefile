@@ -6,10 +6,13 @@ GOBUILD = $(SOLOFS_PREFIX) go build
 clean-test-cache:
 	go clean -testcache
 
-fbs:
-	flatc -o ./ -g ./snetprotocol/test.fbs
-	flatc -o ./ -g ./solofsprotocol/solofs.fbs
-	flatc -o ./ -g ./solomqprotocol/solomq.fbs
+protocol:
+	go generate ./snetprotocol
+	go generate ./solofsprotocol
+	go generate ./solomqprotocol
+	# flatc -o ./ -g ./snetprotocol/test.fbs
+	# flatc -o ./ -g ./solofsprotocol/solofs.fbs
+	# flatc -o ./ -g ./solomqprotocol/solomq.fbs
 
 soloos-tool:
 	$(GOBUILD) -o ./bin/soloos-tool soloos-tool

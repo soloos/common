@@ -1,11 +1,9 @@
 package solofsapi
 
 import (
+	"soloos/common/snettypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
-	"soloos/common/snettypes"
-
-	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 func (p *SolodnClient) PReadMemBlock(uNetINode solofsapitypes.NetINodeUintptr,
@@ -28,14 +26,14 @@ func (p *SolodnClient) PReadMemBlock(uNetINode solofsapitypes.NetINodeUintptr,
 
 	switch peer.ServiceProtocol {
 	case snettypes.ProtocolSolofs:
-		return p.doPReadMemBlockWithSRPC(peer.ID,
+		return p.doPReadMemBlockWithSrpc(peer.ID,
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
 	return 0, solofsapitypes.ErrServiceNotExists
 }
 
-func (p *SolodnClient) doPReadMemBlockWithSRPC(peerID snettypes.PeerID,
+func (p *SolodnClient) doPReadMemBlockWithSrpc(peerID snettypes.PeerID,
 	uNetINode solofsapitypes.NetINodeUintptr,
 	uNetBlock solofsapitypes.NetBlockUintptr,
 	netBlockIndex int32,
@@ -44,52 +42,39 @@ func (p *SolodnClient) doPReadMemBlockWithSRPC(peerID snettypes.PeerID,
 	offset uint64, length int,
 ) (int, error) {
 	var (
-		req             snettypes.Request
-		resp            snettypes.Response
-		protocolBuilder flatbuffers.Builder
-		netINodeIDOff   flatbuffers.UOffsetT
-		err             error
+		snetReq  snettypes.SNetReq
+		snetResp snettypes.SNetResp
+		err      error
 	)
 
-	netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
-	solofsprotocol.NetINodePReadRequestStart(&protocolBuilder)
-	solofsprotocol.NetINodePReadRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	solofsprotocol.NetINodePReadRequestAddOffset(&protocolBuilder, offset)
-	solofsprotocol.NetINodePReadRequestAddLength(&protocolBuilder, int32(length))
-	protocolBuilder.Finish(solofsprotocol.NetINodePReadRequestEnd(&protocolBuilder))
-	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
+	var req solofsprotocol.NetINodePReadReq
+	req.NetINodeID = uNetBlock.Ptr().NetINodeID
+	req.Offset = offset
+	req.Length = int32(length)
 
 	// TODO choose solodn
-	err = p.SNetClientDriver.Call(peerID,
-		"/NetINode/PRead", &req, &resp)
+	err = p.SNetClientDriver.Call(peerID, "/NetINode/PRead", &snetReq, &snetResp, req)
 	if err != nil {
 		return 0, err
 	}
 
 	var (
-		netBlockPReadResp           solofsprotocol.NetINodePReadResponse
-		commonResp                  solofsprotocol.CommonResponse
-		param                       = make([]byte, resp.ParamSize)
+		respParamBs                 = make([]byte, snetResp.ParamSize)
+		resp                        solofsprotocol.NetINodePReadResp
 		offsetInMemBlock, readedLen int
 	)
-	err = p.SNetClientDriver.ReadResponse(peerID, &req, &resp, param)
+	err = p.SNetClientDriver.ReadResponse(peerID, &snetReq, &snetResp, respParamBs, &resp)
 	if err != nil {
 		return 0, err
 	}
 
-	netBlockPReadResp.Init(param, flatbuffers.GetUOffsetT(param))
-	netBlockPReadResp.CommonResponse(&commonResp)
-	if commonResp.Code() != snettypes.CODE_OK {
-		return 0, solofsapitypes.ErrNetBlockPRead
-	}
-
 	offsetInMemBlock = int(offset - uint64(uMemBlock.Ptr().Bytes.Cap)*uint64(memBlockIndex))
-	readedLen = int(resp.BodySize - resp.ParamSize)
-	err = p.SNetClientDriver.ReadResponse(peerID, &req, &resp,
+	readedLen = int(snetResp.ConnBytesLeft)
+	err = p.SNetClientDriver.ReadRawResponse(peerID, &snetReq, &snetResp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])
 	if err != nil {
 		return 0, err
 	}
 
-	return int(netBlockPReadResp.Length()), err
+	return int(resp.Length), err
 }

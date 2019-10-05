@@ -1,13 +1,14 @@
 package snet
 
 import (
+	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/snettypes"
 )
 
-func (p *SRPCClientDriver) sendCloseCmd(client *SRPCClient) error {
+func (p *SrpcClientDriver) sendCloseCmd(client *SrpcClient) error {
 	var (
-		req snettypes.Request
+		req snettypes.SNetReq
 		err error
 	)
 
@@ -20,19 +21,22 @@ func (p *SRPCClientDriver) sendCloseCmd(client *SRPCClient) error {
 	return nil
 }
 
-func (p *SRPCClientDriver) Call(peerID snettypes.PeerID,
-	serviceID string, req *snettypes.Request, resp *snettypes.Response) error {
+func (p *SrpcClientDriver) Call(peerID snettypes.PeerID,
+	url string,
+	snetReq *snettypes.SNetReq, snetResp *snettypes.SNetResp,
+	req interface{},
+) error {
 	var (
 		err error
 	)
 
-	err = p.AsyncCall(peerID, serviceID, req, resp)
+	err = p.AsyncCall(peerID, url, snetReq, snetResp, req)
 	if err != nil {
 		log.Info("AsyncCall error ", err)
 		return err
 	}
 
-	err = p.WaitResponse(peerID, req, resp)
+	err = p.WaitResponse(peerID, snetReq, snetResp)
 	if err != nil {
 		return err
 	}
@@ -40,10 +44,13 @@ func (p *SRPCClientDriver) Call(peerID snettypes.PeerID,
 	return nil
 }
 
-func (p *SRPCClientDriver) AsyncCall(peerID snettypes.PeerID,
-	serviceID string, req *snettypes.Request, resp *snettypes.Response) error {
+func (p *SrpcClientDriver) AsyncCall(peerID snettypes.PeerID,
+	url string,
+	snetReq *snettypes.SNetReq, snetResp *snettypes.SNetResp,
+	req interface{},
+) error {
 	var (
-		client *SRPCClient
+		client *SrpcClient
 		err    error
 	)
 
@@ -53,13 +60,15 @@ func (p *SRPCClientDriver) AsyncCall(peerID snettypes.PeerID,
 		return err
 	}
 
-	req.Init(client.AllocRequestID(), &client.doingNetQueryConn, serviceID)
-	err = client.prepareWaitResponse(req.ReqID, resp)
+	snetReq.Init(client.AllocRequestID(), &client.doingNetQueryConn, url)
+	snetReq.Param = iron.MustSpecMarshalRequest(req)
+
+	err = client.prepareWaitResponse(snetReq.ReqID, snetResp)
 	if err != nil {
 		return err
 	}
 
-	err = client.Write(req)
+	err = client.Write(snetReq)
 	if err != nil {
 		return err
 	}
@@ -67,10 +76,10 @@ func (p *SRPCClientDriver) AsyncCall(peerID snettypes.PeerID,
 	return nil
 }
 
-func (p *SRPCClientDriver) WaitResponse(peerID snettypes.PeerID,
-	req *snettypes.Request, resp *snettypes.Response) error {
+func (p *SrpcClientDriver) WaitResponse(peerID snettypes.PeerID,
+	req *snettypes.SNetReq, resp *snettypes.SNetResp) error {
 	var (
-		client *SRPCClient
+		client *SrpcClient
 		err    error
 	)
 
@@ -80,6 +89,36 @@ func (p *SRPCClientDriver) WaitResponse(peerID snettypes.PeerID,
 	}
 
 	err = client.WaitResponse(req, resp)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *SrpcClientDriver) SimpleCall(peerID snettypes.PeerID,
+	url string, req interface{}, ret interface{},
+) error {
+	var (
+		snetReq  snettypes.SNetReq
+		snetResp snettypes.SNetResp
+		err      error
+	)
+
+	err = p.Call(peerID, url, &snetReq, &snetResp, req)
+	if err != nil {
+		return err
+	}
+
+	var snetRespBody = make([]byte, int(snetResp.ParamSize))
+	err = p.ReadResponse(peerID, &snetReq, &snetResp,
+		snetRespBody, ret,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = snetResp.SkipReadRemaining()
 	if err != nil {
 		return err
 	}

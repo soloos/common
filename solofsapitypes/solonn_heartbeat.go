@@ -1,6 +1,6 @@
 package solofsapitypes
 
 type SolonnHeartBeat struct {
-	SRPCPeerID string
+	SrpcPeerID string
 	WebPeerID  string
 }

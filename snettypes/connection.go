@@ -35,7 +35,7 @@ func (p *Connection) Connect(address string) error {
 
 func (p *Connection) Close(closeResonErr error) error {
 	if closeResonErr != nil {
-		log.Info("connection close", closeResonErr, p.NetConn.RemoteAddr())
+		log.Debug("connection close", closeResonErr, p.NetConn.RemoteAddr())
 	}
 
 	var err error

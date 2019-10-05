@@ -58,7 +58,8 @@ func (p *MemBlock) PWriteWithMem(data []byte, offset int) (isSuccess bool) {
 
 func (p *MemBlock) PReadWithNetQuery(netQuery *snettypes.NetQuery, length int, offset int) error {
 	var err error
-	err = netQuery.WriteAll((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length])
+	var data = (*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length]
+	err = netQuery.WriteAll(data)
 	if err != nil {
 		return err
 	}

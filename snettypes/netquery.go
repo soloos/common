@@ -5,17 +5,17 @@ type NetQuery struct {
 	BodySize      uint32
 	ParamSize     uint32
 	ConnBytesLeft uint32
-	conn          *Connection
+	Conn          *Connection
 }
 
 func (p *NetQuery) Init(conn *Connection) {
-	p.conn = conn
+	p.Conn = conn
 }
 
 func (p *NetQuery) ConnConnect(address string) error {
-	return p.conn.Connect(address)
+	return p.Conn.Connect(address)
 }
 
 func (p *NetQuery) ConnClose(closeResonErr error) error {
-	return p.conn.Close(closeResonErr)
+	return p.Conn.Close(closeResonErr)
 }

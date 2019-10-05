@@ -15,7 +15,7 @@ const (
 
 type PeerID [PeerIDBytesNum]byte
 type PeerUintptr uintptr
-type ServiceProtocol [8]byte
+type ServiceProtocol [SNetMemberCommonLimit]byte
 
 func InitServiceProtocol(str string) ServiceProtocol {
 	var ret ServiceProtocol

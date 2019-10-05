@@ -2,90 +2,127 @@ package snettypes
 
 import (
 	"encoding/binary"
+	"encoding/json"
+	"soloos/common/util"
 	"unsafe"
 )
 
 const (
-	RequestHeaderBaseSize = 18
-	RequestHeaderSize     = uint32(unsafe.Sizeof(RequestHeader{}))
+	SNetReqHeaderBaseBaseSize = 24
+	SNetReqHeaderBaseSize     = uint32(unsafe.Sizeof(SNetReqHeaderBase{}))
 )
 
-type RequestHeader [RequestHeaderBaseSize + ServiceIDLen]byte
-
-func (p *RequestHeader) SetVersion(version byte) {
-	p[0] = version
+type SNetReqHeaderBase [SNetReqHeaderBaseBaseSize]byte
+type SNetReqHeaderBody struct {
+	Url string
 }
 
-func (p *RequestHeader) Version() byte {
-	return p[0]
+type SNetReqHeader struct {
+	Base SNetReqHeaderBase
+	SNetReqHeaderBody
+	SNetReqHeaderBodyBs []byte
 }
 
-func (p *RequestHeader) IsHeartbeat() bool {
-	return p[1]&0x01 == 0x01
+func (p *SNetReqHeader) SetVersion(version byte) {
+	p.Base[0] = version
 }
 
-func (p *RequestHeader) SetHeartbeat(isHeartbeat bool) {
+func (p *SNetReqHeader) Version() byte {
+	return p.Base[0]
+}
+
+func (p *SNetReqHeader) IsHeartbeat() bool {
+	return p.Base[1]&0x01 == 0x01
+}
+
+func (p *SNetReqHeader) SetHeartbeat(isHeartbeat bool) {
 	if isHeartbeat {
-		p[1] = p[1] | 0x01
+		p.Base[1] = p.Base[1] | 0x01
 	} else {
-		p[1] = p[1] &^ 0x01
+		p.Base[1] = p.Base[1] &^ 0x01
 	}
 }
 
-func (p *RequestHeader) IsNotExceptResponse() bool {
-	return p[1]&0x02 == 0x02
+func (p *SNetReqHeader) IsNotExceptResponse() bool {
+	return p.Base[1]&0x02 == 0x02
 }
 
-func (p *RequestHeader) SetNotExceptResponse(isNotExceptResponse bool) {
+func (p *SNetReqHeader) SetNotExceptResponse(isNotExceptResponse bool) {
 	if isNotExceptResponse {
-		p[1] = p[1] | 0x02
+		p.Base[1] = p.Base[1] | 0x02
 	} else {
-		p[1] = p[1] &^ 0x02
+		p.Base[1] = p.Base[1] &^ 0x02
 	}
 }
 
-func (p *RequestHeader) ID() uint64 {
-	return binary.BigEndian.Uint64(p[2:10])
+func (p *SNetReqHeader) ID() uint64 {
+	return binary.BigEndian.Uint64(p.Base[2:10])
 }
 
-func (p *RequestHeader) SetID(seq uint64) {
-	binary.BigEndian.PutUint64(p[2:10], seq)
+func (p *SNetReqHeader) SetID(seq uint64) {
+	binary.BigEndian.PutUint64(p.Base[2:10], seq)
 }
 
-func (p *RequestHeader) BodySize() uint32 {
-	return binary.BigEndian.Uint32(p[10:14])
+func (p *SNetReqHeader) HeaderBodySize() uint32 {
+	return binary.BigEndian.Uint32(p.Base[10:14])
 }
 
-func (p *RequestHeader) SetBodySize(bodySize uint32) {
-	binary.BigEndian.PutUint32(p[10:14], bodySize)
+func (p *SNetReqHeader) SetHeaderBodySize(size uint32) {
+	binary.BigEndian.PutUint32(p.Base[10:14], size)
 }
 
-func (p *RequestHeader) ParamSize() uint32 {
-	return binary.BigEndian.Uint32(p[14:18])
+func (p *SNetReqHeader) ParamSize() uint32 {
+	return binary.BigEndian.Uint32(p.Base[14:18])
 }
 
-func (p *RequestHeader) SetParamSize(reqParamSize uint32) {
-	binary.BigEndian.PutUint32(p[14:18], reqParamSize)
+func (p *SNetReqHeader) SetParamSize(reqParamSize uint32) {
+	binary.BigEndian.PutUint32(p.Base[14:18], reqParamSize)
 }
 
-func (p *RequestHeader) ServiceID(ret *ServiceID) {
-	copy((*ret)[:], p[18:18+ServiceIDLen])
-	return
+func (p *SNetReqHeader) BodySize() uint32 {
+	return binary.BigEndian.Uint32(p.Base[18:24])
 }
 
-func (p *RequestHeader) SetServiceID(serviceID string) {
-	copy(p[18:18+ServiceIDLen], []byte(serviceID))
+func (p *SNetReqHeader) SetBodySize(bodySize uint32) {
+	binary.BigEndian.PutUint32(p.Base[18:24], bodySize)
 }
 
-type Request struct {
+func (p *SNetReqHeader) SetHeaderBody(headerBodyBs []byte) {
+	p.SNetReqHeaderBodyBs = headerBodyBs
+	json.Unmarshal(p.SNetReqHeaderBodyBs, &p.SNetReqHeaderBody)
+}
+
+func (p *SNetReqHeader) SetUrl(url string) {
+	p.SNetReqHeaderBody.Url = url
+	var err error
+	p.SNetReqHeaderBodyBs, err = json.Marshal(p.SNetReqHeaderBody)
+	util.AssertErrIsNil(err)
+	p.SetHeaderBodySize(uint32(len(p.SNetReqHeaderBodyBs)))
+}
+
+type SNetReqContext struct {
+	IsResponseInService bool
+	Header              SNetReqHeader
 	NetQuery
-	ServiceID   string
+}
+
+func (p *SNetReqContext) SetResponseInService() {
+	p.IsResponseInService = true
+}
+
+func (p *SNetReqContext) ReadHeader(maxMessageLength uint32) error {
+	return p.NetQuery.ReadSNetReqHeader(maxMessageLength, &p.Header)
+}
+
+type SNetReq struct {
+	NetQuery
+	Url         string
 	Param       []byte
 	OffheapBody OffheapFastCopyer
 }
 
-func (p *Request) Init(reqID uint64, conn *Connection, serviceID string) {
-	p.NetQuery.ReqID = reqID
+func (p *SNetReq) Init(reqID uint64, conn *Connection, url string) {
 	p.NetQuery.Init(conn)
-	p.ServiceID = serviceID
+	p.NetQuery.ReqID = reqID
+	p.Url = url
 }

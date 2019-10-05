@@ -13,9 +13,7 @@ import (
 	"time"
 )
 
-type RequestContext struct {
-	IR          *Request
-	IsReqParsed bool
+type RequestContext interface {
 }
 
 type Request struct {
@@ -48,10 +46,10 @@ func (p *Request) ApiOutputSuccess(data interface{}) {
 func (p *Request) ApiOutput(data interface{}, errno int, errmsg string) {
 	p.W.Header().Add("Server", "iron")
 	p.W.Header().Add("Content-Type", "application/json")
-	var ret = ApiOutputResult{
-		Data:    data,
-		Code:    errno,
-		Message: errmsg,
+	var ret = ResponseJSON{
+		Data:  data,
+		Code:  errno,
+		Error: errmsg,
 	}
 	res, _ := json.Marshal(ret)
 	p.W.Write(res)

@@ -2,15 +2,13 @@ package solomqapi
 
 import (
 	"soloos/common/log"
-	"soloos/common/solofsapitypes"
-	"soloos/common/solofsprotocol"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/solomqapitypes"
 	"soloos/common/solomqprotocol"
+	"soloos/common/util"
 	"soloos/solodb/offheap"
 	"time"
-
-	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 func (p *SolomqClient) PrepareTopicMetaData(peerID snettypes.PeerID,
@@ -18,24 +16,17 @@ func (p *SolomqClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 	fsINodeID solofsapitypes.FsINodeID,
 ) error {
 	var (
-		req             snettypes.Request
-		resp            snettypes.Response
-		protocolBuilder flatbuffers.Builder
-		pTopic          = uTopic.Ptr()
-		commonResp      solomqprotocol.CommonResponse
-		respBody        []byte
-		err             error
+		req    solomqprotocol.TopicPrepareReq
+		pTopic = uTopic.Ptr()
+		err    error
 	)
 
-	solomqprotocol.TopicPrepareRequestStart(&protocolBuilder)
-	solomqprotocol.TopicPrepareRequestAddTopicID(&protocolBuilder, pTopic.ID)
-	solomqprotocol.TopicPrepareRequestAddFsINodeID(&protocolBuilder, fsINodeID)
-	protocolBuilder.Finish(solomqprotocol.TopicPrepareRequestEnd(&protocolBuilder))
-	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
+	req.TopicID = pTopic.ID
+	req.FsINodeID = fsINodeID
 
 	for i := 0; i < p.normalCallRetryTimes; i++ {
-		err = p.SNetClientDriver.Call(peerID,
-			"/Topic/Prepare", &req, &resp)
+		err = p.SNetClientDriver.SimpleCall(peerID,
+			"/Topic/Prepare", req, nil)
 		if err == nil {
 			break
 		}
@@ -49,16 +40,7 @@ func (p *SolomqClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 		return err
 	}
 
-	respBody = make([]byte, resp.ParamSize)
-	commonResp.Init(respBody[:(resp.ParamSize)], flatbuffers.GetUOffsetT(respBody[:(resp.ParamSize)]))
-	if commonResp.Code() != snettypes.CODE_OK {
-		err = solofsapitypes.ErrNetBlockPWrite
-		goto QUERY_DONE
-	}
-	protocolBuilder.Reset()
-
-QUERY_DONE:
-	return err
+	return nil
 }
 
 func (p *SolomqClient) PrepareTopicNetBlockMetaData(peerID snettypes.PeerID,
@@ -72,22 +54,16 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqapitypes.TopicUintp
 	uJob solofsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int) error {
 	var (
-		req                 snettypes.Request
-		resp                snettypes.Response
-		protocolBuilder     flatbuffers.Builder
-		netINodeIDOff       flatbuffers.UOffsetT
-		backendOff          flatbuffers.UOffsetT
-		transferPeersCount  int
-		netINodeWriteOffset int
-		netINodeWriteLength int
-		memBlockCap         int
-		backendOffs         = make([]flatbuffers.UOffsetT, 8)
-		uploadChunkMask     offheap.ChunkMask
-		commonResp          solomqprotocol.CommonResponse
-		respBody            []byte
-		i                   int
-		backendPeer         snettypes.Peer
-		err                 error
+		snetReq            snettypes.SNetReq
+		snetResp           snettypes.SNetResp
+		req                solomqprotocol.TopicPWriteReq
+		transferPeersCount int
+		memBlockCap        int
+		uploadChunkMask    offheap.ChunkMask
+		respParamBs        []byte
+		i                  int
+		backendPeer        snettypes.Peer
+		err                error
 	)
 
 	var pJob = uJob.Ptr()
@@ -97,39 +73,20 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqapitypes.TopicUintp
 	uploadChunkMask = pJob.GetProcessingChunkMask()
 	transferPeersCount = int(pNetBlock.SyncDataBackends.Arr[uploadPeerIndex].TransferCount)
 
-	req.OffheapBody.OffheapBytes = pMemBlock.Bytes.Data
+	snetReq.OffheapBody.OffheapBytes = pMemBlock.Bytes.Data
 	memBlockCap = pMemBlock.Bytes.Len
 	for chunkMaskIndex := 0; chunkMaskIndex < uploadChunkMask.MaskArrayLen; chunkMaskIndex++ {
-		req.OffheapBody.CopyOffset = uploadChunkMask.MaskArray[chunkMaskIndex].Offset
-		req.OffheapBody.CopyEnd = uploadChunkMask.MaskArray[chunkMaskIndex].End
-		netINodeWriteOffset = memBlockCap*int(pJob.MemBlockIndex) + req.OffheapBody.CopyOffset
-		netINodeWriteLength = req.OffheapBody.CopyEnd - req.OffheapBody.CopyOffset
+		snetReq.OffheapBody.CopyOffset = uploadChunkMask.MaskArray[chunkMaskIndex].Offset
+		snetReq.OffheapBody.CopyEnd = uploadChunkMask.MaskArray[chunkMaskIndex].End
 
-		if transferPeersCount > 0 {
-			backendOffs = backendOffs[:0]
-			for i = 0; i < transferPeersCount; i++ {
-				backendPeer, _ = p.SNetDriver.GetPeer(pNetBlock.SyncDataBackends.Arr[uploadPeerIndex+1+i].PeerID)
-				backendOffs = append(backendOffs, protocolBuilder.CreateString(backendPeer.PeerIDStr()))
-			}
-
-			solofsprotocol.NetINodePWriteRequestStartTransferBackendsVector(&protocolBuilder, len(backendOffs))
-			for i = len(backendOffs) - 1; i >= 0; i-- {
-				protocolBuilder.PrependUOffsetT(backendOffs[i])
-			}
-			backendOff = protocolBuilder.EndVector(len(backendOffs))
+		req.TopicID = pTopic.ID
+		req.Offset = uint64(memBlockCap)*uint64(pJob.MemBlockIndex) + uint64(snetReq.OffheapBody.CopyOffset)
+		req.Length = snetReq.OffheapBody.CopyEnd - snetReq.OffheapBody.CopyOffset
+		req.TransferBackends = req.TransferBackends[:0]
+		for i = 0; i < transferPeersCount; i++ {
+			backendPeer, _ = p.SNetDriver.GetPeer(pNetBlock.SyncDataBackends.Arr[uploadPeerIndex+1+i].PeerID)
+			req.TransferBackends = append(req.TransferBackends, backendPeer.PeerIDStr())
 		}
-
-		netINodeIDOff = protocolBuilder.CreateByteVector(pNetBlock.NetINodeID[:])
-		solomqprotocol.TopicPWriteRequestStart(&protocolBuilder)
-		if transferPeersCount > 0 {
-			solomqprotocol.TopicPWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
-		}
-		solomqprotocol.TopicPWriteRequestAddTopicID(&protocolBuilder, pTopic.ID)
-		solomqprotocol.TopicPWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-		solomqprotocol.TopicPWriteRequestAddOffset(&protocolBuilder, uint64(netINodeWriteOffset))
-		solomqprotocol.TopicPWriteRequestAddLength(&protocolBuilder, int32(netINodeWriteLength))
-		protocolBuilder.Finish(solomqprotocol.TopicPWriteRequestEnd(&protocolBuilder))
-		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 		backendPeer, err = p.SNetDriver.GetPeer(pNetBlock.SyncDataBackends.Arr[uploadPeerIndex].PeerID)
 		if err != nil {
@@ -137,22 +94,16 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqapitypes.TopicUintp
 		}
 
 		err = p.SNetClientDriver.Call(backendPeer.ID,
-			"/Topic/PWrite", &req, &resp)
+			"/Topic/PWrite", &snetReq, &snetResp, req)
 		if err != nil {
 			goto QUERY_DONE
 		}
 
-		respBody = make([]byte, resp.ParamSize)
-		err = p.SNetClientDriver.ReadResponse(backendPeer.ID, &req, &resp, respBody)
+		util.ChangeBytesArraySize(&respParamBs, int(snetResp.ParamSize))
+		err = p.SNetClientDriver.ReadResponse(backendPeer.ID, &snetReq, &snetResp, respParamBs, nil)
 		if err != nil {
 			goto QUERY_DONE
 		}
-		commonResp.Init(respBody[:(resp.ParamSize)], flatbuffers.GetUOffsetT(respBody[:(resp.ParamSize)]))
-		if commonResp.Code() != snettypes.CODE_OK {
-			err = solofsapitypes.ErrNetBlockPWrite
-			goto QUERY_DONE
-		}
-		protocolBuilder.Reset()
 	}
 
 QUERY_DONE:

@@ -2,17 +2,17 @@ package snet
 
 import "soloos/common/snettypes"
 
-type RegisterPeerReqJSON struct {
-	PeerID   string `json:"PeerID"`
-	Addr     string `json:"Addr"`
-	Protocol string `json:"Protocol"`
+type RegisterPeerReq struct {
+	PeerID   string
+	Addr     string
+	Protocol string
 }
 
-type RegisterPeerRespJSON struct {
-	snettypes.APIRespCommonJSON
+type RegisterPeerResp struct {
+	snettypes.RespDataCommon
 }
 
-type GetPeerRespJSON struct {
-	snettypes.APIRespCommonJSON
-	Data snettypes.PeerJSON `json:"Data"`
+type GetPeerResp struct {
+	snettypes.RespDataCommon
+	Data snettypes.PeerJSON
 }

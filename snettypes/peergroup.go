@@ -1,7 +1,7 @@
 package snettypes
 
 type PeerGroup struct {
-	Arr [8]PeerID
+	Arr [SNetMemberCommonLimit]PeerID
 	Len int
 }
 

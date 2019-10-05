@@ -4,13 +4,13 @@ type Options struct {
 	SNetDriverServeAddr string
 	SoloboatWebPeerID   string
 
-	SolofsSolonnSRPCPeerID string
+	SolofsSolonnSrpcPeerID string
 	SolofsDBDriver           string
 	SolofsDsn                string
 
 	SolomqDefaultNetBlockCap int
 	SolomqDefaultMemBlockCap int
-	SolomqSRPCPeerID   string
+	SolomqSrpcPeerID   string
 	SolomqServeAddr    string
 	SolomqDBDriver           string
 	SolomqDsn                string

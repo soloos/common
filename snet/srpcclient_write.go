@@ -4,14 +4,14 @@ import (
 	"soloos/common/snettypes"
 )
 
-func (p *SRPCClient) Write(req *snettypes.Request) error {
+func (p *SrpcClient) Write(req *snettypes.SNetReq) error {
 	var (
 		err error
 	)
 
 	// post data
-	err = req.NetQuery.WriteRequestHeader(req.ReqID,
-		req.ServiceID,
+	err = req.NetQuery.WriteSNetReqHeader(req.ReqID,
+		req.Url,
 		uint32(len(req.Param)+(req.OffheapBody.BodySize())),
 		uint32(len(req.Param)))
 	if err != nil {

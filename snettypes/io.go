@@ -23,5 +23,6 @@ func (p *OffheapFastCopyer) Copy(netQuery *NetQuery) error {
 		return nil
 	}
 
-	return netQuery.WriteAll((*((*[1 << 31]byte)(unsafe.Pointer(p.OffheapBytes))))[p.CopyOffset:p.CopyEnd])
+	var data = (*((*[1 << 31]byte)(unsafe.Pointer(p.OffheapBytes))))[p.CopyOffset:p.CopyEnd]
+	return netQuery.WriteAll(data)
 }

@@ -9,7 +9,7 @@ import (
 func (p *Soloos) initSolofs(solofsClientDriver solofsapi.ClientDriver) error {
 	var err error
 	var solonnPeerID snettypes.PeerID
-	solonnPeerID.SetStr(p.options.SolofsSolonnSRPCPeerID)
+	solonnPeerID.SetStr(p.options.SolofsSolonnSrpcPeerID)
 	p.SolofsClientDriver = solofsClientDriver
 	err = p.SolofsClientDriver.Init(&p.SoloosEnv,
 		solonnPeerID,

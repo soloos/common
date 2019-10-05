@@ -1,6 +1,6 @@
 package solodbapitypes
 
 type SolodbHeartBeat struct {
-	SRPCPeerID string
+	SrpcPeerID string
 	WebPeerID  string
 }

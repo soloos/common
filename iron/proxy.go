@@ -1,8 +1,6 @@
 package iron
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"reflect"
 	"strings"
 
@@ -18,16 +16,16 @@ type ProxyService struct {
 }
 
 type ProxyBeforeServiceHook func(path string,
-	reqCtx *RequestContext, reqArgs ...LowReqArgs) (resp Response, isContinue bool)
+	reqCtx RequestContext, reqArgs ...LowReqArgs) (resp IRespData, isContinue bool)
 type ProxyAfterServiceHook func(path string,
-	resp Response,
-	reqCtx *RequestContext, reqArgs ...LowReqArgs)
+	resp IRespData,
+	reqCtx RequestContext, reqArgs ...LowReqArgs)
 
 type IProxy interface {
 	RegisterService(path string, service interface{})
 	HookBeforeService(path string, hook ProxyBeforeServiceHook)
 	HookAfterService(path string, hook ProxyAfterServiceHook)
-	Dispatch(path string, reqCtx *RequestContext, reqArgs ...LowReqArgs) Response
+	Dispatch(path string, reqCtx RequestContext, reqArgs ...LowReqArgs) IRespData
 }
 
 type Proxy struct {
@@ -61,17 +59,19 @@ func (p *Proxy) RegisterService(path string, handler interface{}) {
 		panic("Proxy Router failed, handler params.size should not be 0, service:" + service.FunctionName)
 	}
 
-	if funcType.In(0).Elem() != reflect.TypeOf(RequestContext{}) {
-		panic("Proxy Router failed, handler params[0] should be RequestContext, service:" + service.FunctionName)
-	}
+	// if funcType.In(0).Elem().Name() != "RequestContext" {
+	// panic("Proxy Router failed, handler params[0] should be RequestContext, service:" + service.FunctionName)
+	// }
 
-	if funcType.NumOut() != 1 {
-		panic("Proxy Router failed, handl...er response.size should be 1, service:" + service.FunctionName)
-	}
+	// if funcType.NumOut() != 1 {
+	// panic("Proxy Router failed, handl...er response.size should be 1, service:" + service.FunctionName)
+	// }
 
-	if funcType.Out(0).Name() != "Response" {
-		panic("Proxy Router failed, handler response[0] should be Response, service:" + service.FunctionName)
-	}
+	// if funcType.Out(0).Name() != "Response" {
+	// panic("Proxy Router failed, handler response[0] should be Response" +
+	// ", service:" + service.FunctionName +
+	// ", resp:" + funcType.Out(0).Name())
+	// }
 
 	var parseArgStartAt = 1
 
@@ -123,99 +123,13 @@ func (p *Proxy) HookAfterService(path string, hook ProxyAfterServiceHook) {
 	p.HookAfterServiceTable[path] = arr
 }
 
-func (p *Proxy) DispatchWithIronRequest(path string, reqCtx *RequestContext, ir *Request) Response {
+func (p *Proxy) Dispatch(path string, reqCtx RequestContext, reqArgs ...LowReqArgs) IRespData {
 	if !p.IsServiceExists(path) {
-		return Response{nil, xerrors.Errorf("%w,path:%s", ErrCmdNotFound, path)}
-	}
-
-	var reqArgBytes, err = ioutil.ReadAll(ir.R.Body)
-	if err != nil {
-		return Response{nil, err}
-	}
-
-	var service = p.ServiceTable[path]
-	var reqArgElems []interface{}
-
-	var parseEasyKvReqArgs = func() {
-		var reqArgs = MakeEasyKvReqArgs()
-
-		//merge url params
-		reqArgs.MergeIronRequest(ir)
-
-		//merge body params
-		if len(reqArgBytes) != 0 {
-			var ret = make(map[string]interface{})
-			err = json.Unmarshal(reqArgBytes, &ret)
-			if err != nil {
-				return
-			}
-			reqArgs.MergeKv(ret)
-		}
-
-		reqArgElems = append(reqArgElems, reqArgs)
-	}
-
-	var parseNormalReqArgs = func() {
-		// parse QueryString
-		if service.IsHasUrlKvReqArgs {
-			var reqArgs = MakeUrlKvReqArgs()
-			reqArgs.MergeIronRequest(ir)
-			reqArgElems = append(reqArgElems, reqArgs)
-		}
-
-		// parse http body json
-		if len(reqArgBytes) == 0 {
-			err = ErrCmdParamEmpty
-			return
-		}
-
-		var reqArgValues []reflect.Value
-		var reqArgInterfaces []interface{}
-		for i, _ := range service.Params {
-			var serviceParam = service.Params[i]
-			var reqArgValue = reflect.New(serviceParam)
-			reqArgValues = append(reqArgValues, reqArgValue)
-			reqArgInterfaces = append(reqArgInterfaces, reqArgValue.Interface())
-		}
-
-		if len(reqArgInterfaces) == 1 {
-			err = json.Unmarshal(reqArgBytes, &reqArgInterfaces[0])
-		} else {
-			err = json.Unmarshal(reqArgBytes, &reqArgInterfaces)
-		}
-
-		if err != nil {
-			return
-		}
-
-		for i, _ := range reqArgValues {
-			reqArgElems = append(reqArgElems, reqArgValues[i].Elem())
-		}
-	}
-
-	if err != nil {
-		return Response{nil, err}
-	}
-
-	// parse EasyKvReqArgs
-	if service.IsHasEasyKvReqArgs {
-		parseEasyKvReqArgs()
-	} else {
-		parseNormalReqArgs()
-	}
-
-	reqCtx.IR = ir
-
-	return p.Dispatch(path, reqCtx, reqArgElems...)
-}
-
-func (p *Proxy) Dispatch(path string, reqCtx *RequestContext, reqArgs ...LowReqArgs) Response {
-	if !p.IsServiceExists(path) {
-		return Response{nil, xerrors.Errorf("%w,path:%s", ErrCmdNotFound, path)}
+		return MakeResp(nil, xerrors.Errorf("%w,path:%s", ErrCmdNotFound, path))
 	}
 
 	var (
-		resp                 Response
+		resp                 IRespData
 		paramReflectValueArr []reflect.Value
 		isContinue           bool
 		service              = p.ServiceTable[path]
@@ -251,10 +165,62 @@ func (p *Proxy) Dispatch(path string, reqCtx *RequestContext, reqArgs ...LowReqA
 	}
 
 	if len(service.Params) != serviceParamsLen {
-		resp = Response{nil, ErrCmdParamInvalid}
+		resp = MakeResp(nil, ErrCmdParamInvalid)
 	} else {
-		var out = service.Function.Call(paramReflectValueArr[:])
-		resp = out[0].Interface().(Response)
+		var (
+			out    = service.Function.Call(paramReflectValueArr[:])
+			outLen = len(out)
+			match  bool
+			ret    []interface{}
+			index  int
+			err    error
+		)
+
+		if outLen == 0 {
+			resp = MakeResp(nil, nil)
+			goto PARSE_RESP_DONE
+		}
+
+		if resp, match = out[0].Interface().(IRespData); match {
+			goto PARSE_RESP_DONE
+		}
+
+		if outLen == 1 {
+			if _, match = out[0].Interface().(error); match {
+				resp = MakeResp(nil, out[0].Interface().(error))
+				goto PARSE_RESP_DONE
+			} else {
+				resp = MakeResp(out[0].Interface(), nil)
+				goto PARSE_RESP_DONE
+			}
+		}
+
+		if out[outLen-1].Type().Name() == "error" {
+			if out[outLen-1].Interface() != nil {
+				err = out[outLen-1].Interface().(error)
+			} else {
+				err = nil
+			}
+
+			if outLen == 2 {
+				resp = MakeResp(out[0].Interface(), err)
+			} else {
+				for index = 0; index < outLen-1; index++ {
+					ret = append(ret, out[index].Interface())
+				}
+				resp = MakeResp(ret, err)
+			}
+			goto PARSE_RESP_DONE
+
+		}
+
+		for index = 0; index < outLen-1; index++ {
+			ret = append(ret, out[index].Interface())
+		}
+		resp = MakeResp(ret, err)
+		goto PARSE_RESP_DONE
+
+	PARSE_RESP_DONE:
 	}
 
 	for hookPath, hooks := range p.HookAfterServiceTable {

@@ -34,7 +34,7 @@ func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, e
 	var (
 		ret     snettypes.Peer
 		urlPath = p.webServerAddr + "/Peer/Get?PeerID=" + peerID.Str()
-		resp    GetPeerRespJSON
+		resp    GetPeerResp
 		err     error
 	)
 
@@ -44,8 +44,8 @@ func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, e
 		return ret, err
 	}
 
-	if resp.Errno != snettypes.CODE_OK {
-		return ret, xerrors.New(resp.ErrMsg)
+	if resp.Error != "" {
+		return ret, xerrors.New(resp.Error)
 	}
 
 	ret = snettypes.PeerJSONToPeer(resp.Data)
@@ -55,7 +55,7 @@ func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, e
 func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, protocol snettypes.ServiceProtocol) error {
 	var (
 		urlPath = p.webServerAddr + "/Peer/Register"
-		resp    RegisterPeerRespJSON
+		resp    RegisterPeerResp
 		err     error
 	)
 
@@ -66,7 +66,7 @@ func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, 
 	}
 
 	err = iron.PostJSON(urlPath,
-		RegisterPeerReqJSON{
+		RegisterPeerReq{
 			PeerID:   peerID.Str(),
 			Addr:     addr,
 			Protocol: protocol.Str(),
@@ -76,8 +76,8 @@ func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, 
 		return err
 	}
 
-	if resp.Errno != snettypes.CODE_OK {
-		return xerrors.New(resp.ErrMsg)
+	if resp.Error != "" {
+		return xerrors.New(resp.Error)
 	}
 
 	return nil

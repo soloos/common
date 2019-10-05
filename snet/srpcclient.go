@@ -9,13 +9,13 @@ import (
 	"sync/atomic"
 )
 
-type SRPCClient struct {
+type SrpcClient struct {
 	doingNetQueryChan chan snettypes.NetQuery
 	doingNetQueryConn snettypes.Connection
 
 	MaxMessageLength uint32
 
-	clientDriver *SRPCClientDriver
+	clientDriver *SrpcClientDriver
 	remoteAddr   string
 	maxRequestID uint64
 
@@ -23,7 +23,7 @@ type SRPCClient struct {
 	reqSigMap      map[uint64]offheap.MutexUintptr // map RequestID to netConnReadSigsIndex
 }
 
-func (p *SRPCClient) Init(clientDriver *SRPCClientDriver, address string) error {
+func (p *SrpcClient) Init(clientDriver *SrpcClientDriver, address string) error {
 	p.MaxMessageLength = 1024 * 1024 * 512
 
 	p.clientDriver = clientDriver
@@ -33,7 +33,7 @@ func (p *SRPCClient) Init(clientDriver *SRPCClientDriver, address string) error 
 	return nil
 }
 
-func (p *SRPCClient) Start() error {
+func (p *SrpcClient) Start() error {
 	var err error
 	p.doingNetQueryChan = make(chan snettypes.NetQuery, 1)
 	err = p.doingNetQueryConn.Connect(p.remoteAddr)
@@ -52,7 +52,7 @@ func (p *SRPCClient) Start() error {
 	return nil
 }
 
-func (p *SRPCClient) Close(closeResonErr error) error {
+func (p *SrpcClient) Close(closeResonErr error) error {
 	var err error
 	err = p.doingNetQueryConn.Close(closeResonErr)
 	if err != nil {
@@ -62,6 +62,6 @@ func (p *SRPCClient) Close(closeResonErr error) error {
 	return nil
 }
 
-func (p *SRPCClient) AllocRequestID() uint64 {
+func (p *SrpcClient) AllocRequestID() uint64 {
 	return atomic.AddUint64(&p.maxRequestID, 1)
 }

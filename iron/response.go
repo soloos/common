@@ -1,42 +1,40 @@
 package iron
 
-import (
-	"encoding/json"
-)
+import "encoding/gob"
 
 type ResponseJSON struct {
-	RData interface{} `json:"RData"`
-	Err   string      `json:"Err"`
+	Data  interface{} `json:"Data"`
+	Error string      `json:"Error"`
+	Code  int         `json:"Code"`
 }
+
+func MakeResp(data interface{}, err error) Response {
+	if err != nil {
+		return Response{data, RespDataCommon{err.Error()}}
+	}
+	return Response{data, RespDataCommon{""}}
+}
+
+type IRespData interface {
+	GetError() string
+}
+
+type RespData = interface{}
 
 type Response struct {
-	RData interface{}
-	Err   error
+	RespData
+	RespDataCommon
 }
 
-func (p Response) Resolve() (interface{}, error) {
-	return p.RData, p.Err
+type RespDataCommon struct {
+	Error string
 }
 
-func (p Response) Must() interface{} {
-	if p.Err != nil {
-		panic(p.Err)
-	}
-	return p.RData
+func (p RespDataCommon) GetError() string {
+	return p.Error
 }
 
-func MarshalResponse(resp Response) string {
-	var ret ResponseJSON
-	ret.RData = resp.RData
-	if resp.Err != nil {
-		ret.Err = resp.Err.Error()
-	}
-
-	b, err := json.Marshal(ret)
-
-	if err != nil {
-		return err.Error()
-	}
-
-	return string(b)
+func init() {
+	gob.Register(Response{})
+	gob.Register(RespDataCommon{})
 }

@@ -8,7 +8,7 @@ import (
 type SoloosEnv struct {
 	OffheapDriver    offheap.OffheapDriver
 	SNetDriver       snet.NetDriver
-	SNetClientDriver snet.SRPCClientDriver
+	SNetClientDriver snet.SrpcClientDriver
 }
 
 func (p *SoloosEnv) InitWithSNet(snetWebServerAddr string) error {

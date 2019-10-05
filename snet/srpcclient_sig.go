@@ -5,7 +5,7 @@ import (
 	"soloos/solodb/offheap"
 )
 
-func (p *SRPCClient) prepareWaitResponse(reqID uint64, resp *snettypes.Response) error {
+func (p *SrpcClient) prepareWaitResponse(reqID uint64, resp *snettypes.SNetResp) error {
 	resp.NetConnReadSig = offheap.MutexUintptr(p.clientDriver.netConnReadSigPool.AllocRawObject())
 	resp.NetConnReadSig.Ptr().Lock()
 
@@ -15,7 +15,7 @@ func (p *SRPCClient) prepareWaitResponse(reqID uint64, resp *snettypes.Response)
 	return nil
 }
 
-func (p *SRPCClient) activiateRequestSig(netQuery *snettypes.NetQuery) error {
+func (p *SrpcClient) activiateRequestSig(netQuery *snettypes.NetQuery) error {
 	var netConnReadSig offheap.MutexUintptr
 
 	p.reqSigMapMutex.Lock()
@@ -35,7 +35,7 @@ func (p *SRPCClient) activiateRequestSig(netQuery *snettypes.NetQuery) error {
 	return nil
 }
 
-func (p *SRPCClient) doWaitResponse(req *snettypes.Request, resp *snettypes.Response) error {
+func (p *SrpcClient) doWaitResponse(req *snettypes.SNetReq, resp *snettypes.SNetResp) error {
 	// wait cronReadResponse fetch data
 	resp.NetConnReadSig.Ptr().Lock()
 	resp.NetConnReadSig.Ptr().Unlock()

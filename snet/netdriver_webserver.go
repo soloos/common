@@ -75,7 +75,7 @@ func (p *NetDriverWebServer) ctrGetPeer(ir *iron.Request) {
 
 func (p *NetDriverWebServer) ctrRegisterPeer(ir *iron.Request) {
 	var (
-		req RegisterPeerReqJSON
+		req RegisterPeerReq
 		err error
 	)
 

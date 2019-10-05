@@ -6,15 +6,15 @@ import (
 	"sync"
 )
 
-type SRPCClientDriver struct {
+type SrpcClientDriver struct {
 	offheapDriver      *offheap.OffheapDriver
 	netDriver          *NetDriver
 	netConnReadSigPool offheap.RawObjectPool
 	clientRWMutex      sync.RWMutex
-	clients            map[snettypes.PeerID]*SRPCClient
+	clients            map[snettypes.PeerID]*SrpcClient
 }
 
-func (p *SRPCClientDriver) Init(offheapDriver *offheap.OffheapDriver, netDriver *NetDriver) error {
+func (p *SrpcClientDriver) Init(offheapDriver *offheap.OffheapDriver, netDriver *NetDriver) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
@@ -24,14 +24,14 @@ func (p *SRPCClientDriver) Init(offheapDriver *offheap.OffheapDriver, netDriver 
 		return err
 	}
 
-	p.clients = make(map[snettypes.PeerID]*SRPCClient)
+	p.clients = make(map[snettypes.PeerID]*SrpcClient)
 
 	return nil
 }
 
-func (p *SRPCClientDriver) getClient(peerID snettypes.PeerID) (*SRPCClient, error) {
+func (p *SrpcClientDriver) getClient(peerID snettypes.PeerID) (*SrpcClient, error) {
 	var (
-		ret  *SRPCClient
+		ret  *SrpcClient
 		peer snettypes.Peer
 		err  error
 	)
@@ -57,9 +57,9 @@ func (p *SRPCClientDriver) getClient(peerID snettypes.PeerID) (*SRPCClient, erro
 	return ret, nil
 }
 
-func (p *SRPCClientDriver) registerClient(peer snettypes.Peer) (*SRPCClient, error) {
+func (p *SrpcClientDriver) registerClient(peer snettypes.Peer) (*SrpcClient, error) {
 	var (
-		client *SRPCClient
+		client *SrpcClient
 		err    error
 	)
 
@@ -69,7 +69,7 @@ func (p *SRPCClientDriver) registerClient(peer snettypes.Peer) (*SRPCClient, err
 		goto GET_CLIENT_DONE
 	}
 
-	client = &SRPCClient{}
+	client = &SrpcClient{}
 	err = client.Init(p, peer.AddressStr())
 	if err != nil {
 		client = nil
@@ -93,11 +93,15 @@ GET_CLIENT_DONE:
 	return client, nil
 }
 
-func (p *SRPCClientDriver) CloseClient(peerID snettypes.PeerID) error {
+func (p *SrpcClientDriver) CloseClient(peerID snettypes.PeerID) error {
 	var (
 		client = p.clients[peerID]
 		err    error
 	)
+
+	if client == nil {
+		return nil
+	}
 
 	err = p.sendCloseCmd(client)
 	if err != nil {

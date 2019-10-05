@@ -10,7 +10,7 @@ type ClientDriver interface {
 	Close() error
 	Init(soloosEnv *soloosbase.SoloosEnv,
 		soloBoatWebPeerID string,
-		solomqSRPCPeerIDStr string, solomqSRPCServeAddr string,
+		solomqSrpcPeerIDStr string, solomqSrpcServeAddr string,
 		dbDriver string, dsn string,
 		defaultNetBlockCap int, defaultMemBlockCap int) error
 	InitClient(client Client,

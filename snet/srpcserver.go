@@ -2,36 +2,45 @@ package snet
 
 import (
 	"net"
+	"reflect"
+	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/snettypes"
+	"time"
 )
 
-type SRPCServer struct {
+type SrpcServer struct {
 	MaxMessageLength uint32
 	ln               net.Listener
 	network          string
 	address          string
-	services         map[snettypes.ServiceID]snettypes.Service
+	iron.Proxy
 }
 
-func (p *SRPCServer) Init(network, address string) error {
+func (p *SrpcServer) Init(network, address string) error {
+	var err error
+
 	p.MaxMessageLength = 1024 * 1024 * 512
 	p.network = network
 	p.address = address
-	p.services = make(map[snettypes.ServiceID]snettypes.Service)
-	p.RegisterService("/Close", func(serviceReq *snettypes.NetQuery) error {
-		return serviceReq.ConnClose(snettypes.ErrClosedByUser)
+
+	err = p.Proxy.Init()
+	if err != nil {
+		return err
+	}
+
+	p.RegisterService("/Close", func(reqCtx *snettypes.SNetReqContext) error {
+		go func() {
+			time.Sleep(time.Second * 3)
+			reqCtx.ConnClose(snettypes.ErrClosedByUser)
+		}()
+		return nil
 	})
+
 	return nil
 }
 
-func (p *SRPCServer) RegisterService(serviceIDStr string, service snettypes.Service) {
-	var serviceID snettypes.ServiceID
-	copy(serviceID[:], []byte(serviceIDStr))
-	p.services[serviceID] = service
-}
-
-func (p *SRPCServer) Serve() error {
+func (p *SrpcServer) Serve() error {
 	var err error
 	p.ln, err = makeListener(p.network, p.address)
 	if err != nil {
@@ -43,7 +52,7 @@ func (p *SRPCServer) Serve() error {
 	return nil
 }
 
-func (p *SRPCServer) serveListener(ln net.Listener) error {
+func (p *SrpcServer) serveListener(ln net.Listener) error {
 	var (
 		netConn net.Conn
 		err     error
@@ -59,46 +68,33 @@ func (p *SRPCServer) serveListener(ln net.Listener) error {
 	}
 }
 
-func (p *SRPCServer) serveConn(netConn net.Conn) {
+func (p *SrpcServer) serveConn(netConn net.Conn) {
 	var (
-		conn          snettypes.Connection
-		reqHeader     snettypes.RequestHeader
-		serviceID     snettypes.ServiceID
-		service       snettypes.Service
-		serviceReq    snettypes.NetQuery
-		serviceExists bool
-		err           error
+		conn             snettypes.Connection
+		closeConnErrChan = make(chan error)
+		err              error
 	)
 
 	conn.SetNetConn(netConn)
 
-	serviceReq = snettypes.NetQuery{}
-	serviceReq.Init(&conn)
-
 	for {
+		var reqCtx snettypes.SNetReqContext
+		reqCtx.Init(&conn)
+
 		// read reqHeader
-		err = serviceReq.ReadRequestHeader(p.MaxMessageLength, &reqHeader)
+		err = reqCtx.ReadHeader(p.MaxMessageLength)
 		if err != nil {
 			goto CONN_END
 		}
 
-		reqHeader.ServiceID(&serviceID)
-		service, serviceExists = p.services[serviceID]
+		go p.serveService(closeConnErrChan, reqCtx)
 
-		if serviceExists == false {
-			serviceReq.SkipReadRemaining()
-			serviceReq.SimpleResponse(serviceReq.ReqID, nil)
-			goto QUERY_DONE
+		err = <-closeConnErrChan
+		if err != nil {
+			goto CONN_END
 		}
 
-		// call service
-		go func(localService snettypes.Service, localServiceReq snettypes.NetQuery) {
-			localService(&localServiceReq)
-			localServiceReq.EnsureServiceReadDone()
-		}(service, serviceReq)
-
-	QUERY_DONE:
-		if serviceReq.BodySize > 0 {
+		if reqCtx.BodySize > 0 {
 			conn.WaitReadDone()
 		}
 
@@ -109,15 +105,88 @@ func (p *SRPCServer) serveConn(netConn net.Conn) {
 
 CONN_END:
 	if err != nil {
-		log.Info("serveConn err ", netConn.RemoteAddr().Network(), err)
+		log.Debug("serveConn err ", netConn.RemoteAddr().Network(), err)
 	}
 
 	err = conn.Close(err)
 	if err != nil {
-		log.Info("serveConn err ", netConn.RemoteAddr().Network(), err)
+		log.Debug("serveConn err ", netConn.RemoteAddr().Network(), err)
 	}
 }
 
-func (p *SRPCServer) Close() error {
+func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
+	reqCtx snettypes.SNetReqContext) {
+	var path = reqCtx.Header.Url
+	var err error
+	if !p.IsServiceExists(path) {
+		err = reqCtx.SkipReadRemaining()
+		if err != nil {
+			closeConnErrChan <- err
+			return
+		}
+
+		err = reqCtx.SimpleResponse(reqCtx.ReqID, iron.MustSpecMarshalResponseErr(nil, iron.ErrCmdNotFound))
+		if err != nil {
+			closeConnErrChan <- err
+			return
+		}
+
+		closeConnErrChan <- nil
+		return
+	}
+	closeConnErrChan <- nil
+
+	var resp snettypes.IRespData
+
+	var reqArgElems []interface{}
+	var reqArgSize uint32 = reqCtx.ParamSize
+	if reqArgSize > 0 {
+		var service = p.ServiceTable[path]
+		var reqArgBytes = make([]byte, reqArgSize)
+		var reqArgValues []reflect.Value
+		var reqArgInterfaces []interface{}
+
+		err = reqCtx.ReadAll(reqArgBytes)
+		if err != nil {
+			goto PARSE_ARGS_DONE
+		}
+
+		for i, _ := range service.Params {
+			var serviceParam = service.Params[i]
+			var reqArgValue = reflect.New(serviceParam)
+			reqArgValues = append(reqArgValues, reqArgValue)
+			reqArgInterfaces = append(reqArgInterfaces, reqArgValue.Interface())
+		}
+
+		if len(reqArgInterfaces) == 1 {
+			err = iron.SpecUnmarshalRequest(reqArgBytes, reqArgInterfaces[0])
+		} else {
+			err = iron.SpecUnmarshalRequest(reqArgBytes, reqArgInterfaces)
+		}
+		if err != nil {
+			goto PARSE_ARGS_DONE
+		}
+
+		for i, _ := range reqArgValues {
+			reqArgElems = append(reqArgElems, reqArgValues[i].Elem())
+		}
+
+	PARSE_ARGS_DONE:
+	}
+
+	resp = p.Proxy.Dispatch(path, &reqCtx, reqArgElems...)
+	reqCtx.SkipReadRemaining()
+
+	if !reqCtx.IsResponseInService {
+		err = reqCtx.SimpleResponse(reqCtx.ReqID, iron.MustSpecMarshalResponse(resp))
+		if err != nil {
+			log.Debug("SrpcServer serveService SimpleRespons error, err:", err)
+		}
+	}
+
+	return
+}
+
+func (p *SrpcServer) Close() error {
 	return p.ln.Close()
 }

@@ -6,7 +6,7 @@ type TransferPeer struct {
 }
 
 type TransferPeerGroup struct {
-	Arr [8]TransferPeer
+	Arr [SNetMemberCommonLimit]TransferPeer
 	Len int
 }
 
