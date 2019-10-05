@@ -7,7 +7,7 @@ type DBOptionDBSolomqTopicClusterItem struct {
 
 type DBOptionDBSolomq struct {
 	TopicID            string
-	SolomqCluter         []DBOptionDBSolomqTopicClusterItem
+	SolomqCluter       []DBOptionDBSolomqTopicClusterItem
 	DefaultNetBlockCap int
 	DefaultMemBlockCap int
 }

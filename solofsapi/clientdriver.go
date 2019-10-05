@@ -1,8 +1,8 @@
 package solofsapi
 
 import (
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 )
 

@@ -48,8 +48,8 @@ func (p *TopicName) SetBytes(in [TopicNameBytesNums]byte) {
 func (u TopicUintptr) Ptr() *Topic { return (*Topic)(unsafe.Pointer(u)) }
 
 type TopicMeta struct {
-	TopicID         TopicID
-	TopicName       TopicName
+	TopicID           TopicID
+	TopicName         TopicName
 	SolomqMemberGroup SolomqMemberGroup
 }
 

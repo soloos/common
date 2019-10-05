@@ -1,7 +1,7 @@
 package snettypes
 
 const (
-	SNetVersion          = byte(192)
+	SNetVersion           = byte(192)
 	SNetMemberCommonLimit = 8
 )
 

@@ -2,8 +2,8 @@ package soloosutils
 
 import (
 	"soloos/common/log"
-	"soloos/common/solofsapi"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapi"
 )
 
 func (p *Soloos) initSolofs(solofsClientDriver solofsapi.ClientDriver) error {

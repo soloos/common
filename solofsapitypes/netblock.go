@@ -1,14 +1,14 @@
 package solofsapitypes
 
 import (
-	"soloos/common/solodbapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solodbapitypes"
 	"soloos/solodb/offheap"
 	"unsafe"
 )
 
 const (
-	NetBlockStructSize            = unsafe.Sizeof(NetBlock{})
+	NetBlockStructSize          = unsafe.Sizeof(NetBlock{})
 	MaxSolodnsSizeStoreNetBlock = 8
 )
 
@@ -24,13 +24,13 @@ type NetBlock struct {
 	Len             int        `db:"netblock_len"`
 	Cap             int        `db:"netblock_cap"`
 
-	StorDataBackends   snettypes.PeerGroup       `db:"-"`
+	StorDataBackends   snettypes.PeerGroup          `db:"-"`
 	IsDBMetaDataInited solodbapitypes.MetaDataState `db:"-"`
 
-	SyncDataBackends         snettypes.TransferPeerGroup `db:"-"`
-	IsSyncDataBackendsInited solodbapitypes.MetaDataState   `db:"-"`
-	IsLocalDataBackendExists bool                        `db:"-"`
-	IsLocalDataBackendInited solodbapitypes.MetaDataState   `db:"-"`
+	SyncDataBackends         snettypes.TransferPeerGroup  `db:"-"`
+	IsSyncDataBackendsInited solodbapitypes.MetaDataState `db:"-"`
+	IsLocalDataBackendExists bool                         `db:"-"`
+	IsLocalDataBackendInited solodbapitypes.MetaDataState `db:"-"`
 }
 
 func (p *NetBlock) NetINodeIDStr() string { return string(p.NetINodeID[:]) }

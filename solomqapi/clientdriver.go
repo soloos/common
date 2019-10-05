@@ -1,8 +1,8 @@
 package solomqapi
 
 import (
-	"soloos/common/soloosbase"
 	"soloos/common/solomqapitypes"
+	"soloos/common/soloosbase"
 )
 
 type ClientDriver interface {

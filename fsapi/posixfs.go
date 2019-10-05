@@ -2,8 +2,8 @@ package fsapi
 
 import (
 	. "soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 )
 
 // PosixFs is an interface close to the FUSE wire solofsprotocol.

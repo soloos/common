@@ -7,8 +7,8 @@ import (
 
 type SolodnClient struct {
 	*soloosbase.SoloosEnv
-	preadMemBlockWithDisk  solofsapitypes.PReadMemBlockWithDisk
-	uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk
+	preadMemBlockWithDisk    solofsapitypes.PReadMemBlockWithDisk
+	uploadMemBlockWithDisk   solofsapitypes.UploadMemBlockWithDisk
 	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq
 }
 
