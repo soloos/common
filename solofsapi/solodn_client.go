@@ -1,6 +1,7 @@
 package solofsapi
 
 import (
+	"soloos/common/snettypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 )
@@ -17,14 +18,8 @@ func (p *SolodnClient) Init(soloosEnv *soloosbase.SoloosEnv) error {
 	return nil
 }
 
-func (p *SolodnClient) SetPReadMemBlockWithDisk(preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk) {
-	p.preadMemBlockWithDisk = preadMemBlockWithDisk
-}
-
-func (p *SolodnClient) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk) {
-	p.uploadMemBlockWithDisk = uploadMemBlockWithDisk
-}
-
-func (p *SolodnClient) SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq) {
-	p.uploadMemBlockWithSolomq = uploadMemBlockWithSolomq
+func (p *SolodnClient) Dispatch(solodnPeerID snettypes.PeerID,
+	path string, ret interface{}, reqArgs ...interface{}) error {
+	return p.SNetClientDriver.SimpleCall(solodnPeerID,
+		path, ret, reqArgs...)
 }
