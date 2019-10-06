@@ -56,9 +56,9 @@ func (p *Proxy) RegisterService(path string, handler interface{}) {
 		panic("Proxy Router failed, handler is not func, service:" + service.FunctionName)
 	}
 
-	if funcType.NumIn() == 0 {
-		panic("Proxy Router failed, handler params.size should not be 0, service:" + service.FunctionName)
-	}
+	// if funcType.NumIn() == 0 {
+	// panic("Proxy Router failed, handler params.size should not be 0, service:" + service.FunctionName)
+	// }
 
 	service.IsHasReqeustContext = funcType.NumIn() > 0 && strings.HasSuffix(funcType.In(0).String(), "Context")
 	// if !strings.HasSuffix(funcType.In(0).Elem().Name(), "Context") {

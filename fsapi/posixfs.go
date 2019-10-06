@@ -97,7 +97,7 @@ type PosixFs interface {
 	FetchFsINodeByPath(pFsINodeMeta *solofsapitypes.FsINodeMeta, fsINodePath string) error
 	ListFsINodeByParentPath(parentPath string,
 		isFetchAllCols bool,
-		beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
+		beforeLiteralFunc func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 		literalFunc func(solofsapitypes.FsINodeMeta) bool,
 	) error
 	DeleteFsINodeByPath(fsINodePath string) error

@@ -17,6 +17,7 @@ func (p *SolonnClient) Init(soloosEnv *soloosbase.SoloosEnv,
 	return nil
 }
 
-func (p *SolonnClient) Dispatch(path string) error {
-	return nil
+func (p *SolonnClient) Dispatch(path string, ret interface{}, reqArgs ...interface{}) error {
+	return p.SNetClientDriver.SimpleCall(p.solonnPeerID,
+		path, ret, reqArgs...)
 }

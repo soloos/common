@@ -37,3 +37,7 @@ func (p *Session) Begin(ret *Tx) error {
 	ret.Dialect = p.Dialect
 	return err
 }
+
+func (p *Session) Close() error {
+	panic("do not call Session.Close")
+}

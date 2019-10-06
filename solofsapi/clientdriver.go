@@ -12,7 +12,7 @@ type ClientDriver interface {
 		dbDriver string, dsn string,
 	) error
 	InitClient(client Client,
-		nameSpaceID solofsapitypes.NameSpaceID,
+		nsID solofsapitypes.NameSpaceID,
 		defaultNetBlockCap int,
 		defaultMemBlockCap int,
 		defaultMemBlocksLimit int32,
