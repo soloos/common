@@ -26,7 +26,7 @@ func (p *SolomqClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 
 	for i := 0; i < p.normalCallRetryTimes; i++ {
 		err = p.SNetClientDriver.SimpleCall(peerID,
-			"/Topic/Prepare", req, nil)
+			"/Topic/Prepare", nil, req)
 		if err == nil {
 			break
 		}

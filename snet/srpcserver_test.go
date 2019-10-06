@@ -60,6 +60,13 @@ func runSrpcServer() (string, error) {
 		return msg, nil
 	})
 
+	srpcServer.RegisterService("/testmulti", func(
+		msghi0 string,
+		msghi1 string,
+	) (string, error) {
+		return msghi0 + msghi1, nil
+	})
+
 	srpcServer.RegisterService("/testoffheap", func(reqCtx *snettypes.SNetReqContext) (string, error) {
 		util.AssertTrue(int(reqCtx.BodySize) == len(rpcMessageBytes))
 		return "fuck", nil
@@ -150,11 +157,15 @@ func TestSrpcServer(t *testing.T) {
 			assertIsCmdNotFound(clientDriver.ReadResponse(peer.ID, &req[3], &resp[3], respBody, nil))
 
 			util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/test", &req[4], &resp[4], rpcMessage))
+
 			util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[4], &resp[4]))
 			respBody = make([]byte, resp[4].BodySize)
 			var msg = snettypes.Response{RespData: ""}
 			util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[4], &resp[4], respBody, &msg))
 			assert.Equal(t, rpcMessage, msg.RespData)
+
+			util.AssertErrIsNil(clientDriver.SimpleCall(peer.ID, "/testmulti", &msg, "multi0", "multi1"))
+			assert.Equal(t, "multi0"+"multi1", msg.RespData)
 
 			util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[5], &resp[5], "test"))
 			util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[5], &resp[5]))

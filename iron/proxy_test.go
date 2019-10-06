@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -15,7 +14,6 @@ import (
 
 func testProxyUrlP(port int, path string) string {
 	urlPath := fmt.Sprintf("http://localhost:%v/Argon%v", port, path)
-	log.Println(urlPath)
 	return urlPath
 }
 

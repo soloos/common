@@ -8,11 +8,12 @@ import (
 )
 
 type ProxyService struct {
-	FunctionName       string
-	Function           reflect.Value
-	Params             []reflect.Type
-	IsHasEasyKvReqArgs bool
-	IsHasUrlKvReqArgs  bool
+	FunctionName        string
+	Function            reflect.Value
+	Params              []reflect.Type
+	IsHasReqeustContext bool
+	IsHasEasyKvReqArgs  bool
+	IsHasUrlKvReqArgs   bool
 }
 
 type ProxyBeforeServiceHook func(path string,
@@ -59,7 +60,8 @@ func (p *Proxy) RegisterService(path string, handler interface{}) {
 		panic("Proxy Router failed, handler params.size should not be 0, service:" + service.FunctionName)
 	}
 
-	// if funcType.In(0).Elem().Name() != "RequestContext" {
+	service.IsHasReqeustContext = funcType.NumIn() > 0 && strings.HasSuffix(funcType.In(0).String(), "Context")
+	// if !strings.HasSuffix(funcType.In(0).Elem().Name(), "Context") {
 	// panic("Proxy Router failed, handler params[0] should be RequestContext, service:" + service.FunctionName)
 	// }
 
@@ -73,11 +75,14 @@ func (p *Proxy) RegisterService(path string, handler interface{}) {
 	// ", resp:" + funcType.Out(0).Name())
 	// }
 
-	var parseArgStartAt = 1
+	var parseArgStartAt = 0
+	if service.IsHasReqeustContext {
+		parseArgStartAt = 1
+	}
 
 	service.IsHasEasyKvReqArgs = false
-	if funcType.NumIn() >= 2 {
-		if funcType.In(1) == reflect.TypeOf(EasyKvReqArgs{}) {
+	if funcType.NumIn() > parseArgStartAt {
+		if funcType.In(parseArgStartAt) == reflect.TypeOf(EasyKvReqArgs{}) {
 			service.IsHasEasyKvReqArgs = true
 			service.Params = append(service.Params, reflect.TypeOf(map[string]interface{}{}))
 			parseArgStartAt += 1
@@ -91,8 +96,8 @@ func (p *Proxy) RegisterService(path string, handler interface{}) {
 	}
 
 	service.IsHasUrlKvReqArgs = false
-	if funcType.NumIn() >= 2 {
-		if funcType.In(1) == reflect.TypeOf(UrlKvReqArgs{}) {
+	if funcType.NumIn() > parseArgStartAt {
+		if funcType.In(parseArgStartAt) == reflect.TypeOf(UrlKvReqArgs{}) {
 			service.IsHasUrlKvReqArgs = true
 			parseArgStartAt += 1
 		}
@@ -138,17 +143,26 @@ func (p *Proxy) Dispatch(path string, reqCtx RequestContext, reqArgs ...LowReqAr
 
 	{
 		var ok bool
-		paramReflectValueArr = make([]reflect.Value, 1+len(reqArgs))
-		paramReflectValueArr[0] = reflect.ValueOf(reqCtx)
-		for i := 0; i < len(reqArgs); i++ {
-			if paramReflectValueArr[i+1], ok = reqArgs[i].(reflect.Value); !ok {
-				paramReflectValueArr[i+1] = reflect.ValueOf(reqArgs[i])
-			}
+		var paramReflectValueArrIndex = 0
+		var reqArgsIndex = 0
+		if service.IsHasReqeustContext {
+			paramReflectValueArr = make([]reflect.Value, len(reqArgs)+1)
+			paramReflectValueArr[paramReflectValueArrIndex] = reflect.ValueOf(reqCtx)
+			paramReflectValueArrIndex++
+		} else {
+			paramReflectValueArr = make([]reflect.Value, len(reqArgs))
 		}
 
-		serviceParamsLen = len(paramReflectValueArr) - 1
+		for reqArgsIndex = 0; reqArgsIndex < len(reqArgs); reqArgsIndex++ {
+			if paramReflectValueArr[paramReflectValueArrIndex], ok = reqArgs[reqArgsIndex].(reflect.Value); !ok {
+				paramReflectValueArr[paramReflectValueArrIndex] = reflect.ValueOf(reqArgs[reqArgsIndex])
+			}
+			paramReflectValueArrIndex++
+		}
+
+		serviceParamsLen = len(reqArgs)
 		if service.IsHasUrlKvReqArgs {
-			serviceParamsLen -= 1
+			serviceParamsLen--
 		}
 	}
 

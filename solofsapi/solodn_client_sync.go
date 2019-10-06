@@ -12,5 +12,5 @@ func (p *SolodnClient) NetINodeSync(peerID snettypes.PeerID,
 		NetINodeID: uNetINode.Ptr().ID,
 	}
 	return p.SNetClientDriver.SimpleCall(peerID,
-		"/NetINode/Sync", req, nil)
+		"/NetINode/Sync", nil, req)
 }

@@ -61,6 +61,7 @@ func (p *SrpcClientDriver) AsyncCall(peerID snettypes.PeerID,
 	}
 
 	snetReq.Init(client.AllocRequestID(), &client.doingNetQueryConn, url)
+
 	snetReq.Param = iron.MustSpecMarshalRequest(req)
 
 	err = client.prepareWaitResponse(snetReq.ReqID, snetResp)
@@ -97,7 +98,7 @@ func (p *SrpcClientDriver) WaitResponse(peerID snettypes.PeerID,
 }
 
 func (p *SrpcClientDriver) SimpleCall(peerID snettypes.PeerID,
-	url string, req interface{}, ret interface{},
+	url string, ret interface{}, reqArgs ...interface{},
 ) error {
 	var (
 		snetReq  snettypes.SNetReq
@@ -105,7 +106,11 @@ func (p *SrpcClientDriver) SimpleCall(peerID snettypes.PeerID,
 		err      error
 	)
 
-	err = p.Call(peerID, url, &snetReq, &snetResp, req)
+	if len(reqArgs) == 1 {
+		err = p.Call(peerID, url, &snetReq, &snetResp, reqArgs[0])
+	} else {
+		err = p.Call(peerID, url, &snetReq, &snetResp, reqArgs)
+	}
 	if err != nil {
 		return err
 	}

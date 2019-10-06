@@ -22,11 +22,11 @@ func (p *SolonnClient) doGetNetINodeMetaData(isMustGet bool,
 
 	if isMustGet {
 		err = p.SNetClientDriver.SimpleCall(p.solonnPeerID,
-			"/NetINode/MustGet", &req, &resp,
+			"/NetINode/MustGet", &resp, &req,
 		)
 	} else {
 		err = p.SNetClientDriver.SimpleCall(p.solonnPeerID,
-			"/NetINode/Get", &req, &resp,
+			"/NetINode/Get", &resp, &req,
 		)
 	}
 	if err != nil {
@@ -58,5 +58,5 @@ func (p *SolonnClient) NetINodeCommitSizeInDB(uNetINode solofsapitypes.NetINodeU
 	}
 
 	return p.SNetClientDriver.SimpleCall(p.solonnPeerID,
-		"/NetINode/CommitSizeInDB", req, nil)
+		"/NetINode/CommitSizeInDB", nil, req)
 }

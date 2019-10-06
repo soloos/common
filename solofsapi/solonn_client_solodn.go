@@ -15,5 +15,5 @@ func (p *SolonnClient) SolodnRegister(peerID snettypes.PeerID,
 	}
 
 	return p.SNetClientDriver.SimpleCall(p.solonnPeerID,
-		"/Solodn/Register", req, nil)
+		"/Solodn/Register", nil, req)
 }

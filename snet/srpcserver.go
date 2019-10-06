@@ -143,32 +143,32 @@ func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
 	if reqArgSize > 0 {
 		var service = p.ServiceTable[path]
 		var reqArgBytes = make([]byte, reqArgSize)
-		var reqArgValues []reflect.Value
-		var reqArgInterfaces []interface{}
 
 		err = reqCtx.ReadAll(reqArgBytes)
 		if err != nil {
 			goto PARSE_ARGS_DONE
 		}
 
-		for i, _ := range service.Params {
-			var serviceParam = service.Params[i]
-			var reqArgValue = reflect.New(serviceParam)
-			reqArgValues = append(reqArgValues, reqArgValue)
-			reqArgInterfaces = append(reqArgInterfaces, reqArgValue.Interface())
-		}
+		if len(service.Params) == 1 {
+			var reqArgValue = reflect.New(service.Params[0]).Interface()
+			err = iron.SpecUnmarshalRequest(reqArgBytes, reqArgValue)
+			if err != nil {
+				goto PARSE_ARGS_DONE
+			}
+			reqArgElems = append(reqArgElems, reflect.ValueOf(reqArgValue).Elem())
 
-		if len(reqArgInterfaces) == 1 {
-			err = iron.SpecUnmarshalRequest(reqArgBytes, reqArgInterfaces[0])
 		} else {
-			err = iron.SpecUnmarshalRequest(reqArgBytes, reqArgInterfaces)
-		}
-		if err != nil {
-			goto PARSE_ARGS_DONE
-		}
-
-		for i, _ := range reqArgValues {
-			reqArgElems = append(reqArgElems, reqArgValues[i].Elem())
+			var reqArgValues []interface{}
+			for i, _ := range service.Params {
+				reqArgValues = append(reqArgValues, reflect.New(service.Params[i]).Interface())
+			}
+			err = iron.SpecUnmarshalRequest(reqArgBytes, &reqArgValues)
+			if err != nil {
+				goto PARSE_ARGS_DONE
+			}
+			for i, _ := range reqArgValues {
+				reqArgElems = append(reqArgElems, reflect.ValueOf(reqArgValues[i]))
+			}
 		}
 
 	PARSE_ARGS_DONE:

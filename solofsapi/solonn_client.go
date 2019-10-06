@@ -16,3 +16,7 @@ func (p *SolonnClient) Init(soloosEnv *soloosbase.SoloosEnv,
 	p.solonnPeerID = solonnPeerID
 	return nil
 }
+
+func (p *SolonnClient) Dispatch(path string) error {
+	return nil
+}

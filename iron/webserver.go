@@ -1,6 +1,8 @@
 package iron
 
-import "soloos/common/util"
+import (
+	"soloos/common/util"
+)
 
 func (p *Proxy) InitStandAloneWebServer(prefix string, options Options) error {
 	var err error
