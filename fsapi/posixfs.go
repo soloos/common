@@ -2,8 +2,6 @@ package fsapi
 
 import (
 	. "soloos/common/fsapitypes"
-	"soloos/common/snet"
-	"soloos/common/solofstypes"
 )
 
 // PosixFs is an interface close to the FUSE wire solofsprotocol.
@@ -91,52 +89,4 @@ type PosixFs interface {
 	// filesystem implementation can use the server argument to
 	// talk back to the kernel (through notify methods).
 	FsInit()
-
-	// other
-	FetchFsINodeByID(pFsINodeMeta *solofstypes.FsINodeMeta, fsINodeID solofstypes.FsINodeID) error
-	FetchFsINodeByPath(pFsINodeMeta *solofstypes.FsINodeMeta, fsINodePath string) error
-	ListFsINodeByParentPath(parentPath string,
-		isFetchAllCols bool,
-		beforeLiteralFunc func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-		literalFunc func(solofstypes.FsINodeMeta) bool,
-	) error
-	DeleteFsINodeByPath(fsINodePath string) error
-	RenameWithFullPath(oldFsINodeName, newFsINodePath string) error
-
-	FdTableAllocFd(fsINodeID solofstypes.FsINodeID) solofstypes.FsINodeFileHandlerID
-	FdTableGetFd(fdID solofstypes.FsINodeFileHandlerID) solofstypes.FsINodeFileHandler
-	FdTableFdAddAppendPosition(fdID solofstypes.FsINodeFileHandlerID, delta uint64)
-	FdTableFdAddReadPosition(fdID solofstypes.FsINodeFileHandlerID, delta uint64)
-
-	SimpleOpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (solofstypes.FsINodeMeta, error)
-	SimpleWriteWithMem(fsINodeID solofstypes.FsINodeID, data []byte, offset uint64) error
-	SimpleReadWithMem(fsINodeID solofstypes.FsINodeID, data []byte, offset uint64) (int, error)
-	SimpleFlush(fsINodeID solofstypes.FsINodeID) error
-
-	SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, gid uint32) Status
-	SimpleMkdir(fsINodeMeta *solofstypes.FsINodeMeta,
-		fsINodeID *solofstypes.FsINodeID, parentID solofstypes.FsINodeID,
-		perms uint32, name string,
-		uid uint32, gid uint32, rdev uint32) Status
-
-	SetNetINodeBlockPlacement(netINodeID solofstypes.NetINodeID, policy solofstypes.MemBlockPlacementPolicy) error
-
-	GetFsINodeByID(fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeUintptr, error)
-	ReleaseFsINode(uFsINode solofstypes.FsINodeUintptr)
-
-	GetNetINode(netINodeID solofstypes.NetINodeID) (solofstypes.NetINodeUintptr, error)
-	ReleaseNetINode(uNetINode solofstypes.NetINodeUintptr)
-	NetINodePWriteWithNetQuery(uNetINode solofstypes.NetINodeUintptr,
-		netQuery *snet.NetQuery, dataLength int, offset uint64) error
-	NetINodePWriteWithMem(uNetINode solofstypes.NetINodeUintptr,
-		data []byte, offset uint64) error
-
-	MustGetNetBlock(uNetINode solofstypes.NetINodeUintptr, netBlockIndex int32) (solofstypes.NetBlockUintptr, error)
-	ReleaseNetBlock(uNetBlock solofstypes.NetBlockUintptr)
-	NetBlockSetPReadMemBlockWithDisk(preadWithDisk solofstypes.PReadMemBlockWithDisk)
-	NetBlockSetUploadMemBlockWithDisk(uploadMemBlockWithDisk solofstypes.UploadMemBlockWithDisk)
-
-	MustGetMemBlockWithReadAcquire(uNetINode solofstypes.NetINodeUintptr,
-		memBlockIndex int32) (solofstypes.MemBlockUintptr, bool)
-	ReleaseMemBlockWithReadRelease(uMemBlock solofstypes.MemBlockUintptr)
 }

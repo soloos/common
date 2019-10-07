@@ -11,6 +11,8 @@ const (
 	UploadMemBlockJobStructSize = unsafe.Sizeof(UploadMemBlockJob{})
 )
 
+type UploadMemBlockJobID = int64
+
 type UploadMemBlockJobUintptr uintptr
 
 func (u UploadMemBlockJobUintptr) Ptr() *UploadMemBlockJob {
@@ -23,7 +25,11 @@ type UploadMemBlockJob struct {
 	UNetINode     NetINodeUintptr
 	UNetBlock     NetBlockUintptr
 	UMemBlock     MemBlockUintptr
-	MemBlockIndex int32
+	MemBlockIndex MemBlockIndex
+	// ID            UploadMemBlockJobID
+	// NetINodeID    NetINodeID
+	// NetBlockIndex NetBlockIndex
+	// MemBlockIndex MemBlockIndex
 	soloosbase.UploadBlockJob
 }
 

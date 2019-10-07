@@ -13,6 +13,8 @@ const (
 	MemBlockStructSize = unsafe.Sizeof(MemBlock{})
 )
 
+type MemBlockIndex = int32
+
 type MemBlockUintptr uintptr
 
 func (u MemBlockUintptr) Ptr() *MemBlock {
