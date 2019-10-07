@@ -2,7 +2,7 @@ package solofsapi
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 )
 
@@ -12,7 +12,7 @@ type ClientDriver interface {
 		dbDriver string, dsn string,
 	) error
 	InitClient(client Client,
-		nsID solofsapitypes.NameSpaceID,
+		nsID solofstypes.NameSpaceID,
 		defaultNetBlockCap int,
 		defaultMemBlockCap int,
 		defaultMemBlocksLimit int32,

@@ -4,7 +4,7 @@ import (
 	"os"
 	"soloos/common/fsapi"
 	"soloos/common/log"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
 type FileMode = os.FileMode
@@ -13,11 +13,11 @@ type FileInfo = os.FileInfo
 type File struct {
 	isSoloosFile  bool
 	soloosPosixFs fsapi.PosixFs
-	soloosFdID    solofsapitypes.FsINodeFileHandlerID
+	soloosFdID    solofstypes.FsINodeFileHandlerID
 	file          *os.File
 }
 
-func (p *File) SetSoloosFsINode(fdID solofsapitypes.FsINodeFileHandlerID, posixFs fsapi.PosixFs) {
+func (p *File) SetSoloosFsINode(fdID solofstypes.FsINodeFileHandlerID, posixFs fsapi.PosixFs) {
 	p.soloosFdID = fdID
 	p.soloosPosixFs = posixFs
 	p.isSoloosFile = true

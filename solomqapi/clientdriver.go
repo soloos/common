@@ -1,7 +1,7 @@
 package solomqapi
 
 import (
-	"soloos/common/solomqapitypes"
+	"soloos/common/solomqtypes"
 	"soloos/common/soloosbase"
 )
 
@@ -14,5 +14,5 @@ type ClientDriver interface {
 		dbDriver string, dsn string,
 		defaultNetBlockCap int, defaultMemBlockCap int) error
 	InitClient(client Client,
-		topicIDStr string, solomqMembers []solomqapitypes.SolomqMember) error
+		topicIDStr string, solomqMembers []solomqtypes.SolomqMember) error
 }

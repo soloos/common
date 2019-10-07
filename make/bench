@@ -14,8 +14,8 @@ bench-snet:
 bench-solofsapi:
 	go test -bench=. -benchmem .//solofsapi
 
-bench-solofsapitypes:
-	go test -bench=. -benchmem .//solofsapitypes
+bench-solofstypes:
+	go test -bench=. -benchmem .//solofstypes
 
 bench-solomqapi:
 	go test -bench=. -benchmem .//solomqapi
@@ -26,4 +26,4 @@ bench-soloosapi-os:
 bench-soloosutils:
 	go test -bench=. -benchmem .//soloosutils
 
-bench: bench-go-fuse-fuse bench-go-fuse-splice bench-iron bench-snet bench-solofsapi bench-solofsapitypes bench-solomqapi bench-soloosapi-os bench-soloosutils
+bench: bench-go-fuse-fuse bench-go-fuse-splice bench-iron bench-snet bench-solofsapi bench-solofstypes bench-solomqapi bench-soloosapi-os bench-soloosutils

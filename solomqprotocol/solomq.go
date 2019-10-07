@@ -2,7 +2,7 @@ package solomqprotocol
 
 import (
 	"encoding/gob"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
 //go:generate msgp
@@ -25,7 +25,7 @@ type TopicPrepareNetBlockReq struct {
 
 type TopicPWriteReq struct {
 	TopicID          int64
-	NetINodeID       solofsapitypes.NetINodeID
+	NetINodeID       solofstypes.NetINodeID
 	Offset           uint64
 	Length           int
 	TransferBackends []string

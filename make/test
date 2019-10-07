@@ -14,8 +14,8 @@ test-snet:
 test-solofsapi:
 	go test .//solofsapi
 
-test-solofsapitypes:
-	go test .//solofsapitypes
+test-solofstypes:
+	go test .//solofstypes
 
 test-solomqapi:
 	go test .//solomqapi
@@ -26,4 +26,4 @@ test-soloosapi-os:
 test-soloosutils:
 	go test .//soloosutils
 
-test: test-go-fuse-fuse test-go-fuse-splice test-iron test-snet test-solofsapi test-solofsapitypes test-solomqapi test-soloosapi-os test-soloosutils
+test: test-go-fuse-fuse test-go-fuse-splice test-iron test-snet test-solofsapi test-solofstypes test-solomqapi test-soloosapi-os test-soloosutils

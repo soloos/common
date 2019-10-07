@@ -2,9 +2,9 @@ package solomqapi
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
-	"soloos/common/solomqapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/solomqprotocol"
+	"soloos/common/solomqtypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/solodb/offheap"
@@ -26,14 +26,14 @@ func (p *SolomqClient) Dispatch(solodnPeerID snet.PeerID,
 }
 
 func (p *SolomqClient) PrepareTopicNetBlockMetaData(peerID snet.PeerID,
-	uTopic solomqapitypes.TopicUintptr,
-	uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
+	uTopic solomqtypes.TopicUintptr,
+	uNetBlock solofstypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr, netblockIndex int32) error {
 	return nil
 }
 
-func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqapitypes.TopicUintptr,
-	uJob solofsapitypes.UploadMemBlockJobUintptr,
+func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqtypes.TopicUintptr,
+	uJob solofstypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int) error {
 	var (
 		snetReq            snet.SNetReq

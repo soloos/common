@@ -3,7 +3,7 @@ package solofsprotocol
 import (
 	"encoding/gob"
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
 //go:generate msgp
@@ -28,12 +28,12 @@ type SNetPeer struct {
 }
 
 type NetINodeCommitSizeInDBReq struct {
-	NetINodeID solofsapitypes.NetINodeID
+	NetINodeID solofstypes.NetINodeID
 	Size       uint64
 }
 
 type NetINodeInfoReq struct {
-	NetINodeID  solofsapitypes.NetINodeID
+	NetINodeID  solofstypes.NetINodeID
 	Size        uint64
 	NetBlockCap int32
 	MemBlockCap int32
@@ -49,7 +49,7 @@ type NetINodeInfoResp struct {
 var _ = snet.IRespData(&NetINodeInfoResp{})
 
 type NetINodeNetBlockInfoReq struct {
-	NetINodeID    solofsapitypes.NetINodeID
+	NetINodeID    solofstypes.NetINodeID
 	NetBlockIndex int32
 	Cap           int32
 }
@@ -64,18 +64,18 @@ type NetINodeNetBlockInfoResp struct {
 var _ = snet.IRespData(&NetINodeNetBlockInfoResp{})
 
 type NetINodePWriteReq struct {
-	NetINodeID       solofsapitypes.NetINodeID
+	NetINodeID       solofstypes.NetINodeID
 	Offset           uint64
 	Length           int32
 	TransferBackends []string
 }
 
 type NetINodeSyncReq struct {
-	NetINodeID solofsapitypes.NetINodeID
+	NetINodeID solofstypes.NetINodeID
 }
 
 type NetINodePReadReq struct {
-	NetINodeID solofsapitypes.NetINodeID
+	NetINodeID solofstypes.NetINodeID
 	Offset     uint64
 	Length     int32
 }

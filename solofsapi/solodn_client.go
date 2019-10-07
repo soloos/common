@@ -2,15 +2,15 @@ package solofsapi
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 )
 
 type SolodnClient struct {
 	*soloosbase.SoloosEnv
-	preadMemBlockWithDisk    solofsapitypes.PReadMemBlockWithDisk
-	uploadMemBlockWithDisk   solofsapitypes.UploadMemBlockWithDisk
-	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq
+	preadMemBlockWithDisk    solofstypes.PReadMemBlockWithDisk
+	uploadMemBlockWithDisk   solofstypes.UploadMemBlockWithDisk
+	uploadMemBlockWithSolomq solofstypes.UploadMemBlockWithSolomq
 }
 
 func (p *SolodnClient) Init(soloosEnv *soloosbase.SoloosEnv) error {
