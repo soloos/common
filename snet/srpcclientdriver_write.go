@@ -21,8 +21,7 @@ func (p *SrpcClientDriver) sendCloseCmd(client *SrpcClient) error {
 }
 
 func (p *SrpcClientDriver) Call(peerID PeerID,
-	url string,
-	snetReq *SNetReq, snetResp *SNetResp,
+	url string, snetReq *SNetReq, snetResp *SNetResp,
 ) error {
 	var (
 		err error

@@ -12,6 +12,8 @@ const (
 	MaxSolodnsSizeStoreNetBlock = 8
 )
 
+type NetBlockIndex = int32
+
 type NetBlockUintptr uintptr
 
 func (u NetBlockUintptr) Ptr() *NetBlock { return (*NetBlock)(unsafe.Pointer(u)) }
