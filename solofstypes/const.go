@@ -1,7 +1,7 @@
 package solofstypes
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/snet"
 	"syscall"
 	"unsafe"
@@ -36,9 +36,9 @@ const (
 const (
 	FS_RDEV = 0
 
-	FS_EEXIST       = fsapitypes.Status(syscall.EEXIST)
-	FS_ENOTEMPTY    = fsapitypes.Status(syscall.ENOTEMPTY)
-	FS_ENAMETOOLONG = fsapitypes.Status(syscall.ENAMETOOLONG)
+	FS_EEXIST       = fsapi.Status(syscall.EEXIST)
+	FS_ENOTEMPTY    = fsapi.Status(syscall.ENOTEMPTY)
+	FS_ENAMETOOLONG = fsapi.Status(syscall.ENAMETOOLONG)
 
 	FS_INODE_LOCK_SH = syscall.LOCK_SH
 	FS_INODE_LOCK_EX = syscall.LOCK_EX

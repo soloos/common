@@ -1,7 +1,7 @@
 package fuse
 
 import (
-	. "soloos/common/fsapitypes"
+	. "soloos/common/fsapi"
 )
 
 const (

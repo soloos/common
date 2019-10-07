@@ -1,7 +1,7 @@
 package fuse
 
 import (
-	. "soloos/common/fsapitypes"
+	. "soloos/common/fsapi"
 )
 
 // Go 1.9 introduces polling for file I/O. The implementation causes

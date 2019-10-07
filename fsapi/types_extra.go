@@ -1,4 +1,4 @@
-package fsapitypes
+package fsapi
 
 // _Dirent is what we send to the kernel, but we offer DirEntry and
 // DirEntryList to the user.

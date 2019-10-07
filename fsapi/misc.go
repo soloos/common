@@ -1,4 +1,4 @@
-package fsapitypes
+package fsapi
 
 import (
 	"fmt"

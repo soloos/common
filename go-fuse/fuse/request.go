@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	. "soloos/common/fsapitypes"
+	. "soloos/common/fsapi"
 	"strings"
 	"time"
 	"unsafe"

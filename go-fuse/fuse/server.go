@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"soloos/common/fsapi"
-	. "soloos/common/fsapitypes"
+	. "soloos/common/fsapi"
 	"strings"
 	"sync"
 	"syscall"

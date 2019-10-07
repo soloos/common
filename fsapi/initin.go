@@ -1,4 +1,4 @@
-package fsapitypes
+package fsapi
 
 // SupportsVersion returns true if the kernel supports the given
 // protocol version or newer.

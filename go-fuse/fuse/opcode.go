@@ -9,7 +9,7 @@ import (
 	"log"
 	"reflect"
 	"runtime"
-	. "soloos/common/fsapitypes"
+	. "soloos/common/fsapi"
 	"unsafe"
 )
 

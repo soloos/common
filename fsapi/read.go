@@ -1,4 +1,4 @@
-package fsapitypes
+package fsapi
 
 // The result of Read is an array of bytes, but for performance
 // reasons, we can also return data as a file-descriptor/offset/size

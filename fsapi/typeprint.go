@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package fsapitypes
+package fsapi
 
-// arbitrary values
-const syscall_O_LARGEFILE = 1 << 29
-const syscall_O_NOATIME = 1 << 30
+func (a *Attr) String() string {
+	return Print(a)
+}
