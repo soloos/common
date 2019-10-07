@@ -1,4 +1,4 @@
-package snettypes
+package snet
 
 const (
 	CODE_OK = iota

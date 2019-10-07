@@ -2,7 +2,6 @@ package snet
 
 import (
 	"soloos/common/iron"
-	"soloos/common/snettypes"
 	"soloos/solodb/offheap"
 )
 
@@ -18,7 +17,7 @@ func (p *NetDriver) Init(offheapDriver *offheap.OffheapDriver) error {
 	var err error
 	p.offheapDriver = offheapDriver
 	err = p.offheapDriver.InitLKVTableWithBytes64(&p.peerTable, "SNetDriver",
-		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount*6, nil)
+		int(PeerStructSize), -1, offheap.DefaultKVTableSharedCount*6, nil)
 	if err != nil {
 		return err
 	}
@@ -61,43 +60,43 @@ func (p *NetDriver) PrepareClient(webServerAddr string) error {
 	return nil
 }
 
-func MakeSysPeerID(sysPeerID string) snettypes.PeerID {
-	var peerID snettypes.PeerID
+func MakeSysPeerID(sysPeerID string) PeerID {
+	var peerID PeerID
 	peerID.SetStr("SYS_" + sysPeerID)
 	return peerID
 }
 
-func (p *NetDriver) InitPeerID(peerID *snettypes.PeerID) {
+func (p *NetDriver) InitPeerID(peerID *PeerID) {
 	// todo: ensure peer id unique
-	snettypes.InitTmpPeerID(peerID)
+	InitTmpPeerID(peerID)
 }
 
 func (p *NetDriver) ListPeer(listPeer offheap.LKVTableListObjectWithBytes64) {
 	p.peerTable.ListObject(listPeer)
 }
 
-func (p *NetDriver) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, error) {
+func (p *NetDriver) GetPeer(peerID PeerID) (Peer, error) {
 	var uPeer = p.peerTable.TryGetObject(peerID)
 	p.peerTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uPeer))
 	if uPeer == 0 {
 		if p.client != nil {
 			var peer, err = p.client.GetPeer(peerID)
 			if err != nil {
-				return snettypes.Peer{}, err
+				return Peer{}, err
 			}
 			err = p.doRegisterPeer(peer, true)
 			return peer, err
 		}
-		return snettypes.Peer{}, snettypes.ErrObjectNotExists
+		return Peer{}, ErrObjectNotExists
 	}
 
-	return *snettypes.PeerUintptr(uPeer).Ptr(), nil
+	return *PeerUintptr(uPeer).Ptr(), nil
 }
 
-func (p *NetDriver) doRegisterPeer(peer snettypes.Peer, isSkipRegisterRemote bool) error {
+func (p *NetDriver) doRegisterPeer(peer Peer, isSkipRegisterRemote bool) error {
 	var (
 		uObject        offheap.LKVTableObjectUPtrWithBytes64
-		uPeer          snettypes.PeerUintptr
+		uPeer          PeerUintptr
 		afterSetNewObj offheap.KVTableAfterSetNewObj
 		err            error
 	)
@@ -105,7 +104,7 @@ func (p *NetDriver) doRegisterPeer(peer snettypes.Peer, isSkipRegisterRemote boo
 	var isNeedUpdateInDB = false
 
 	uObject, afterSetNewObj = p.peerTable.MustGetObject(peer.ID)
-	uPeer = snettypes.PeerUintptr(uObject)
+	uPeer = PeerUintptr(uObject)
 	if afterSetNewObj != nil {
 		afterSetNewObj()
 		uPeer.Ptr().SetAddress(peer.AddressStr())
@@ -127,10 +126,10 @@ func (p *NetDriver) doRegisterPeer(peer snettypes.Peer, isSkipRegisterRemote boo
 	return nil
 }
 
-func (p *NetDriver) RegisterPeer(peer snettypes.Peer) error {
+func (p *NetDriver) RegisterPeer(peer Peer) error {
 	return p.doRegisterPeer(peer, false)
 }
 
-func (p *NetDriver) RegisterPeerInDB(peer snettypes.Peer) error {
+func (p *NetDriver) RegisterPeerInDB(peer Peer) error {
 	return p.server.RegisterSNetPeerInDB(peer)
 }

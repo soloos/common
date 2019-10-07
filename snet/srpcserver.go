@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/snettypes"
 	"time"
 )
 
@@ -29,10 +28,10 @@ func (p *SrpcServer) Init(network, address string) error {
 		return err
 	}
 
-	p.RegisterService("/Close", func(reqCtx *snettypes.SNetReqContext) error {
+	p.RegisterService("/Close", func(reqCtx *SNetReqContext) error {
 		go func() {
 			time.Sleep(time.Second * 3)
-			reqCtx.ConnClose(snettypes.ErrClosedByUser)
+			reqCtx.ConnClose(ErrClosedByUser)
 		}()
 		return nil
 	})
@@ -70,7 +69,7 @@ func (p *SrpcServer) serveListener(ln net.Listener) error {
 
 func (p *SrpcServer) serveConn(netConn net.Conn) {
 	var (
-		conn             snettypes.Connection
+		conn             Connection
 		closeConnErrChan = make(chan error)
 		err              error
 	)
@@ -78,7 +77,7 @@ func (p *SrpcServer) serveConn(netConn net.Conn) {
 	conn.SetNetConn(netConn)
 
 	for {
-		var reqCtx snettypes.SNetReqContext
+		var reqCtx SNetReqContext
 		reqCtx.Init(&conn)
 
 		// read reqHeader
@@ -115,7 +114,7 @@ CONN_END:
 }
 
 func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
-	reqCtx snettypes.SNetReqContext) {
+	reqCtx SNetReqContext) {
 	var path = reqCtx.Header.Url
 	var err error
 	if !p.IsServiceExists(path) {
@@ -136,7 +135,7 @@ func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
 	}
 	closeConnErrChan <- nil
 
-	var resp snettypes.IRespData
+	var resp IRespData
 
 	var reqArgElems []interface{}
 	var reqArgSize uint32 = reqCtx.ParamSize

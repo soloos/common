@@ -1,7 +1,7 @@
 package solofsapitypes
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solodbapitypes"
 	"soloos/solodb/offheap"
 	"unsafe"
@@ -28,10 +28,10 @@ type NetBlock struct {
 
 	NetBlockMeta
 
-	StorDataBackends   snettypes.PeerGroup          `db:"-"`
+	StorDataBackends   snet.PeerGroup               `db:"-"`
 	IsDBMetaDataInited solodbapitypes.MetaDataState `db:"-"`
 
-	SyncDataBackends         snettypes.TransferPeerGroup  `db:"-"`
+	SyncDataBackends         snet.TransferPeerGroup       `db:"-"`
 	IsSyncDataBackendsInited solodbapitypes.MetaDataState `db:"-"`
 	IsLocalDataBackendExists bool                         `db:"-"`
 	IsLocalDataBackendInited solodbapitypes.MetaDataState `db:"-"`

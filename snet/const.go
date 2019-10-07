@@ -1,4 +1,4 @@
-package snettypes
+package snet
 
 const (
 	SNetVersion           = byte(192)

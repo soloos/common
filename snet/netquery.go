@@ -1,4 +1,4 @@
-package snettypes
+package snet
 
 type NetQuery struct {
 	ReqID         uint64

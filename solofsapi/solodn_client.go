@@ -1,7 +1,7 @@
 package solofsapi
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 )
@@ -18,7 +18,7 @@ func (p *SolodnClient) Init(soloosEnv *soloosbase.SoloosEnv) error {
 	return nil
 }
 
-func (p *SolodnClient) Dispatch(solodnPeerID snettypes.PeerID,
+func (p *SolodnClient) Dispatch(solodnPeerID snet.PeerID,
 	path string, ret interface{}, reqArgs ...interface{}) error {
 	return p.SNetClientDriver.SimpleCall(solodnPeerID,
 		path, ret, reqArgs...)

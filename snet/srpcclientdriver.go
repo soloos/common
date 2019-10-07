@@ -1,7 +1,6 @@
 package snet
 
 import (
-	"soloos/common/snettypes"
 	"soloos/solodb/offheap"
 	"sync"
 )
@@ -11,7 +10,7 @@ type SrpcClientDriver struct {
 	netDriver          *NetDriver
 	netConnReadSigPool offheap.RawObjectPool
 	clientRWMutex      sync.RWMutex
-	clients            map[snettypes.PeerID]*SrpcClient
+	clients            map[PeerID]*SrpcClient
 }
 
 func (p *SrpcClientDriver) Init(offheapDriver *offheap.OffheapDriver, netDriver *NetDriver) error {
@@ -24,15 +23,15 @@ func (p *SrpcClientDriver) Init(offheapDriver *offheap.OffheapDriver, netDriver 
 		return err
 	}
 
-	p.clients = make(map[snettypes.PeerID]*SrpcClient)
+	p.clients = make(map[PeerID]*SrpcClient)
 
 	return nil
 }
 
-func (p *SrpcClientDriver) getClient(peerID snettypes.PeerID) (*SrpcClient, error) {
+func (p *SrpcClientDriver) getClient(peerID PeerID) (*SrpcClient, error) {
 	var (
 		ret  *SrpcClient
-		peer snettypes.Peer
+		peer Peer
 		err  error
 	)
 
@@ -57,7 +56,7 @@ func (p *SrpcClientDriver) getClient(peerID snettypes.PeerID) (*SrpcClient, erro
 	return ret, nil
 }
 
-func (p *SrpcClientDriver) registerClient(peer snettypes.Peer) (*SrpcClient, error) {
+func (p *SrpcClientDriver) registerClient(peer Peer) (*SrpcClient, error) {
 	var (
 		client *SrpcClient
 		err    error
@@ -93,7 +92,7 @@ GET_CLIENT_DONE:
 	return client, nil
 }
 
-func (p *SrpcClientDriver) CloseClient(peerID snettypes.PeerID) error {
+func (p *SrpcClientDriver) CloseClient(peerID PeerID) error {
 	var (
 		client = p.clients[peerID]
 		err    error
@@ -108,7 +107,7 @@ func (p *SrpcClientDriver) CloseClient(peerID snettypes.PeerID) error {
 		return err
 	}
 
-	err = client.Close(snettypes.ErrClosedByUser)
+	err = client.Close(ErrClosedByUser)
 	if err != nil {
 		return err
 	}

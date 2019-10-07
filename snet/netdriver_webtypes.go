@@ -1,7 +1,5 @@
 package snet
 
-import "soloos/common/snettypes"
-
 type RegisterPeerReq struct {
 	PeerID   string
 	Addr     string
@@ -9,10 +7,10 @@ type RegisterPeerReq struct {
 }
 
 type RegisterPeerResp struct {
-	snettypes.RespDataCommon
+	RespDataCommon
 }
 
 type GetPeerResp struct {
-	snettypes.RespDataCommon
-	Data snettypes.PeerJSON
+	RespDataCommon
+	Data PeerJSON
 }

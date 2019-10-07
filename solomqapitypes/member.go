@@ -1,7 +1,7 @@
 package solomqapitypes
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 )
 
 const (
@@ -11,6 +11,6 @@ const (
 )
 
 type SolomqMember struct {
-	PeerID snettypes.PeerID
+	PeerID snet.PeerID
 	Role   int
 }

@@ -3,12 +3,11 @@ package snet
 import (
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/snettypes"
 )
 
 func (p *SrpcClientDriver) sendCloseCmd(client *SrpcClient) error {
 	var (
-		req snettypes.SNetReq
+		req SNetReq
 		err error
 	)
 
@@ -21,16 +20,15 @@ func (p *SrpcClientDriver) sendCloseCmd(client *SrpcClient) error {
 	return nil
 }
 
-func (p *SrpcClientDriver) Call(peerID snettypes.PeerID,
+func (p *SrpcClientDriver) Call(peerID PeerID,
 	url string,
-	snetReq *snettypes.SNetReq, snetResp *snettypes.SNetResp,
-	req interface{},
+	snetReq *SNetReq, snetResp *SNetResp,
 ) error {
 	var (
 		err error
 	)
 
-	err = p.AsyncCall(peerID, url, snetReq, snetResp, req)
+	err = p.AsyncCall(peerID, url, snetReq, snetResp)
 	if err != nil {
 		log.Info("AsyncCall error ", err)
 		return err
@@ -44,10 +42,9 @@ func (p *SrpcClientDriver) Call(peerID snettypes.PeerID,
 	return nil
 }
 
-func (p *SrpcClientDriver) AsyncCall(peerID snettypes.PeerID,
+func (p *SrpcClientDriver) AsyncCall(peerID PeerID,
 	url string,
-	snetReq *snettypes.SNetReq, snetResp *snettypes.SNetResp,
-	req interface{},
+	snetReq *SNetReq, snetResp *SNetResp,
 ) error {
 	var (
 		client *SrpcClient
@@ -62,8 +59,6 @@ func (p *SrpcClientDriver) AsyncCall(peerID snettypes.PeerID,
 
 	snetReq.Init(client.AllocRequestID(), &client.doingNetQueryConn, url)
 
-	snetReq.Param = iron.MustSpecMarshalRequest(req)
-
 	err = client.prepareWaitResponse(snetReq.ReqID, snetResp)
 	if err != nil {
 		return err
@@ -77,8 +72,8 @@ func (p *SrpcClientDriver) AsyncCall(peerID snettypes.PeerID,
 	return nil
 }
 
-func (p *SrpcClientDriver) WaitResponse(peerID snettypes.PeerID,
-	req *snettypes.SNetReq, resp *snettypes.SNetResp) error {
+func (p *SrpcClientDriver) WaitResponse(peerID PeerID,
+	req *SNetReq, resp *SNetResp) error {
 	var (
 		client *SrpcClient
 		err    error
@@ -97,20 +92,21 @@ func (p *SrpcClientDriver) WaitResponse(peerID snettypes.PeerID,
 	return nil
 }
 
-func (p *SrpcClientDriver) SimpleCall(peerID snettypes.PeerID,
+func (p *SrpcClientDriver) SimpleCall(peerID PeerID,
 	url string, ret interface{}, reqArgs ...interface{},
 ) error {
 	var (
-		snetReq  snettypes.SNetReq
-		snetResp snettypes.SNetResp
+		snetReq  SNetReq
+		snetResp SNetResp
 		err      error
 	)
 
 	if len(reqArgs) == 1 {
-		err = p.Call(peerID, url, &snetReq, &snetResp, reqArgs[0])
+		snetReq.Param = iron.MustSpecMarshalRequest(reqArgs[0])
 	} else {
-		err = p.Call(peerID, url, &snetReq, &snetResp, reqArgs)
+		snetReq.Param = iron.MustSpecMarshalRequest(reqArgs)
 	}
+	err = p.Call(peerID, url, &snetReq, &snetResp)
 	if err != nil {
 		return err
 	}

@@ -3,7 +3,7 @@ package solofsapitypes
 import (
 	"reflect"
 	"soloos/common/log"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/solodb/offheap"
 	"sync"
 	"unsafe"
@@ -31,7 +31,7 @@ func (p *MemBlock) Contains(offset, end int) bool {
 	return p.AvailMask.Contains(offset, end)
 }
 
-func (p *MemBlock) PWriteWithNetQuery(netQuery *snettypes.NetQuery, length int, offset int) (isSuccess bool) {
+func (p *MemBlock) PWriteWithNetQuery(netQuery *snet.NetQuery, length int, offset int) (isSuccess bool) {
 	_, isSuccess = p.AvailMask.MergeIncludeNeighbour(offset, offset+length)
 	if isSuccess {
 		var err error
@@ -56,7 +56,7 @@ func (p *MemBlock) PWriteWithMem(data []byte, offset int) (isSuccess bool) {
 	return
 }
 
-func (p *MemBlock) PReadWithNetQuery(netQuery *snettypes.NetQuery, length int, offset int) error {
+func (p *MemBlock) PReadWithNetQuery(netQuery *snet.NetQuery, length int, offset int) error {
 	var err error
 	var data = (*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length]
 	err = netQuery.WriteAll(data)

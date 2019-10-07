@@ -1,11 +1,10 @@
 package snet
 
 import (
-	"soloos/common/snettypes"
 	"soloos/solodb/offheap"
 )
 
-func (p *SrpcClient) prepareWaitResponse(reqID uint64, resp *snettypes.SNetResp) error {
+func (p *SrpcClient) prepareWaitResponse(reqID uint64, resp *SNetResp) error {
 	resp.NetConnReadSig = offheap.MutexUintptr(p.clientDriver.netConnReadSigPool.AllocRawObject())
 	resp.NetConnReadSig.Ptr().Lock()
 
@@ -15,7 +14,7 @@ func (p *SrpcClient) prepareWaitResponse(reqID uint64, resp *snettypes.SNetResp)
 	return nil
 }
 
-func (p *SrpcClient) activiateRequestSig(netQuery *snettypes.NetQuery) error {
+func (p *SrpcClient) activiateRequestSig(netQuery *NetQuery) error {
 	var netConnReadSig offheap.MutexUintptr
 
 	p.reqSigMapMutex.Lock()
@@ -24,7 +23,7 @@ func (p *SrpcClient) activiateRequestSig(netQuery *snettypes.NetQuery) error {
 	p.reqSigMapMutex.Unlock()
 
 	if netConnReadSig == 0 {
-		return snettypes.ErrObjectNotExists
+		return ErrObjectNotExists
 	}
 
 	p.doingNetQueryChan <- *netQuery
@@ -35,7 +34,7 @@ func (p *SrpcClient) activiateRequestSig(netQuery *snettypes.NetQuery) error {
 	return nil
 }
 
-func (p *SrpcClient) doWaitResponse(req *snettypes.SNetReq, resp *snettypes.SNetResp) error {
+func (p *SrpcClient) doWaitResponse(req *SNetReq, resp *SNetResp) error {
 	// wait cronReadResponse fetch data
 	resp.NetConnReadSig.Ptr().Lock()
 	resp.NetConnReadSig.Ptr().Unlock()

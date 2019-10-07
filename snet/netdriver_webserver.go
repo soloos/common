@@ -2,12 +2,11 @@ package snet
 
 import (
 	"soloos/common/iron"
-	"soloos/common/snettypes"
 	"soloos/solodb/offheap"
 )
 
-type FetchSNetPeerFromDB func(peerID snettypes.PeerID) (snettypes.Peer, error)
-type RegisterSNetPeerInDB func(peer snettypes.Peer) error
+type FetchSNetPeerFromDB func(peerID PeerID) (Peer, error)
+type RegisterSNetPeerInDB func(peer Peer) error
 
 type NetDriverWebServer struct {
 	netDriver      *NetDriver
@@ -41,36 +40,36 @@ func (p *NetDriverWebServer) Serve() error {
 }
 
 func (p *NetDriverWebServer) ctrPeerList(ir *iron.Request) {
-	var ret []snettypes.PeerJSON
+	var ret []PeerJSON
 	p.netDriver.ListPeer(func(uObj offheap.LKVTableObjectUPtrWithBytes64) bool {
-		var peer = *snettypes.PeerUintptr(uObj).Ptr()
-		ret = append(ret, snettypes.PeerToPeerJSON(peer))
+		var peer = *PeerUintptr(uObj).Ptr()
+		ret = append(ret, PeerToPeerJSON(peer))
 		return true
 	})
-	ir.ApiOutput(ret, snettypes.CODE_OK, "")
+	ir.ApiOutput(ret, CODE_OK, "")
 }
 
 func (p *NetDriverWebServer) ctrGetPeer(ir *iron.Request) {
 	var (
-		peerID snettypes.PeerID
-		peer   snettypes.Peer
+		peerID PeerID
+		peer   Peer
 		err    error
 	)
 
 	peerID.SetStr(ir.MustFormString("PeerID", ""))
 	peer, err = p.netDriver.GetPeer(peerID)
 	if err != nil {
-		if err == snettypes.ErrObjectNotExists && p.doFetchSNetPeerFromDB != nil {
+		if err == ErrObjectNotExists && p.doFetchSNetPeerFromDB != nil {
 			peer, err = p.doFetchSNetPeerFromDB(peerID)
 			if err != nil {
-				ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
+				ir.ApiOutput(nil, CODE_502, err.Error())
 				return
 			}
 		}
 		return
 	}
 
-	ir.ApiOutput(snettypes.PeerToPeerJSON(peer), snettypes.CODE_OK, "")
+	ir.ApiOutput(PeerToPeerJSON(peer), CODE_OK, "")
 }
 
 func (p *NetDriverWebServer) ctrRegisterPeer(ir *iron.Request) {
@@ -81,28 +80,28 @@ func (p *NetDriverWebServer) ctrRegisterPeer(ir *iron.Request) {
 
 	err = ir.DecodeBodyJSONData(&req)
 	if err != nil {
-		ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
+		ir.ApiOutput(nil, CODE_502, err.Error())
 		return
 	}
 
-	var peer = snettypes.Peer{
+	var peer = Peer{
 		LKVTableObjectWithBytes64: offheap.LKVTableObjectWithBytes64{
-			ID: snettypes.StrToPeerID(req.PeerID),
+			ID: StrToPeerID(req.PeerID),
 		},
-		ServiceProtocol: snettypes.InitServiceProtocol(req.Protocol),
+		ServiceProtocol: InitServiceProtocol(req.Protocol),
 	}
 	peer.SetAddress(req.Addr)
 
 	err = p.RegisterSNetPeerInDB(peer)
 	if err != nil {
-		ir.ApiOutput(nil, snettypes.CODE_502, err.Error())
+		ir.ApiOutput(nil, CODE_502, err.Error())
 		return
 	}
 
-	ir.ApiOutput(nil, snettypes.CODE_OK, "")
+	ir.ApiOutput(nil, CODE_OK, "")
 }
 
-func (p *NetDriverWebServer) RegisterSNetPeerInDB(peer snettypes.Peer) error {
+func (p *NetDriverWebServer) RegisterSNetPeerInDB(peer Peer) error {
 	var err error
 	err = p.netDriver.RegisterPeer(peer)
 	if err != nil {

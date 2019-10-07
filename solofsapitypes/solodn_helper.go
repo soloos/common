@@ -1,10 +1,10 @@
 package solofsapitypes
 
-import "soloos/common/snettypes"
+import "soloos/common/snet"
 
 // Solodn
-type GetSolodn func(peerID snettypes.PeerID) (snettypes.Peer, error)
-type ChooseSolodnsForNewNetBlock func(uNetINode NetINodeUintptr) (snettypes.PeerGroup, error)
+type GetSolodn func(peerID snet.PeerID) (snet.Peer, error)
+type ChooseSolodnsForNewNetBlock func(uNetINode NetINodeUintptr) (snet.PeerGroup, error)
 type PReadMemBlockWithDisk func(uNetINode NetINodeUintptr,
 	uNetBlock NetBlockUintptr, netBlockIndex int32,
 	uMemBlock MemBlockUintptr, memBlockIndex int32,

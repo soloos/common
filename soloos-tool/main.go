@@ -2,7 +2,6 @@ package main
 
 import (
 	"soloos/common/snet"
-	"soloos/common/snet/types"
 	"soloos/common/util"
 	"soloos/solodb/offheap"
 )
@@ -33,13 +32,14 @@ func (p *Tool) Init() error {
 
 func (p *Tool) Test() error {
 	var (
-		uPeer snettypes.PeerUintptr
-		req   snettypes.SNetReq
-		resp  snettypes.SNetResp
-		err   error
+		uPeer    snet.PeerUintptr
+		snetReq  snet.SNetReq
+		snetResp snet.SNetResp
+		err      error
 	)
-	uPeer = p.SNetDriver.AllocPeer("127.0.0.1:1339", snettypes.ProtocolSrpc)
-	err = p.SNetClientDriver.Call(uPeer, "/Test", &req, &resp)
+	uPeer = p.SNetDriver.AllocPeer("127.0.0.1:1339", snet.ProtocolSrpc)
+	snetReq.Param = snet.MustSpecMarshalRequest("msg0")
+	err = p.SNetClientDriver.Call(uPeer, "/Test", &snetReq, &snetResp)
 	if err != nil {
 		return err
 	}

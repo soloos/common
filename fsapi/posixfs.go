@@ -2,7 +2,7 @@ package fsapi
 
 import (
 	. "soloos/common/fsapitypes"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 )
 
@@ -127,7 +127,7 @@ type PosixFs interface {
 	GetNetINode(netINodeID solofsapitypes.NetINodeID) (solofsapitypes.NetINodeUintptr, error)
 	ReleaseNetINode(uNetINode solofsapitypes.NetINodeUintptr)
 	NetINodePWriteWithNetQuery(uNetINode solofsapitypes.NetINodeUintptr,
-		netQuery *snettypes.NetQuery, dataLength int, offset uint64) error
+		netQuery *snet.NetQuery, dataLength int, offset uint64) error
 	NetINodePWriteWithMem(uNetINode solofsapitypes.NetINodeUintptr,
 		data []byte, offset uint64) error
 

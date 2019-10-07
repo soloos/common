@@ -1,17 +1,17 @@
 package solofsapi
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/soloosbase"
 )
 
 type SolonnClient struct {
 	*soloosbase.SoloosEnv
-	solonnPeerID snettypes.PeerID
+	solonnPeerID snet.PeerID
 }
 
 func (p *SolonnClient) Init(soloosEnv *soloosbase.SoloosEnv,
-	solonnPeerID snettypes.PeerID) error {
+	solonnPeerID snet.PeerID) error {
 	p.SoloosEnv = soloosEnv
 	p.solonnPeerID = solonnPeerID
 	return nil

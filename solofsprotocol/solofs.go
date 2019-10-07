@@ -2,7 +2,7 @@ package solofsprotocol
 
 import (
 	"encoding/gob"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 )
 
@@ -40,13 +40,13 @@ type NetINodeInfoReq struct {
 }
 
 type NetINodeInfoResp struct {
-	snettypes.RespDataCommon
+	snet.RespDataCommon
 	Size        uint64
 	NetBlockCap int32
 	MemBlockCap int32
 }
 
-var _ = snettypes.IRespData(&NetINodeInfoResp{})
+var _ = snet.IRespData(&NetINodeInfoResp{})
 
 type NetINodeNetBlockInfoReq struct {
 	NetINodeID    solofsapitypes.NetINodeID
@@ -55,13 +55,13 @@ type NetINodeNetBlockInfoReq struct {
 }
 
 type NetINodeNetBlockInfoResp struct {
-	snettypes.RespDataCommon
+	snet.RespDataCommon
 	Len      int32
 	Cap      int32
 	Backends []string
 }
 
-var _ = snettypes.IRespData(&NetINodeNetBlockInfoResp{})
+var _ = snet.IRespData(&NetINodeNetBlockInfoResp{})
 
 type NetINodePWriteReq struct {
 	NetINodeID       solofsapitypes.NetINodeID
@@ -81,8 +81,8 @@ type NetINodePReadReq struct {
 }
 
 type NetINodePReadResp struct {
-	snettypes.RespDataCommon
+	snet.RespDataCommon
 	Length int32
 }
 
-var _ = snettypes.IRespData(&NetINodePReadResp{})
+var _ = snet.IRespData(&NetINodePReadResp{})

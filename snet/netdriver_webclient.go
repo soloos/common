@@ -2,7 +2,6 @@ package snet
 
 import (
 	"soloos/common/iron"
-	"soloos/common/snettypes"
 	"soloos/common/xerrors"
 )
 
@@ -30,9 +29,9 @@ func (p *NetDriverWebClient) Init(netDriver *NetDriver, webServerAddr string) er
 	return nil
 }
 
-func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, error) {
+func (p *NetDriverWebClient) GetPeer(peerID PeerID) (Peer, error) {
 	var (
-		ret     snettypes.Peer
+		ret     Peer
 		urlPath = p.webServerAddr + "/Peer/Get?PeerID=" + peerID.Str()
 		resp    GetPeerResp
 		err     error
@@ -48,11 +47,11 @@ func (p *NetDriverWebClient) GetPeer(peerID snettypes.PeerID) (snettypes.Peer, e
 		return ret, xerrors.New(resp.Error)
 	}
 
-	ret = snettypes.PeerJSONToPeer(resp.Data)
+	ret = PeerJSONToPeer(resp.Data)
 	return ret, nil
 }
 
-func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, protocol snettypes.ServiceProtocol) error {
+func (p *NetDriverWebClient) RegisterPeer(peerID PeerID, addr string, protocol ServiceProtocol) error {
 	var (
 		urlPath = p.webServerAddr + "/Peer/Register"
 		resp    RegisterPeerResp
@@ -60,7 +59,7 @@ func (p *NetDriverWebClient) RegisterPeer(peerID snettypes.PeerID, addr string, 
 	)
 
 	switch protocol {
-	case snettypes.ProtocolLocalFs:
+	case ProtocolLocalFs:
 		return nil
 	default:
 	}

@@ -1,21 +1,17 @@
 package snet
 
-import (
-	"soloos/common/snettypes"
-)
-
-func (p *SrpcClient) WaitResponse(req *snettypes.SNetReq, resp *snettypes.SNetResp) error {
+func (p *SrpcClient) WaitResponse(req *SNetReq, resp *SNetResp) error {
 	return p.doWaitResponse(req, resp)
 }
 
-func (p *SrpcClient) ReadResponse(resp *snettypes.SNetResp, respBody []byte) error {
+func (p *SrpcClient) ReadResponse(resp *SNetResp, respBody []byte) error {
 	return resp.NetQuery.ReadAll(respBody)
 }
 
 func (p *SrpcClient) cronReadResponse() error {
 	var (
-		netQuery   snettypes.NetQuery
-		respHeader snettypes.SNetRespHeader
+		netQuery   NetQuery
+		respHeader SNetRespHeader
 		err        error
 	)
 	netQuery.Init(&p.doingNetQueryConn)

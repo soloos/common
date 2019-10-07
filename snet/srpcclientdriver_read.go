@@ -2,11 +2,10 @@ package snet
 
 import (
 	"soloos/common/iron"
-	"soloos/common/snettypes"
 )
 
-func (p *SrpcClientDriver) ReadResponse(peerID snettypes.PeerID,
-	snetReq *snettypes.SNetReq, snetResp *snettypes.SNetResp,
+func (p *SrpcClientDriver) ReadResponse(peerID PeerID,
+	snetReq *SNetReq, snetResp *SNetResp,
 	respBody []byte,
 	ret interface{},
 ) error {
@@ -25,8 +24,8 @@ func (p *SrpcClientDriver) ReadResponse(peerID snettypes.PeerID,
 	return err
 }
 
-func (p *SrpcClientDriver) ReadRawResponse(peerID snettypes.PeerID,
-	snetReq *snettypes.SNetReq, snetResp *snettypes.SNetResp,
+func (p *SrpcClientDriver) ReadRawResponse(peerID PeerID,
+	snetReq *SNetReq, snetResp *SNetResp,
 	respBody []byte,
 ) error {
 	var (

@@ -1,7 +1,7 @@
 package solofsapitypes
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"unsafe"
 )
 
@@ -19,5 +19,5 @@ const (
 )
 
 var (
-	DefaultSolofsRPCProtocol = snettypes.ProtocolSolofs
+	DefaultSolofsRPCProtocol = snet.ProtocolSolofs
 )

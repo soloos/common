@@ -2,7 +2,7 @@ package solomqapi
 
 import (
 	"soloos/common/log"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solomqapitypes"
 	"soloos/common/solomqprotocol"
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (p *SolomqClient) PrepareTopicMetaData(peerID snettypes.PeerID,
+func (p *SolomqClient) PrepareTopicMetaData(peerID snet.PeerID,
 	uTopic solomqapitypes.TopicUintptr,
 	fsINodeID solofsapitypes.FsINodeID,
 ) error {
@@ -43,7 +43,7 @@ func (p *SolomqClient) PrepareTopicMetaData(peerID snettypes.PeerID,
 	return nil
 }
 
-func (p *SolomqClient) PrepareTopicNetBlockMetaData(peerID snettypes.PeerID,
+func (p *SolomqClient) PrepareTopicNetBlockMetaData(peerID snet.PeerID,
 	uTopic solomqapitypes.TopicUintptr,
 	uNetBlock solofsapitypes.NetBlockUintptr,
 	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
@@ -54,15 +54,15 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqapitypes.TopicUintp
 	uJob solofsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int) error {
 	var (
-		snetReq            snettypes.SNetReq
-		snetResp           snettypes.SNetResp
+		snetReq            snet.SNetReq
+		snetResp           snet.SNetResp
 		req                solomqprotocol.TopicPWriteReq
 		transferPeersCount int
 		memBlockCap        int
 		uploadChunkMask    offheap.ChunkMask
 		respParamBs        []byte
 		i                  int
-		backendPeer        snettypes.Peer
+		backendPeer        snet.Peer
 		err                error
 	)
 
@@ -93,8 +93,9 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqapitypes.TopicUintp
 			goto QUERY_DONE
 		}
 
+		snetReq.Param = snet.MustSpecMarshalRequest(req)
 		err = p.SNetClientDriver.Call(backendPeer.ID,
-			"/Topic/PWrite", &snetReq, &snetResp, req)
+			"/Topic/PWrite", &snetReq, &snetResp)
 		if err != nil {
 			goto QUERY_DONE
 		}

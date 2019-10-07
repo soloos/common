@@ -1,9 +1,9 @@
 package solomqapitypes
 
-import "soloos/common/snettypes"
+import "soloos/common/snet"
 
 type SolomqMemberGroup struct {
-	Arr [snettypes.SNetMemberCommonLimit]SolomqMember
+	Arr [snet.SNetMemberCommonLimit]SolomqMember
 	Len int
 }
 

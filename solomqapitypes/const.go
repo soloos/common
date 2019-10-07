@@ -1,7 +1,7 @@
 package solomqapitypes
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 )
 
 const (
@@ -9,5 +9,5 @@ const (
 )
 
 var (
-	DefaultSolomqRPCProtocol = snettypes.ProtocolSolomq
+	DefaultSolomqRPCProtocol = snet.ProtocolSolomq
 )

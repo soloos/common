@@ -1,4 +1,4 @@
-package snettypes
+package snet
 
 type PeerGroup struct {
 	Arr [SNetMemberCommonLimit]PeerID

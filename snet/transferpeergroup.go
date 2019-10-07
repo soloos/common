@@ -1,4 +1,4 @@
-package snettypes
+package snet
 
 type TransferPeer struct {
 	PeerID        PeerID

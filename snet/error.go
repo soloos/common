@@ -1,4 +1,4 @@
-package snettypes
+package snet
 
 import "soloos/common/xerrors"
 
