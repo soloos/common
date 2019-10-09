@@ -1,32 +1,7 @@
 package snet
 
-import (
-	"soloos/common/iron"
-)
-
 func (p *SrpcClientDriver) ReadResponse(peerID PeerID,
-	snetReq *SNetReq, snetResp *SNetResp,
-	respBody []byte,
-	ret interface{},
-) error {
-	var err error
-
-	err = p.ReadRawResponse(peerID, snetReq, snetResp, respBody)
-	if err != nil {
-		return err
-	}
-
-	err = iron.SpecUnmarshalResponse(respBody, ret)
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
-func (p *SrpcClientDriver) ReadRawResponse(peerID PeerID,
-	snetReq *SNetReq, snetResp *SNetResp,
-	respBody []byte,
+	snetReq *SNetReq, snetResp *SNetResp, respBody []byte,
 ) error {
 	var (
 		client *SrpcClient
@@ -38,7 +13,29 @@ func (p *SrpcClientDriver) ReadRawResponse(peerID PeerID,
 		return err
 	}
 
-	err = client.ReadResponse(snetResp, respBody)
+	err = client.ReadResponse(snetReq, snetResp, respBody)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (p *SrpcClientDriver) SimpleReadResponse(peerID PeerID,
+	snetReq *SNetReq, snetResp *SNetResp, resp IResponse,
+	// snetReq *SNetReq, snetResp *SNetResp, resp *Response,
+) error {
+	var (
+		client *SrpcClient
+		err    error
+	)
+
+	client, err = p.getClient(peerID)
+	if err != nil {
+		return err
+	}
+
+	err = client.SimpleReadResponse(snetReq, snetResp, resp)
 	if err != nil {
 		return err
 	}

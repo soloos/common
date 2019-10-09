@@ -1,11 +1,16 @@
 package snet
 
-func (p *SrpcClient) WaitResponse(req *SNetReq, resp *SNetResp) error {
-	return p.doWaitResponse(req, resp)
+func (p *SrpcClient) WaitResponse(snetReq *SNetReq, snetResp *SNetResp) error {
+	return p.doWaitResponse(snetReq, snetResp)
 }
 
-func (p *SrpcClient) ReadResponse(resp *SNetResp, respBody []byte) error {
-	return resp.NetQuery.ReadAll(respBody)
+func (p *SrpcClient) ReadResponse(snetReq *SNetReq, snetResp *SNetResp, respBody []byte) error {
+	return snetResp.ReadAll(respBody)
+}
+
+func (p *SrpcClient) SimpleReadResponse(snetReq *SNetReq, snetResp *SNetResp, resp IResponse) error {
+	// func (p *SrpcClient) SimpleReadResponse(snetReq *SNetReq, snetResp *SNetResp, resp *Response) error {
+	return p.doingNetQueryConn.SimpleUnmarshalResponse(snetResp, resp)
 }
 
 func (p *SrpcClient) cronReadResponse() error {

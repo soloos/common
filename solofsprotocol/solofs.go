@@ -40,13 +40,11 @@ type NetINodeInfoReq struct {
 }
 
 type NetINodeInfoResp struct {
-	snet.RespDataCommon
+	snet.RespCommon
 	Size        uint64
 	NetBlockCap int32
 	MemBlockCap int32
 }
-
-var _ = snet.IRespData(&NetINodeInfoResp{})
 
 type NetINodeNetBlockInfoReq struct {
 	NetINodeID    solofstypes.NetINodeID
@@ -55,13 +53,11 @@ type NetINodeNetBlockInfoReq struct {
 }
 
 type NetINodeNetBlockInfoResp struct {
-	snet.RespDataCommon
+	snet.RespCommon
 	Len      int32
 	Cap      int32
 	Backends []string
 }
-
-var _ = snet.IRespData(&NetINodeNetBlockInfoResp{})
 
 type NetINodePWriteReq struct {
 	NetINodeID       solofstypes.NetINodeID
@@ -81,8 +77,6 @@ type NetINodePReadReq struct {
 }
 
 type NetINodePReadResp struct {
-	snet.RespDataCommon
+	snet.RespCommon
 	Length int32
 }
-
-var _ = snet.IRespData(&NetINodePReadResp{})

@@ -1,0 +1,7 @@
+go test .//go-fuse/fuse
+ok  	soloos/common/go-fuse/fuse	(cached)
+go test .//go-fuse/splice
+ok  	soloos/common/go-fuse/splice	(cached)
+go test .//iron
+make/test:9: recipe for target 'test-iron' failed
+make: *** [test-iron] Interrupt

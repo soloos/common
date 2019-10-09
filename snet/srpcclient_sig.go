@@ -34,15 +34,15 @@ func (p *SrpcClient) activiateRequestSig(netQuery *NetQuery) error {
 	return nil
 }
 
-func (p *SrpcClient) doWaitResponse(req *SNetReq, resp *SNetResp) error {
+func (p *SrpcClient) doWaitResponse(snetReq *SNetReq, snetResp *SNetResp) error {
 	// wait cronReadResponse fetch data
-	resp.NetConnReadSig.Ptr().Lock()
-	resp.NetConnReadSig.Ptr().Unlock()
+	snetResp.NetConnReadSig.Ptr().Lock()
+	snetResp.NetConnReadSig.Ptr().Unlock()
 
-	p.clientDriver.netConnReadSigPool.ReleaseRawObject(uintptr(resp.NetConnReadSig))
-	resp.NetConnReadSig = 0
+	p.clientDriver.netConnReadSigPool.ReleaseRawObject(uintptr(snetResp.NetConnReadSig))
+	snetResp.NetConnReadSig = 0
 
-	resp.NetQuery = <-p.doingNetQueryChan
+	snetResp.NetQuery = <-p.doingNetQueryChan
 
 	return nil
 }

@@ -8,50 +8,62 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func (p *Proxy) DispatchWithIronRequest(path string, reqCtx RequestContext, ir *Request) IRespData {
+func (p *Proxy) DispatchWithIronRequest(path string, reqCtx RequestContext, req *Request) IResponse {
+	var (
+		resp Response
+		err  error
+	)
 	if !p.IsServiceExists(path) {
-		return MakeResp(nil, xerrors.Errorf("%w,path:%s", ErrCmdNotFound, path))
+		err = xerrors.Errorf("%w,path:%s", ErrCmdNotFound, path)
+		resp = Response{
+			RespCommon{CODE_ERR, err.Error()}, nil,
+		}
+		return resp
 	}
 
-	var reqArgBytes, err = ioutil.ReadAll(ir.R.Body)
+	var reqArgBytes []byte
+	reqArgBytes, err = ioutil.ReadAll(req.R.Body)
 	if err != nil {
-		return MakeResp(nil, err)
+		resp = Response{
+			RespCommon{CODE_ERR, err.Error()}, nil,
+		}
+		return resp
 	}
 
 	var service = p.ServiceTable[path]
 	var reqArgElems []interface{}
 
-	var parseEasyKvReqArgs = func() {
+	var parseEasyKvReqArgs = func() error {
 		var reqArgs = MakeEasyKvReqArgs()
 
 		//merge url params
-		reqArgs.MergeIronRequest(ir)
+		reqArgs.MergeIronRequest(req)
 
 		//merge body params
 		if len(reqArgBytes) != 0 {
 			var ret = make(map[string]interface{})
 			err = json.Unmarshal(reqArgBytes, &ret)
 			if err != nil {
-				return
+				return err
 			}
 			reqArgs.MergeKv(ret)
 		}
 
 		reqArgElems = append(reqArgElems, reqArgs)
+		return nil
 	}
 
-	var parseNormalReqArgs = func() {
+	var parseNormalReqArgs = func() error {
 		// parse QueryString
 		if service.IsHasUrlKvReqArgs {
 			var reqArgs = MakeUrlKvReqArgs()
-			reqArgs.MergeIronRequest(ir)
+			reqArgs.MergeIronRequest(req)
 			reqArgElems = append(reqArgElems, reqArgs)
 		}
 
 		// parse http body json
 		if len(reqArgBytes) == 0 {
-			err = ErrCmdParamEmpty
-			return
+			return nil
 		}
 
 		var reqArgValues []reflect.Value
@@ -70,23 +82,27 @@ func (p *Proxy) DispatchWithIronRequest(path string, reqCtx RequestContext, ir *
 		}
 
 		if err != nil {
-			return
+			return err
 		}
 
 		for i, _ := range reqArgValues {
 			reqArgElems = append(reqArgElems, reqArgValues[i].Elem())
 		}
-	}
-
-	if err != nil {
-		return MakeResp(nil, err)
+		return nil
 	}
 
 	// parse EasyKvReqArgs
 	if service.IsHasEasyKvReqArgs {
-		parseEasyKvReqArgs()
+		err = parseEasyKvReqArgs()
 	} else {
-		parseNormalReqArgs()
+		err = parseNormalReqArgs()
+	}
+
+	if err != nil {
+		resp = Response{
+			RespCommon{CODE_ERR, err.Error()}, nil,
+		}
+		return resp
 	}
 
 	return p.Dispatch(path, reqCtx, reqArgElems...)

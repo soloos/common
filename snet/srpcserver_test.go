@@ -68,7 +68,7 @@ func runSrpcServer() (string, error) {
 
 	srpcServer.RegisterService("/testoffheap", func(reqCtx *SNetReqContext) (string, error) {
 		util.AssertTrue(int(reqCtx.BodySize) == len(rpcMessageBytes))
-		return "fuck", nil
+		return "testoffheap done", nil
 	})
 
 	go func() {
@@ -116,9 +116,8 @@ func TestSrpcServer(t *testing.T) {
 			peer *Peer,
 			clientDriver *SrpcClientDriver) {
 			var (
-				req      [7]SNetReq
-				resp     [7]SNetResp
-				respBody []byte
+				req  [7]SNetReq
+				resp [7]SNetResp
 			)
 
 			data0 := MessageTest2{
@@ -126,61 +125,46 @@ func TestSrpcServer(t *testing.T) {
 				Data1: 322,
 			}
 
-			req[0].Param = MustSpecMarshalRequest(data0)
-			util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[0], &resp[0]))
-			respBody = make([]byte, resp[0].BodySize)
-			assertIsCmdNotFound(clientDriver.ReadResponse(peer.ID, &req[0], &resp[0], respBody, nil))
+			util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[0], &resp[0], data0))
+			assertIsCmdNotFound(clientDriver.SimpleReadResponse(peer.ID, &req[0], &resp[0], nil))
 
 			{
-				req[1].Param = MustSpecMarshalRequest(data0)
-				util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[1], &resp[1]))
+				util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[1], &resp[1], data0))
 
-				req[2].Param = MustSpecMarshalRequest(data0)
-				util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[2], &resp[2]))
+				util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[2], &resp[2], data0))
 
 				var wg sync.WaitGroup
 				wg.Add(1)
 				go func() {
-					var respBody []byte
 					util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[1], &resp[1]))
-					respBody = make([]byte, resp[1].BodySize)
-					assertIsCmdNotFound(clientDriver.ReadResponse(peer.ID, &req[1], &resp[1], respBody, nil))
+					assertIsCmdNotFound(clientDriver.SimpleReadResponse(peer.ID, &req[1], &resp[1], nil))
 
 					util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[2], &resp[2]))
-					respBody = make([]byte, resp[2].BodySize)
-					assertIsCmdNotFound(clientDriver.ReadResponse(peer.ID, &req[2], &resp[2], respBody, nil))
+					assertIsCmdNotFound(clientDriver.SimpleReadResponse(peer.ID, &req[2], &resp[2], nil))
 					wg.Done()
 				}()
 				wg.Wait()
 			}
 
-			req[3].Param = MustSpecMarshalRequest(data0)
-			util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[3], &resp[3]))
-			respBody = make([]byte, resp[3].BodySize)
-			assertIsCmdNotFound(clientDriver.ReadResponse(peer.ID, &req[3], &resp[3], respBody, nil))
+			util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[3], &resp[3], data0))
+			assertIsCmdNotFound(clientDriver.SimpleReadResponse(peer.ID, &req[3], &resp[3], nil))
 
-			req[4].Param = MustSpecMarshalRequest(rpcMessage)
-			util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/test", &req[4], &resp[4]))
+			util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/test", &req[4], &resp[4], rpcMessage))
 
 			util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[4], &resp[4]))
-			respBody = make([]byte, resp[4].BodySize)
 			var msg = Response{RespData: ""}
-			util.AssertErrIsNil(clientDriver.ReadResponse(peer.ID, &req[4], &resp[4], respBody, &msg))
+			util.AssertErrIsNil(clientDriver.SimpleReadResponse(peer.ID, &req[4], &resp[4], &msg))
 			assert.Equal(t, rpcMessage, msg.RespData)
 
 			util.AssertErrIsNil(clientDriver.SimpleCall(peer.ID, "/testmulti", &msg, "multi0", "multi1"))
 			assert.Equal(t, "multi0"+"multi1", msg.RespData)
 
-			req[5].Param = MustSpecMarshalRequest("test")
-			util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[5], &resp[5]))
+			util.AssertErrIsNil(clientDriver.AsyncCall(peer.ID, "/notexist", &req[5], &resp[5], "test"))
 			util.AssertErrIsNil(clientDriver.WaitResponse(peer.ID, &req[5], &resp[5]))
-			respBody = make([]byte, resp[5].BodySize)
-			assertIsCmdNotFound(clientDriver.ReadResponse(peer.ID, &req[5], &resp[5], respBody, nil))
+			assertIsCmdNotFound(clientDriver.SimpleReadResponse(peer.ID, &req[5], &resp[5], nil))
 
-			req[6].Param = MustSpecMarshalRequest("test")
-			util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[6], &resp[6]))
-			respBody = make([]byte, resp[6].BodySize)
-			assertIsCmdNotFound(clientDriver.ReadResponse(peer.ID, &req[6], &resp[6], respBody, nil))
+			util.AssertErrIsNil(clientDriver.Call(peer.ID, "/notexist", &req[6], &resp[6], "test"))
+			assertIsCmdNotFound(clientDriver.SimpleReadResponse(peer.ID, &req[6], &resp[6], nil))
 
 			serviceSig.Done()
 		}(t, &serviceSig, &peer, &clientDriver)
@@ -236,14 +220,14 @@ func BenchmarkSrpcServer(b *testing.B) {
 
 				// util.AssertErrIsNil(clientDriver.AsyncCall(peerID, "/test", &req, &resp))
 				// util.AssertErrIsNil(clientDriver.WaitResponse(peerID, &req, &resp))
-				// assertIsCmdNotFound(clientDriver.ReadResponse(peerID, &req, &resp, &resp))
+				// assertIsCmdNotFound(clientDriver.SimpleReadResponse(peerID, &req, &resp, &resp))
 
 				req.OffheapBody.OffheapBytes = uintptr(unsafe.Pointer(&rpcMessageBytes))
 				req.OffheapBody.CopyOffset = 0
 				req.OffheapBody.CopyEnd = len(rpcMessageBytes)
 				util.AssertErrIsNil(clientDriver.Call(peerID, "/testoffheap", &req, &resp))
 				util.ChangeBytesArraySize(&respBody, int(resp.BodySize))
-				util.AssertErrIsNil(clientDriver.ReadRawResponse(peerID, &req, &resp, respBody))
+				util.AssertErrIsNil(clientDriver.ReadResponse(peerID, &req, &resp, respBody))
 				util.AssertErrIsNil(resp.SkipReadRemaining())
 				util.Ignore(respBody)
 				util.Ignore(req)

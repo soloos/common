@@ -73,6 +73,6 @@ type SNetResp struct {
 	NetConnReadSig offheap.MutexUintptr
 }
 
-type IRespData = iron.IRespData
-type RespDataCommon = iron.RespDataCommon
 type Response = iron.Response
+type RespCommon = iron.RespCommon
+type IResponse = iron.IResponse

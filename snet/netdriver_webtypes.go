@@ -7,10 +7,10 @@ type RegisterPeerReq struct {
 }
 
 type RegisterPeerResp struct {
-	RespDataCommon
+	RespCommon
 }
 
 type GetPeerResp struct {
-	RespDataCommon
+	RespCommon
 	Data PeerJSON
 }

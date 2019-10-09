@@ -46,10 +46,10 @@ type ProxyServiceTestReq struct {
 	C string
 }
 
-func ProxyServiceTestLowReqArgs(reqCtx *RequestContext, req0 UrlKvReqArgs) (resp Response) {
+func ProxyServiceTestLowReqArgs(reqCtx *RequestContext, req0 UrlKvReqArgs) (string, error) {
 	AssertTrue(req0.MustFormFloat64("a", 0.0) == -123.45)
 	AssertTrue(req0.MustFormString("b", "error") == "test")
-	return MakeResp(fmt.Sprintf("%v", int(req0.MustFormFloat64("a", 0.0))), nil)
+	return fmt.Sprintf("%v", int(req0.MustFormFloat64("a", 0.0))), nil
 }
 
 func TestProxyLowReqArgs(t *testing.T) {
@@ -66,14 +66,14 @@ func TestProxyLowReqArgs(t *testing.T) {
 	assert.NoError(t, err)
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"Data":"-123","Error":"","Code":0}`, string(respBytes))
+	assert.Equal(t, `{"Code":0,"Error":"","Data":"-123"}`, string(respBytes))
 }
 
-func ProxyServiceTestMultiArg(reqCtx *RequestContext, req0 ProxyServiceTestReq, req1 int) (resp Response) {
+func ProxyServiceTestMultiArg(reqCtx *RequestContext, req0 ProxyServiceTestReq, req1 int) (ProxyServiceTestReq, error) {
 	req0.A = req0.A * req1
 	req0.B = req0.B * req1
 	req0.C = "response"
-	return MakeResp(req0, nil)
+	return req0, nil
 }
 
 func TestProxyMultiArg(t *testing.T) {
@@ -99,14 +99,14 @@ func TestProxyMultiArg(t *testing.T) {
 	assert.NoError(t, err)
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"Data":{"A":1230,"B":3210,"C":"response"},"Error":"","Code":0}`, string(respBytes))
+	assert.Equal(t, `{"Code":0,"Error":"","Data":{"A":1230,"B":3210,"C":"response"}}`, string(respBytes))
 }
 
-func ProxyServiceBase(reqCtx *RequestContext, req ProxyServiceTestReq) (resp Response) {
+func ProxyServiceBase(reqCtx *RequestContext, req ProxyServiceTestReq) (ProxyServiceTestReq, error) {
 	req.A = req.A * 100
 	req.B = req.B * 100
 	req.C = "response"
-	return MakeResp(req, nil)
+	return req, nil
 }
 
 func TestProxyBase(t *testing.T) {
@@ -130,16 +130,16 @@ func TestProxyBase(t *testing.T) {
 	assert.NoError(t, err)
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"Data":{"A":12300,"B":32100,"C":"response"},"Error":"","Code":0}`, string(respBytes))
+	assert.Equal(t, `{"Code":0,"Error":"","Data":{"A":12300,"B":32100,"C":"response"}}`, string(respBytes))
 }
 
 func ProxyServiceTestUrlKvReqArgs(reqCtx *RequestContext, req0 UrlKvReqArgs,
 	req1 ProxyServiceTestReq,
 	req2 int,
-) (resp Response) {
+) (string, error) {
 	AssertTrue(req0.MustFormFloat64("a", 0.0) == -123.45)
 	AssertTrue(req0.MustFormString("b", "error") == "test")
-	return MakeResp(fmt.Sprintf("%v%v", int(req0.MustFormFloat64("a", 0.0))+req1.A, req1.C), nil)
+	return fmt.Sprintf("%v%v", int(req0.MustFormFloat64("a", 0.0))+req1.A, req1.C), nil
 }
 
 func TestProxyUrlKvReqArgs(t *testing.T) {
@@ -165,17 +165,17 @@ func TestProxyUrlKvReqArgs(t *testing.T) {
 	assert.NoError(t, err)
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"Data":"-113helloworld","Error":"","Code":0}`, string(respBytes))
+	assert.Equal(t, `{"Code":0,"Error":"","Data":"-113helloworld"}`, string(respBytes))
 }
 
-func ProxyServiceTestEasyKvReqArgs(reqCtx *RequestContext, req0 EasyKvReqArgs) (resp Response) {
+func ProxyServiceTestEasyKvReqArgs(reqCtx *RequestContext, req0 EasyKvReqArgs) (string, error) {
 	var a = req0.MustFormFloat64("A", 0.0)
 	var b = req0.MustFormFloat64("B", 0.0)
 	var c = req0.MustFormString("C", "helloworld")
 	AssertTrue(a == 10.0)
 	AssertTrue(b == 10.0)
 	AssertTrue(c == "test")
-	return MakeResp(fmt.Sprintf("%v%v%v", a, b, c), nil)
+	return fmt.Sprintf("%v%v%v", a, b, c), nil
 }
 
 func TestProxyEasyKvReqArgs(t *testing.T) {
@@ -198,5 +198,5 @@ func TestProxyEasyKvReqArgs(t *testing.T) {
 	assert.NoError(t, err)
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"Data":"1010test","Error":"","Code":0}`, string(respBytes))
+	assert.Equal(t, `{"Code":0,"Error":"","Data":"1010test"}`, string(respBytes))
 }

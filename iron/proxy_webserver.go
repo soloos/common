@@ -1,8 +1,6 @@
 package iron
 
-import (
-	"soloos/common/util"
-)
+import "encoding/json"
 
 func (p *Proxy) InitStandAloneWebServer(prefix string, options Options) error {
 	var err error
@@ -30,18 +28,7 @@ func (p *Proxy) StandAloneWebServerServe() error {
 func (p *Proxy) WebServe(ir *Request) {
 	var path = ir.R.URL.Path[len(p.WebRouterPrefix):]
 	var reqCtx RequestContext
-	var irespData = p.DispatchWithIronRequest(path, &reqCtx, ir)
-	var err = util.NewError(irespData.GetError())
-	if err != nil {
-		ir.ApiOutput(nil, CODE_ERR, err.Error())
-		return
-	}
-
-	var resp, match = irespData.(Response)
-	if match {
-		ir.ApiOutput(resp.RespData, CODE_OK, "")
-		return
-	}
-
-	ir.ApiOutput(irespData, CODE_OK, "")
+	var resp = p.DispatchWithIronRequest(path, &reqCtx, ir)
+	res, _ := json.Marshal(resp)
+	ir.W.Write(res)
 }

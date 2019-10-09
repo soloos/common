@@ -74,7 +74,7 @@ func (p *SrpcServer) serveConn(netConn net.Conn) {
 		err              error
 	)
 
-	conn.SetNetConn(netConn)
+	conn.prepare(netConn)
 
 	for {
 		var reqCtx SNetReqContext
@@ -124,7 +124,11 @@ func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
 			return
 		}
 
-		err = reqCtx.SimpleResponse(reqCtx.ReqID, iron.MustSpecMarshalResponseErr(nil, iron.ErrCmdNotFound))
+		err = reqCtx.SimpleResponse(reqCtx.ReqID,
+			&Response{
+				RespCommon{Error: iron.ErrCmdNotFound.Error()}, nil,
+			},
+		)
 		if err != nil {
 			closeConnErrChan <- err
 			return
@@ -135,22 +139,14 @@ func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
 	}
 	closeConnErrChan <- nil
 
-	var resp IRespData
-
 	var reqArgElems []interface{}
 	var reqArgSize uint32 = reqCtx.ParamSize
 	if reqArgSize > 0 {
 		var service = p.ServiceTable[path]
-		var reqArgBytes = make([]byte, reqArgSize)
-
-		err = reqCtx.ReadAll(reqArgBytes)
-		if err != nil {
-			goto PARSE_ARGS_DONE
-		}
 
 		if len(service.Params) == 1 {
 			var reqArgValue = reflect.New(service.Params[0]).Interface()
-			err = iron.SpecUnmarshalRequest(reqArgBytes, reqArgValue)
+			err = reqCtx.Conn.SimpleUnmarshalRequest(&reqCtx, reqArgValue)
 			if err != nil {
 				goto PARSE_ARGS_DONE
 			}
@@ -161,7 +157,7 @@ func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
 			for i, _ := range service.Params {
 				reqArgValues = append(reqArgValues, reflect.New(service.Params[i]).Interface())
 			}
-			err = iron.SpecUnmarshalRequest(reqArgBytes, &reqArgValues)
+			err = reqCtx.Conn.SimpleUnmarshalRequest(&reqCtx, &reqArgValues)
 			if err != nil {
 				goto PARSE_ARGS_DONE
 			}
@@ -173,11 +169,11 @@ func (p *SrpcServer) serveService(closeConnErrChan chan<- error,
 	PARSE_ARGS_DONE:
 	}
 
-	resp = p.Proxy.Dispatch(path, &reqCtx, reqArgElems...)
+	var resp = p.Proxy.Dispatch(path, &reqCtx, reqArgElems...)
 	reqCtx.SkipReadRemaining()
 
 	if !reqCtx.IsResponseInService {
-		err = reqCtx.SimpleResponse(reqCtx.ReqID, iron.MustSpecMarshalResponse(resp))
+		err = reqCtx.SimpleResponse(reqCtx.ReqID, resp)
 		if err != nil {
 			log.Debug("SrpcServer serveService SimpleRespons error, err:", err)
 		}

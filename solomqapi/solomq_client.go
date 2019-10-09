@@ -6,7 +6,6 @@ import (
 	"soloos/common/solomqprotocol"
 	"soloos/common/solomqtypes"
 	"soloos/common/soloosbase"
-	"soloos/common/util"
 	"soloos/solodb/offheap"
 )
 
@@ -20,9 +19,9 @@ func (p *SolomqClient) Init(soloosEnv *soloosbase.SoloosEnv) error {
 }
 
 func (p *SolomqClient) Dispatch(solodnPeerID snet.PeerID,
-	path string, ret interface{}, reqArgs ...interface{}) error {
+	path string, resp *snet.Response, reqArgs ...interface{}) error {
 	return p.SimpleCall(solodnPeerID,
-		path, ret, reqArgs...)
+		path, resp, reqArgs...)
 }
 
 func (p *SolomqClient) PrepareTopicNetBlockMetaData(peerID snet.PeerID,
@@ -42,7 +41,6 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqtypes.TopicUintptr,
 		transferPeersCount int
 		memBlockCap        int
 		uploadChunkMask    offheap.ChunkMask
-		respParamBs        []byte
 		i                  int
 		backendPeer        snet.Peer
 		err                error
@@ -52,6 +50,7 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqtypes.TopicUintptr,
 	var pMemBlock = pJob.UMemBlock.Ptr()
 	var pNetBlock = uJob.Ptr().UNetBlock.Ptr()
 	var pTopic = uTopic.Ptr()
+	var resp = snet.Response{RespData: ""}
 	uploadChunkMask = pJob.GetProcessingChunkMask()
 	transferPeersCount = int(pNetBlock.SyncDataBackends.Arr[uploadPeerIndex].TransferCount)
 
@@ -75,15 +74,13 @@ func (p *SolomqClient) UploadMemBlockWithSolomq(uTopic solomqtypes.TopicUintptr,
 			goto QUERY_DONE
 		}
 
-		snetReq.Param = snet.MustSpecMarshalRequest(req)
 		err = p.SrpcClientDriver.Call(backendPeer.ID,
-			"/Topic/PWrite", &snetReq, &snetResp)
+			"/Topic/PWrite", &snetReq, &snetResp, req)
 		if err != nil {
 			goto QUERY_DONE
 		}
 
-		util.ChangeBytesArraySize(&respParamBs, int(snetResp.ParamSize))
-		err = p.SrpcClientDriver.ReadResponse(backendPeer.ID, &snetReq, &snetResp, respParamBs, nil)
+		err = p.SrpcClientDriver.SimpleReadResponse(backendPeer.ID, &snetReq, &snetResp, &resp)
 		if err != nil {
 			goto QUERY_DONE
 		}

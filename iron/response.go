@@ -1,40 +1,38 @@
 package iron
 
-import "encoding/gob"
+import (
+	"encoding/gob"
 
-type ResponseJSON struct {
-	Data  interface{} `json:"Data"`
-	Error string      `json:"Error"`
-	Code  int         `json:"Code"`
-}
+	"golang.org/x/xerrors"
+)
 
-func MakeResp(data interface{}, err error) Response {
-	if err != nil {
-		return Response{data, RespDataCommon{err.Error()}}
-	}
-	return Response{data, RespDataCommon{""}}
-}
-
-type IRespData interface {
-	GetError() string
+type RespCommon struct {
+	Code  int    `json:"Code"`
+	Error string `json:"Error"`
 }
 
 type RespData = interface{}
 
 type Response struct {
-	RespData
-	RespDataCommon
+	RespCommon
+	RespData `json:"Data"`
 }
 
-type RespDataCommon struct {
-	Error string
-}
-
-func (p RespDataCommon) GetError() string {
+func (p RespCommon) GetErrorStr() string {
 	return p.Error
+}
+
+func (p RespCommon) GetError() error {
+	if p.Error == "" {
+		return nil
+	}
+	return xerrors.Errorf(p.Error)
+}
+
+type IResponse interface {
+	GetErrorStr() string
 }
 
 func init() {
 	gob.Register(Response{})
-	gob.Register(RespDataCommon{})
 }

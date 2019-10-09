@@ -12,8 +12,13 @@ type Connection struct {
 	writeMutex sync.Mutex
 }
 
-func (p *Connection) SetNetConn(netConn net.Conn) {
+func (p *Connection) prepare(netConn net.Conn) {
 	p.NetConn = netConn
+	p.prepareCodec()
+}
+
+func (p *Connection) release() {
+	p.releaseCodec()
 }
 
 func (p *Connection) Connect(address string) error {
@@ -25,15 +30,20 @@ func (p *Connection) Connect(address string) error {
 		}
 	}
 
-	p.NetConn, err = net.Dial("tcp", address)
+	var conn net.Conn
+	conn, err = net.Dial("tcp", address)
 	if err != nil {
 		return err
 	}
+
+	p.prepare(conn)
 
 	return nil
 }
 
 func (p *Connection) Close(closeResonErr error) error {
+	p.release()
+
 	if closeResonErr != nil {
 		log.Debug("connection close", closeResonErr, p.NetConn.RemoteAddr())
 	}
