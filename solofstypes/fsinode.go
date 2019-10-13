@@ -6,17 +6,17 @@ import (
 	"unsafe"
 )
 
-type FsINodeID = uint64
+type FsINodeIno = uint64
 type DirTreeTime = uint64
 type DirTreeTimeNsec = uint32
 
 const (
 	MaxUint64             = ^uint64(0)
-	ZombieFsINodeParentID = FsINodeID(0)
-	RootFsINodeParentID   = FsINodeID(0)
-	RootFsINodeID         = FsINodeID(1)
+	ZombieFsINodeParentID = FsINodeIno(0)
+	RootFsINodeParentID   = FsINodeIno(0)
+	RootFsINodeIno         = FsINodeIno(1)
 	FsINodeStructSize     = unsafe.Sizeof(FsINode{})
-	MaxFsINodeID          = MaxUint64
+	MaxFsINodeIno          = MaxUint64
 )
 
 type FsINodeUintptr uintptr
@@ -28,10 +28,10 @@ type FsINodeMeta struct {
 	LoadInMemAt       int64
 
 	NameSpaceID  NameSpaceID
-	Ino          FsINodeID
-	HardLinkIno  FsINodeID
+	Ino          FsINodeIno
+	HardLinkIno  FsINodeIno
 	NetINodeID   NetINodeID
-	ParentID     FsINodeID
+	ParentID     FsINodeIno
 	NameBytesLen int
 	NameBytes    [MaxFsINodeNameLen]byte
 	Type         int

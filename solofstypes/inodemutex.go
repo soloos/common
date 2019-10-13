@@ -11,7 +11,7 @@ const (
 	INodeRWMutexStructSize = unsafe.Sizeof(INodeRWMutex{})
 )
 
-type INodeRWMutexID = FsINodeID
+type INodeRWMutexID = FsINodeIno
 type INodeRWMutexUintptr uintptr
 
 func (u INodeRWMutexUintptr) Ptr() *INodeRWMutex { return (*INodeRWMutex)(unsafe.Pointer(u)) }

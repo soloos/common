@@ -14,12 +14,12 @@ func init() {
 
 type TopicPrepareReq struct {
 	TopicID   int64
-	FsINodeID uint64
+	FsINodeIno uint64
 }
 
 type TopicPrepareNetBlockReq struct {
 	TopicID         int64
-	FsINodeID       uint64
+	FsINodeIno       uint64
 	IndexInNetINode int
 }
 

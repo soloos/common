@@ -3,7 +3,7 @@ package solofstypes
 type FsINodeFileHandlerID = uint64
 
 type FsINodeFileHandler struct {
-	FsINodeID      FsINodeID
+	FsINodeIno      FsINodeIno
 	AppendPosition uint64
 	ReadPosition   uint64
 }

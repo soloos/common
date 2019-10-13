@@ -54,7 +54,7 @@ func (p *File) Write(b []byte) (n int, err error) {
 			fd  = p.soloosPosixFs.FdTableGetFd(p.soloosFdID)
 			err error
 		)
-		err = p.soloosPosixFs.SimpleWriteWithMem(fd.FsINodeID, b, fd.AppendPosition)
+		err = p.soloosPosixFs.SimpleWriteWithMem(fd.FsINodeIno, b, fd.AppendPosition)
 		if err != nil {
 			log.Warn(err)
 			return 0, err
